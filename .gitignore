@@ -1,0 +1,38 @@
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Node Dependencies & Next.js Build
+node_modules/
+web/node_modules/
+.next/
+web/.next/
+out/
+build/
+dist/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+
+# Environment & Secrets
+.env
+.env*.local
+*.local
+
+# Large Datasets (>100MB GitHub limit)
+ml/dataset.csv
+*.csv
+
+# System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

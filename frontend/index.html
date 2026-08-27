@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Biomechanics & Motion Intelligence Tracker</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- MediaPipe Pose, Camera Utils, and Official Drawing Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="pulse-indicator"></div>
+        <div class="title-group">
+          <h1>KINETIC<span>.AI</span></h1>
+          <span class="subtitle">Edge Vision & Biomechanics Engine</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="selector-wrapper">
+          <label for="exerciseSelect">EXERCISE</label>
+          <select id="exerciseSelect" class="styled-select">
+            <option value="squat" selected>Squat (Knee Flexion & Valgus)</option>
+            <option value="pushup">Push-Up (Chest Depth & Core Line)</option>
+            <option value="bicep_curl">Bicep Curl (Elbow Range & Drift)</option>
+            <option value="lunge">Lunge (Lead Knee Flexion)</option>
+            <option value="shoulder_press">Overhead Press (Lockout & Symmetry)</option>
+            <option value="plank">Plank (Isometric Core Alignment)</option>
+          </select>
+        </div>
+
+        <div class="toggle-group">
+          <button id="toggleAudioBtn" class="btn-icon" title="Toggle Voice Coach" aria-label="Toggle Voice Coach">
+            <span class="icon">🔊</span>
+            <span class="btn-label">Voice Coach: ON</span>
+          </button>
+          <button id="resetSessionBtn" class="btn-secondary">Reset</button>
+          <button id="cameraToggleBtn" class="btn-primary">Start Camera</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <main class="workspace-grid">
+      <!-- Video Feed & Real-Time Canvas -->
+      <section class="viewport-section">
+        <div class="video-container" id="videoContainer">
+          <video id="inputVideo" class="input-video" playsinline muted></video>
+          <canvas id="outputCanvas" class="output-canvas"></canvas>
+
+          <!-- Top HUD Overlay -->
+          <div class="hud-top-bar">
+            <div class="hud-badge status-badge" id="hudStatusBadge">
+              <span class="status-dot"></span>
+              <span id="hudStatusText">STANDBY</span>
+            </div>
+            <div class="hud-badge ai-detected-badge" id="aiDetectedBadge">
+              <span>AI DETECTED:</span>
+              <strong id="aiDetectedText">--</strong>
+              <span class="conf-tag" id="aiConfidenceText">--%</span>
+            </div>
+            <div class="hud-badge phase-badge">
+              <span>PHASE:</span>
+              <strong id="hudPhaseText">IDLE</strong>
+            </div>
+            <div class="hud-badge fps-badge">
+              <span id="fpsCounter">0</span> FPS
+            </div>
+          </div>
+
+          <!-- Live Coaching Cue Banner -->
+          <div class="cue-banner" id="cueBanner">
+            <div class="cue-icon" id="cueIcon">💡</div>
+            <div class="cue-content">
+              <span class="cue-label">LIVE BIOMECHANICS CUE</span>
+              <p class="cue-text" id="cueText">Stand in camera frame to begin</p>
+            </div>
+          </div>
+
+          <!-- Bottom Metric Tickers Over Video -->
+          <div class="hud-bottom-bar">
+            <div class="telemetry-pill">
+              <span class="pill-label">PRIMARY JOINT</span>
+              <span class="pill-value" id="hudPrimaryAngle">--°</span>
+            </div>
+            <div class="telemetry-pill">
+              <span class="pill-label">DEPTH / ROM</span>
+              <div class="depth-bar-container">
+                <div class="depth-bar-fill" id="hudDepthBar"></div>
+              </div>
+              <span class="pill-sub" id="hudDepthText">0%</span>
+            </div>
+            <div class="telemetry-pill">
+              <span class="pill-label">FORM ACCURACY</span>
+              <span class="pill-value score-high" id="hudFormScore">100%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar Analytics & Telemetry Dashboard -->
+      <aside class="sidebar-section">
+        <!-- Big Rep Counter -->
+        <div class="card rep-counter-card">
+          <div class="rep-display">
+            <div class="rep-number" id="repCount">0</div>
+            <div class="rep-meta">
+              <span class="rep-label">TOTAL REPS</span>
+              <span class="valid-reps-tag" id="validRepsText">0 Clean</span>
+            </div>
+          </div>
+          
+          <div class="rep-progress-ring-container">
+            <svg class="progress-ring" width="90" height="90">
+              <circle class="ring-bg" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="transparent" r="36" cx="45" cy="45"/>
+              <circle id="repRingCircle" class="ring-fill" stroke="#00F2FE" stroke-width="8" stroke-dasharray="226.2" stroke-dashoffset="226.2" stroke-linecap="round" fill="transparent" r="36" cx="45" cy="45"/>
+            </svg>
+            <div class="ring-text" id="ringPercentage">0%</div>
+          </div>
+        </div>
+
+        <!-- Real-Time Kinematic Breakdown -->
+        <div class="card telemetry-card">
+          <h3>Biomechanical Telemetry</h3>
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span class="m-label">Joint Angle</span>
+              <span class="m-value" id="telemetryAngle">0.0°</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">Tempo Ratio</span>
+              <span class="m-value" id="telemetryTempo">-- : --</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">Last Rep Duration</span>
+              <span class="m-value" id="telemetryDuration">0.0s</span>
+            </div>
+            <div class="metric-box">
+              <span class="m-label">WebSocket Sync</span>
+              <span class="m-value ws-status" id="wsStatus">Connected</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repetition History Log -->
+        <div class="card history-card">
+          <div class="card-header">
+            <h3>Rep Velocity & History</h3>
+            <span class="badge" id="historyCount">0 Completed</span>
+          </div>
+          <div class="history-list" id="repHistoryList">
+            <div class="empty-state">Complete your first repetition to see kinematic metrics</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
