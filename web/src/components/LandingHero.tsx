@@ -8,26 +8,16 @@ import { Megaphone, CheckSquare } from 'lucide-react';
 
 export const LandingHero: React.FC = () => {
   const router = useRouter();
-  const [isHandsEmerging, setIsHandsEmerging] = useState(false);
   const [isContentRevealed, setIsContentRevealed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   useEffect(() => {
-    // 1. Trigger hands emergence immediately on mount
-    const handsTimer = setTimeout(() => {
-      setIsHandsEmerging(true);
-    }, 60);
-
-    // 2. Reveal text & UI smoothly when hands have reached halfway (800ms)
     const contentTimer = setTimeout(() => {
       setIsContentRevealed(true);
-    }, 850);
+    }, 120);
 
-    return () => {
-      clearTimeout(handsTimer);
-      clearTimeout(contentTimer);
-    };
+    return () => clearTimeout(contentTimer);
   }, []);
 
   const handleBeginExperience = (e: React.MouseEvent) => {
@@ -43,36 +33,10 @@ export const LandingHero: React.FC = () => {
   return (
     <section className="relative w-full h-screen max-h-screen flex flex-col justify-between overflow-hidden bg-[#080808] bg-noise text-white px-6 md:px-12 py-6 select-none font-mono">
       
-      {/* 1. TOP-LEFT STIPPLED POINTILLISM HAND */}
-      <div className="absolute top-0 left-0 w-[55vw] max-w-[650px] pointer-events-none z-10">
-        <img
-          src="/hand_top_left.png"
-          alt="Top Left Wireframe Hand"
-          className={`w-full h-auto object-contain transition-all duration-[1600ms] ease-out will-change-transform ${
-            isHandsEmerging && !isTransitioning
-              ? 'translate-x-0 translate-y-0 opacity-90 scale-100 blur-0'
-              : '-translate-x-32 -translate-y-32 opacity-0 scale-75 blur-sm'
-          } ${isTransitioning ? 'scale-110 opacity-0 blur-lg duration-500' : ''}`}
-        />
-      </div>
+      {/* Background Subtle Radial Glow */}
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/40 to-black/90 pointer-events-none z-0" />
 
-      {/* 2. BOTTOM-RIGHT STIPPLED POINTILLISM HAND */}
-      <div className="absolute bottom-0 right-0 w-[55vw] max-w-[650px] pointer-events-none z-10">
-        <img
-          src="/hand_bottom_right.png"
-          alt="Bottom Right Wireframe Hand"
-          className={`w-full h-auto object-contain transition-all duration-[1600ms] ease-out will-change-transform ${
-            isHandsEmerging && !isTransitioning
-              ? 'translate-x-0 translate-y-0 opacity-90 scale-100 blur-0'
-              : 'translate-x-32 translate-y-32 opacity-0 scale-75 blur-sm'
-          } ${isTransitioning ? 'scale-110 opacity-0 blur-lg duration-500' : ''}`}
-        />
-      </div>
-
-      {/* Background Radial Glow */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/80 pointer-events-none z-0" />
-
-      {/* 3. TOP NAVBAR (Reveals when hands reach halfway) */}
+      {/* 1. TOP NAVBAR */}
       <div
         className={`relative z-30 transition-all duration-700 ease-out ${
           isContentRevealed && !isTransitioning
@@ -83,7 +47,7 @@ export const LandingHero: React.FC = () => {
         <ZainabNavbar />
       </div>
 
-      {/* 4. HERO 2-COLUMN LAYOUT (Reveals smoothly halfway through hand emergence) */}
+      {/* 2. HERO 2-COLUMN LAYOUT */}
       <div
         className={`relative z-30 max-w-6xl mx-auto w-full my-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center transition-all duration-1000 ease-out ${
           isContentRevealed && !isTransitioning
@@ -159,7 +123,7 @@ export const LandingHero: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: PURE VECTOR PIXEL ART GRAPHIC (NO RASTER IMAGE) */}
+        {/* RIGHT COLUMN: PURE VECTOR PIXEL ART GRAPHIC (ZERO IMAGES) */}
         <div className="md:col-span-5 flex items-center justify-center">
           <div className="relative group cursor-pointer select-none" onClick={handleBeginExperience}>
             {/* Ambient Floating Pixel Sparkles */}
@@ -194,7 +158,7 @@ export const LandingHero: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. MINIMAL BOTTOM BAR & SOCIAL ROW (Reveals with content) */}
+      {/* 3. MINIMAL BOTTOM BAR & SOCIAL ROW */}
       <div
         className={`relative z-30 max-w-6xl mx-auto w-full flex items-center justify-between text-xs text-neutral-500 transition-all duration-700 ease-out ${
           isContentRevealed && !isTransitioning
@@ -212,7 +176,7 @@ export const LandingHero: React.FC = () => {
         </div>
       </div>
 
-      {/* 6. FLOATING ANNOUNCEMENT / COOKIE CAPSULE (Reveals with content) */}
+      {/* 4. FLOATING ANNOUNCEMENT / COOKIE CAPSULE */}
       {showAnnouncement && (
         <div
           className={`fixed bottom-6 left-6 z-50 flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300 transition-all duration-700 ease-out ${
