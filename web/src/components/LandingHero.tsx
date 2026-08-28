@@ -33,8 +33,26 @@ export const LandingHero: React.FC = () => {
   return (
     <section className="relative w-full h-screen max-h-screen flex flex-col justify-between overflow-hidden bg-[#080808] bg-noise text-white px-6 md:px-12 py-6 select-none font-mono">
       
+      {/* 0. CINEMATIC ONE PUNCH MAN BACKGROUND VIDEO */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={`w-full h-full object-cover scale-105 transition-all duration-700 ease-out ${
+            isTransitioning ? 'opacity-20 scale-110 blur-lg' : 'opacity-65 scale-105'
+          }`}
+        >
+          <source src="/hero_bg.mp4" type="video/mp4" />
+        </video>
+
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/70" />
+      </div>
+
       {/* Background Subtle Radial Glow */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/40 to-black/90 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/30 to-black/90 pointer-events-none z-0" />
 
       {/* 1. TOP NAVBAR */}
       <div
