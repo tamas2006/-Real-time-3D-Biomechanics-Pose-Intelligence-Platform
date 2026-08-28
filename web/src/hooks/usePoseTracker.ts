@@ -421,6 +421,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     // 2. High-Responsiveness Landmark Smoothing (Zero Latency)
     if (results.poseLandmarks) {
@@ -435,7 +436,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
             x: prev.x * (1 - alpha) + p.x * alpha,
             y: prev.y * (1 - alpha) + p.y * alpha,
             z: (prev.z || 0) * (1 - alpha) + (p.z || 0) * alpha,
-            visibility: p.visibility || 1.0
+            visibility: p.visibility !== undefined ? p.visibility : 1.0
           };
         });
       }
@@ -443,9 +444,13 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       const activeLandmarks = smoothedLandmarksRef.current;
       if (!activeLandmarks) return;
 
+      // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
+      const toScreenX = (x: number) => (1.0 - x) * canvas.width;
+      const toScreenY = (y: number) => y * canvas.height;
+
       // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
       ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -453,9 +458,9 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         const [i1, i2] = SKELETON_CONNECTIONS[i];
         const p1 = activeLandmarks[i1];
         const p2 = activeLandmarks[i2];
-        if (p1 && p2 && (p1.visibility || 1) > 0.35 && (p2.visibility || 1) > 0.35) {
-          ctx.moveTo(p1.x * canvas.width, p1.y * canvas.height);
-          ctx.lineTo(p2.x * canvas.width, p2.y * canvas.height);
+        if (p1 && p2 && (p1.visibility ?? 1) > 0.50 && (p2.visibility ?? 1) > 0.50) {
+          ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
+          ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
         }
       }
       ctx.stroke();
@@ -463,9 +468,9 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       // 4. Batch Native Draw Black Joint Nodes with White Ring
       for (let i = 11; i < activeLandmarks.length; i++) {
         const p = activeLandmarks[i];
-        if (p && (p.visibility || 1) > 0.35) {
-          const x = p.x * canvas.width;
-          const y = p.y * canvas.height;
+        if (p && (p.visibility ?? 1) > 0.50) {
+          const x = toScreenX(p.x);
+          const y = toScreenY(p.y);
           ctx.beginPath();
           ctx.arc(x, y, 5, 0, 2 * Math.PI);
           ctx.fillStyle = '#000000';
@@ -485,31 +490,28 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       }
 
       const targetJoint = activeLandmarks[targetJointIndex];
-      if (targetJoint && primaryAngle > 0 && (targetJoint.visibility || 1) > 0.35) {
-        const jx = targetJoint.x * canvas.width;
-        const jy = targetJoint.y * canvas.height;
+      if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 1) > 0.50) {
+        const jx = toScreenX(targetJoint.x);
+        const jy = toScreenY(targetJoint.y);
 
         ctx.save();
         ctx.translate(jx, jy);
-        ctx.scale(-1, 1); // Counter-flip text
 
         ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(-40, -34, 80, 26, 6);
+        ctx.roundRect(-38, -32, 76, 24, 6);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 13px monospace';
+        ctx.font = 'bold 12px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`${primaryAngle}°`, 0, -17);
+        ctx.fillText(`${primaryAngle}°`, 0, -16);
         ctx.restore();
       }
     }
-
-    ctx.restore();
   }, [exercise, primaryAngle, processKinematics]);
 
   // -----------------------------------------------------------
@@ -528,8 +530,8 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         smoothLandmarks: true,
         enableSegmentation: false,
         smoothSegmentation: false,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
+        minDetectionConfidence: 0.70, // Rejects background clutter & false detections
+        minTrackingConfidence: 0.70
       });
 
       pose.onResults(renderFrame);
