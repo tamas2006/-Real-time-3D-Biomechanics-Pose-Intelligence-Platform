@@ -193,57 +193,8 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           </button>
         </div>
 
-        {/* Minimalist Footer Directory & Newsletter matching screenshot */}
-        <div className="border-t border-white/[0.08] pt-8 grid grid-cols-2 md:grid-cols-5 gap-6 text-xs text-neutral-400">
-          {/* Column 1: PAGES */}
-          <div className="flex flex-col gap-2.5">
-            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Pages</span>
-            <a href="/" className="hover:text-white transition-colors">Home</a>
-            <a href="/studio" className="hover:text-white transition-colors">Studio</a>
-            <a href="/studio" className="hover:text-white transition-colors">Perks</a>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Docs</a>
-          </div>
-
-          {/* Column 2: TEAM */}
-          <div className="flex flex-col gap-2.5">
-            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Team</span>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Apply</a>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Engineers</a>
-          </div>
-
-          {/* Column 3: SOCIAL */}
-          <div className="flex flex-col gap-2.5">
-            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Social</span>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub Profile</a>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Community</a>
-          </div>
-
-          {/* Column 4 & 5: NEWSLETTER */}
-          <div className="col-span-2 flex flex-col gap-3">
-            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Newsletter</span>
-            <form onSubmit={handleSubscribe} className="flex items-center gap-2">
-              <input
-                type="email"
-                required
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="flex-1 bg-[#080808] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-neutral-500 outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer whitespace-nowrap"
-              >
-                {isSubscribed ? 'Subscribed ✓' : 'Subscribe'}
-              </button>
-            </form>
-            <p className="text-[10px] text-neutral-500 leading-normal">
-              Stay up to date with updates or when a new intelligence module drops.
-            </p>
-          </div>
-        </div>
-
       </div>
     </section>
   );
 };
+

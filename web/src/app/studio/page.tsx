@@ -142,15 +142,15 @@ export default function StudioPage() {
           warnings={warnings}
         />
 
-        {/* Minimal Copyright Footer matching screenshot */}
+        {/* Minimal Solo Builder Footer */}
         <footer className="pt-4 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 border-t border-white/[0.05]">
-          <span>© 2026 kinetic.online — All rights reserved.</span>
+          <span>© 2026 kinetic.online — Built by Tamas</span>
           <div className="flex items-center gap-4 text-neutral-400">
             <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
             <span>•</span>
-            <a href="/studio" className="hover:text-white transition-colors">Studio</a>
+            <a href="/" className="hover:text-white transition-colors">Home</a>
             <span>•</span>
-            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Privacy</a>
+            <a href="/studio" className="hover:text-white transition-colors">Studio</a>
           </div>
         </footer>
       </main>
