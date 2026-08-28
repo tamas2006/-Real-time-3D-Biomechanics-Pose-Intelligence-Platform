@@ -1,9 +1,8 @@
 """
-Real-Time Biomechanical NLP Mentorship Service powered by Groq High-Speed LLM Inference.
-Provides clinical-grade movement cues, form correction, and interactive conversational reasoning.
+Real-Time Universal Life & Biomechanical NLP Mentorship Service powered by Groq High-Speed LLM Inference.
+Provides holistic life guidance, mindset coaching, health optimization, and clinical biomechanics.
 """
 import os
-import random
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
@@ -20,7 +19,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
 class NLPMentorEngine:
     def __init__(self):
-        self.persona = "Olympic Biomechanics Head Coach & Sports Scientist"
+        self.persona = "Kinetic AI — Universal High-Performance & Life Mentor"
         self.client = None
         if GROQ_AVAILABLE and GROQ_API_KEY:
             try:
@@ -44,7 +43,6 @@ class NLPMentorEngine:
         """
         exercise_clean = exercise.replace("_", " ").title()
 
-        # If Groq client is active, generate ultra-dynamic high precision cue
         if self.client:
             try:
                 system_prompt = (
@@ -82,11 +80,10 @@ class NLPMentorEngine:
             except Exception as e:
                 print(f"[Groq Rep Coaching Error]: {e}")
 
-        # Fallback procedural coaching
+        # Fallback
         if warnings and len(warnings) > 0:
-            cue = f"Rep {rep_number}: {warnings[0]}. Focus on strict joint path and control."
             return {
-                "spoken_text": cue,
+                "spoken_text": f"Rep {rep_number}: {warnings[0]}. Focus on strict joint path and control.",
                 "short_cue": warnings[0],
                 "sentiment": "correction",
                 "score": form_score
@@ -108,7 +105,8 @@ class NLPMentorEngine:
         recent_warnings: List[str] = None
     ) -> Dict[str, Any]:
         """
-        Conversational reasoning engine powered by Groq LLM.
+        Universal life, mindset, and biomechanics conversational reasoning engine powered by Groq LLM.
+        Answers ANY question related to human life, philosophy, mindset, fitness, habits, science, and personal guidance.
         """
         exercise_clean = exercise.replace("_", " ").title()
         recent_warnings = recent_warnings or []
@@ -116,11 +114,11 @@ class NLPMentorEngine:
         if self.client:
             try:
                 system_prompt = (
-                    f"You are the world's top {self.persona}. The athlete is currently training {exercise_clean} "
-                    f"and has completed {rep_count} repetitions with an average form score of {avg_score}%. "
-                    f"Recent telemetry alerts: {', '.join(recent_warnings) if recent_warnings else 'Optimal form'}. "
-                    "Provide a clear, practical, sports-science backed answer in 2-3 sentences max. "
-                    "Always end with a single short, punchy vocal cue enclosed in brackets like: [Actionable Cue: Push knees over pinky toes]."
+                    "You are Kinetic AI, an extraordinarily wise, empathetic, and hyper-intelligent Life, Mindset & Performance Mentor. "
+                    "You possess deep multidisciplinary expertise in human life, psychology, personal philosophy, daily habits, mental toughness, career guidance, health, nutrition, and exercise biomechanics. "
+                    "Your core purpose is to guide and uplift humans in every aspect of life. "
+                    "Answer ANY question the user asks—whether about everyday life challenges, emotional resilience, relationship advice, productivity, purpose, philosophy, or workout mechanics—with warm, pragmatic, and profound clarity in 2-4 sentences. "
+                    "Never refuse a question by saying you are only for fitness; you are a holistic mentor for the entire human experience."
                 )
 
                 resp = self.client.chat.completions.create(
@@ -129,23 +127,13 @@ class NLPMentorEngine:
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": query}
                     ],
-                    max_tokens=250,
-                    temperature=0.7
+                    max_tokens=300,
+                    temperature=0.75
                 )
                 full_text = resp.choices[0].message.content.strip()
 
-                # Extract actionable cue if present
-                actionable_cue = None
-                if "[Actionable Cue:" in full_text:
-                    parts = full_text.split("[Actionable Cue:")
-                    clean_response = parts[0].strip()
-                    actionable_cue = parts[1].replace("]", "").strip()
-                else:
-                    clean_response = full_text
-
                 return {
-                    "response": clean_response,
-                    "actionable_cue": actionable_cue or "Maintain core stability throughout range of motion.",
+                    "response": full_text,
                     "exercise": exercise,
                     "model": "Groq (openai/gpt-oss-120b)"
                 }
@@ -154,10 +142,9 @@ class NLPMentorEngine:
 
         # Local fallback
         return {
-            "response": f"For {exercise_clean}, prioritize joint stack alignment and control the eccentric descent to maximize muscle tension.",
-            "actionable_cue": "Control the descent, drive explosively through mid-foot.",
+            "response": "Consistency in small daily actions compounds into extraordinary transformation. Focus on what is within your control today.",
             "exercise": exercise,
-            "model": "Local Biomechanics Rulebook"
+            "model": "Kinetic AI"
         }
 
 # Global Singleton Instance

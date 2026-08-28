@@ -66,7 +66,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
       } else {
         const errMsg: Message = {
           sender: 'coach',
-          text: 'Unable to reach Groq AI model at this moment. Please check connection.',
+          text: 'Unable to reach Kinetic AI model at this moment. Please check connection.',
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         setMessages((prev) => [...prev, errMsg]);
@@ -74,7 +74,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
     } catch (e) {
       const errMsg: Message = {
         sender: 'coach',
-        text: 'Network error connecting to Groq AI server.',
+        text: 'Network error connecting to Kinetic AI server.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errMsg]);
@@ -84,10 +84,11 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
   };
 
   const quickPrompts = [
-    'How do I fix knee cave-in?',
-    'What is optimal squat depth?',
-    'How should elbows be positioned in pushups?',
-    'Give me a cue to isolate biceps'
+    'How do I build unshakable discipline?',
+    'How to handle stress & mental burnout?',
+    'How do I optimize deep sleep & recovery?',
+    'How to stay consistent with life goals?',
+    'How do I fix knee cave-in on squats?'
   ];
 
   return (
@@ -97,10 +98,10 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <h3 className="text-2xl md:text-3xl font-sans font-bold text-white">
-              AI Coach Guidance
+              Kinetic AI Life & Performance Mentor
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Powered by Kinetic AI. Ask any questions about technique, joint mechanics, or form fixes.
+              Ask anything about life guidance, personal philosophy, mindset, habits, health, or workout mechanics.
             </p>
           </div>
 
@@ -119,11 +120,11 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
         </div>
 
         {/* Chat History */}
-        <div className="flex flex-col gap-3 min-h-[160px] max-h-[360px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 text-xs font-sans">
+        <div className="flex flex-col gap-3 min-h-[180px] max-h-[380px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 text-xs font-sans">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center my-auto text-slate-500 py-8 text-center">
-              <p className="text-sm font-sans font-medium text-slate-400">Ask your AI Coach anything</p>
-              <p className="text-xs text-slate-500 mt-1">Click a suggestion above or type your question below for instant responses.</p>
+              <p className="text-sm font-sans font-medium text-slate-400">Ask your Mentor anything about life or training</p>
+              <p className="text-xs text-slate-500 mt-1">Select a suggestion above or type your question below for instant guidance.</p>
             </div>
           ) : (
             messages.map((m, idx) => (
@@ -134,7 +135,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
                 }`}
               >
                 <div className="text-[10px] text-slate-400 font-mono">
-                  {m.sender === 'user' ? 'You' : 'Kinetic AI Coach'} • {m.time}
+                  {m.sender === 'user' ? 'You' : 'Kinetic AI Mentor'} • {m.time}
                 </div>
 
                 <div
@@ -166,7 +167,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Ask your coach anything about exercise form or technique..."
+            placeholder="Ask your mentor anything about life, mindset, discipline, health, or fitness..."
             className="flex-1 bg-transparent px-4 py-2 text-xs text-white placeholder-slate-500 outline-none font-sans"
           />
           <button
