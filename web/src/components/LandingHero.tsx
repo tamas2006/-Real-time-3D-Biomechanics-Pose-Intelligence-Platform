@@ -27,9 +27,9 @@ export const LandingHero: React.FC = () => {
       {/* 2. TOP NAVBAR */}
       <ZainabNavbar />
 
-      {/* 3. HERO HEADLINE & EXACT MATCH CTA BUTTON */}
+      {/* 3. HERO HEADLINE & ELECTRIC NEON CYAN GLOW BUTTON */}
       <div className="relative z-20 max-w-5xl mx-auto w-full my-auto text-center flex flex-col items-center">
-        <h1 className="text-5xl sm:text-7xl md:text-8xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-8 select-none drop-shadow-2xl">
+        <h1 className="text-5xl sm:text-7xl md:text-8xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-10 select-none drop-shadow-2xl">
           Trainer who <span className="text-white font-black">Coaches</span>
         </h1>
 
@@ -37,10 +37,14 @@ export const LandingHero: React.FC = () => {
           <Link
             href="/studio"
             onClick={() => sounds.playButtonClick()}
-            className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white/10 hover:bg-white text-white hover:text-black border border-white/30 hover:border-white text-xs font-mono font-bold uppercase tracking-[0.2em] backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:scale-105 active:scale-95 transition-all duration-300"
+            className="group neon-cyan-pill inline-flex items-center gap-3.5 px-9 py-4 rounded-full text-xs font-mono font-bold uppercase tracking-[0.22em] text-white backdrop-blur-2xl active:scale-95 transition-all duration-300"
           >
-            <span>BEGIN THE EXPERIENCE</span>
-            <span className="text-sm font-sans transition-transform group-hover:translate-x-1 duration-300">→</span>
+            <span className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]">
+              BEGIN THE EXPERIENCE
+            </span>
+            <span className="text-sm font-sans text-[#00E5FF] transition-transform group-hover:translate-x-1 duration-300 drop-shadow-[0_0_8px_#00E5FF]">
+              →
+            </span>
           </Link>
         </div>
       </div>
