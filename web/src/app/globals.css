@@ -4,9 +4,9 @@
   :root {
     --color-primary: #EDECE4;
     --color-accent: #00F5A0;
-    --color-bg-deep: #050505;
-    --color-bg-card: #0c0c0e;
-    --color-bg-feature: #16161a;
+    --color-bg-deep: #080808;
+    --color-bg-card: #0e0e0f;
+    --color-bg-feature: #141416;
     --font-display: var(--font-syne);
     --font-sans: var(--font-syne);
     --font-vogue: var(--font-vogue);
@@ -16,12 +16,12 @@
 }
 
 :root {
-  --background: #050505;
+  --background: #080808;
   --foreground: #EDECE4;
 }
 
 body {
-  background: #050505;
+  background: #080808;
   color: #EDECE4;
   overflow-x: hidden;
   font-family: var(--font-syne), system-ui, sans-serif;
@@ -47,30 +47,18 @@ body {
   font-family: var(--font-mono);
 }
 
-/* Custom Striped Sun Pattern */
-.sun-pattern {
-  background: repeating-linear-gradient(
-    45deg,
-    #FACC15,
-    #FACC15 14px,
-    transparent 14px,
-    transparent 28px
-  );
+/* ------------------------------------------------------------- */
+/* MINIMALIST MATTE NOISE TEXTURE OVERLAY */
+/* ------------------------------------------------------------- */
+.bg-noise {
+  background-color: #080808;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
 }
 
-/* Vinyl Disc Grooves */
-.vinyl-grooves {
-  background: radial-gradient(
-    circle,
-    #18181b 0%,
-    #27272a 18%,
-    #09090b 22%,
-    #27272a 40%,
-    #09090b 45%,
-    #27272a 65%,
-    #09090b 70%,
-    #18181b 100%
-  );
+.matte-card {
+  background: #0e0e0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
 }
 
 /* ------------------------------------------------------------- */
@@ -90,32 +78,25 @@ body {
 }
 
 /* ------------------------------------------------------------- */
-/* CLEAN SOLID EMERALD GREEN DOT (PORTFOLIO_V2 STYLE) */
-/* ------------------------------------------------------------- */
-.warm-glow-dot {
-  background-color: #00F5A0;
-}
-
-/* ------------------------------------------------------------- */
 /* PORTFOLIO_V2 LIQUID ACRYLIC PLASTIC GLASS */
 /* ------------------------------------------------------------- */
 .acrylic-glass {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .acrylic-glass-dark {
-  background: #0C0C0E;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  background: #0e0e0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
 }
 
 .glass-capsule {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }

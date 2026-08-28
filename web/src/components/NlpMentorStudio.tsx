@@ -26,6 +26,8 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const handleSendMessage = async (queryText?: string) => {
     const textToSend = queryText || inputText;
@@ -83,25 +85,37 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
     }
   };
 
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    sounds.playButtonClick();
+    setIsSubscribed(true);
+  };
+
   const quickPrompts = [
     'How do I build unshakable discipline?',
-    'How to handle stress & mental burnout?',
+    'How to handle stress & burnout?',
     'How do I optimize deep sleep & recovery?',
     'How to stay consistent with life goals?',
     'How do I fix knee cave-in on squats?'
   ];
 
   return (
-    <section className="py-12 px-6 md:px-12 max-w-7xl mx-auto w-full">
-      <div className="rounded-3xl bg-[#0B1120] border border-white/15 shadow-2xl p-6 md:p-8 flex flex-col gap-6 text-white">
+    <section className="py-8 max-w-6xl mx-auto w-full font-mono text-white">
+      {/* Elevated Matte Card Container */}
+      <div className="rounded-[28px] bg-[#0c0c0d] border border-white/[0.08] shadow-2xl p-6 md:p-10 flex flex-col gap-8">
+        
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
           <div>
-            <h3 className="text-2xl md:text-3xl font-sans font-bold text-white">
-              Kinetic AI Life & Performance Mentor
-            </h3>
-            <p className="text-xs text-slate-400 mt-1">
-              Ask anything about life guidance, personal philosophy, mindset, habits, health, or workout mechanics.
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-neutral-500 font-bold">//</span>
+              <h3 className="text-base font-bold tracking-tight text-white uppercase">
+                Kinetic AI Mentor
+              </h3>
+            </div>
+            <p className="text-xs text-neutral-400">
+              Multimodal intelligence for mindset, health optimization, and clinical biomechanics.
             </p>
           </div>
 
@@ -111,7 +125,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               <button
                 key={idx}
                 onClick={() => handleSendMessage(p)}
-                className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-xs font-sans text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-[#141416] hover:bg-neutral-800 border border-white/[0.08] text-[11px] text-neutral-300 hover:text-white transition-all active:scale-95 cursor-pointer"
               >
                 {p}
               </button>
@@ -119,12 +133,12 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           </div>
         </div>
 
-        {/* Chat History */}
-        <div className="flex flex-col gap-3 min-h-[180px] max-h-[380px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 text-xs font-sans">
+        {/* Chat Stream History */}
+        <div className="flex flex-col gap-3 min-h-[180px] max-h-[360px] overflow-y-auto p-4 rounded-xl bg-[#080808] border border-white/[0.06] text-xs">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center my-auto text-slate-500 py-8 text-center">
-              <p className="text-sm font-sans font-medium text-slate-400">Ask your Mentor anything about life or training</p>
-              <p className="text-xs text-slate-500 mt-1">Select a suggestion above or type your question below for instant guidance.</p>
+            <div className="flex flex-col items-center justify-center my-auto text-neutral-500 py-8 text-center">
+              <p className="text-xs font-bold text-neutral-300 uppercase tracking-wider">// Ask anything</p>
+              <p className="text-[11px] text-neutral-500 mt-1">Select a suggestion above or enter your question below for instant Groq responses.</p>
             </div>
           ) : (
             messages.map((m, idx) => (
@@ -134,15 +148,15 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
                   m.sender === 'user' ? 'self-end items-end' : 'self-start items-start'
                 }`}
               >
-                <div className="text-[10px] text-slate-400 font-mono">
+                <div className="text-[10px] text-neutral-500">
                   {m.sender === 'user' ? 'You' : 'Kinetic AI Mentor'} • {m.time}
                 </div>
 
                 <div
-                  className={`p-3.5 rounded-2xl leading-relaxed text-xs ${
+                  className={`p-3.5 rounded-xl leading-relaxed text-xs ${
                     m.sender === 'user'
-                      ? 'bg-emerald-500/20 text-emerald-100 border border-emerald-400/30'
-                      : 'bg-white/5 text-slate-200 border border-white/10'
+                      ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-400/25'
+                      : 'bg-[#141416] text-neutral-200 border border-white/[0.08]'
                   }`}
                 >
                   <p>{m.text}</p>
@@ -152,32 +166,83 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           )}
 
           {isLoading && (
-            <div className="self-start flex items-center gap-1.5 p-3 rounded-2xl bg-white/5 border border-white/10 w-max">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="self-start flex items-center gap-1.5 p-3 rounded-xl bg-[#141416] border border-white/[0.08] w-max">
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           )}
         </div>
 
         {/* Input Bar */}
-        <div className="flex items-center gap-2 p-2 rounded-2xl bg-black/50 border border-white/15">
+        <div className="flex items-center gap-2 p-2 rounded-xl bg-[#080808] border border-white/[0.08]">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Ask your mentor anything about life, mindset, discipline, health, or fitness..."
-            className="flex-1 bg-transparent px-4 py-2 text-xs text-white placeholder-slate-500 outline-none font-sans"
+            placeholder="Ask your mentor anything about life, discipline, mindset, recovery, or workouts..."
+            className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-neutral-500 outline-none"
           />
           <button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !inputText.trim()}
-            className="px-5 py-2.5 rounded-xl bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-slate-200 transition-all disabled:opacity-40 cursor-pointer"
+            className="px-5 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all disabled:opacity-40 cursor-pointer shadow-sm"
           >
             Ask
           </button>
         </div>
+
+        {/* Minimalist Footer Directory & Newsletter matching screenshot */}
+        <div className="border-t border-white/[0.08] pt-8 grid grid-cols-2 md:grid-cols-5 gap-6 text-xs text-neutral-400">
+          {/* Column 1: PAGES */}
+          <div className="flex flex-col gap-2.5">
+            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Pages</span>
+            <a href="/" className="hover:text-white transition-colors">Home</a>
+            <a href="/studio" className="hover:text-white transition-colors">Studio</a>
+            <a href="/studio" className="hover:text-white transition-colors">Perks</a>
+            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Docs</a>
+          </div>
+
+          {/* Column 2: TEAM */}
+          <div className="flex flex-col gap-2.5">
+            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Team</span>
+            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Apply</a>
+            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Engineers</a>
+          </div>
+
+          {/* Column 3: SOCIAL */}
+          <div className="flex flex-col gap-2.5">
+            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Social</span>
+            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub Profile</a>
+            <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Community</a>
+          </div>
+
+          {/* Column 4 & 5: NEWSLETTER */}
+          <div className="col-span-2 flex flex-col gap-3">
+            <span className="font-bold text-white uppercase tracking-wider text-[11px]">Newsletter</span>
+            <form onSubmit={handleSubscribe} className="flex items-center gap-2">
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="your@email.com"
+                className="flex-1 bg-[#080808] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-neutral-500 outline-none"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider hover:bg-neutral-200 transition-all cursor-pointer whitespace-nowrap"
+              >
+                {isSubscribed ? 'Subscribed ✓' : 'Subscribe'}
+              </button>
+            </form>
+            <p className="text-[10px] text-neutral-500 leading-normal">
+              Stay up to date with updates or when a new intelligence module drops.
+            </p>
+          </div>
+        </div>
+
       </div>
     </section>
   );

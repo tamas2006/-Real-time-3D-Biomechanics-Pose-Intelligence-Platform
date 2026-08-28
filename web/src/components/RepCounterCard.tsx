@@ -16,50 +16,51 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
   depthPercentage,
   repHistory
 }) => {
-  const radius = 38;
+  const radius = 36;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (depthPercentage / 100) * circumference;
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-3.5 h-full font-mono">
       {/* 1. REPETITIONS & DEPTH CARD */}
-      <div className="p-6 rounded-3xl bg-[#0B1120] border border-white/15 shadow-xl flex items-center justify-between text-white">
+      <div className="p-5 rounded-2xl bg-[#0e0e0f] border border-white/[0.08] shadow-xl flex items-center justify-between text-white">
         <div>
-          <div className="text-xs font-mono uppercase text-slate-400 font-bold mb-2">
-            Completed Reps
+          <div className="text-[11px] uppercase text-neutral-400 font-bold mb-2 flex items-center gap-2">
+            <span className="text-neutral-500">//</span>
+            <span>COMPLETED REPS</span>
           </div>
 
           <div className="flex items-baseline gap-3">
-            <div className="px-5 py-2 rounded-2xl bg-black/60 text-white font-mono font-black text-5xl tracking-tight border border-white/15">
+            <div className="px-4 py-1.5 rounded-xl bg-[#080808] text-white font-black text-4xl tracking-tight border border-white/[0.08]">
               {repCount < 10 ? `0${repCount}` : repCount}
             </div>
 
             <div className="flex flex-col">
-              <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/30 w-max">
+              <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-400/20 w-max">
                 {validReps} Verified
               </span>
-              <span className="text-[10px] font-mono text-slate-400 mt-1">Full ROM Required</span>
+              <span className="text-[10px] text-neutral-500 mt-1">Full Range Required</span>
             </div>
           </div>
         </div>
 
         {/* Circular Depth Gauge */}
-        <div className="relative flex items-center justify-center w-24 h-24">
+        <div className="relative flex items-center justify-center w-20 h-20">
           <svg className="w-full h-full -rotate-90">
             <circle
-              cx="48"
-              cy="48"
+              cx="40"
+              cy="40"
               r={radius}
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth="7"
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="6"
               fill="transparent"
             />
             <circle
-              cx="48"
-              cy="48"
+              cx="40"
+              cy="40"
               r={radius}
               stroke="#10B981"
-              strokeWidth="7"
+              strokeWidth="6"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
@@ -67,7 +68,7 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
               className="transition-all duration-100"
             />
           </svg>
-          <div className="absolute font-mono text-sm font-black text-white">
+          <div className="absolute text-xs font-black text-white">
             {depthPercentage}%
           </div>
         </div>
@@ -75,74 +76,61 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
 
       {/* 2. TEMPO STATS */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-4 rounded-2xl bg-[#0B1120] border border-white/15 flex flex-col justify-between">
-          <div className="text-slate-400 text-xs mb-1 font-mono uppercase">
+        <div className="p-3.5 rounded-xl bg-[#0e0e0f] border border-white/[0.08] flex flex-col justify-between">
+          <div className="text-neutral-400 text-[10px] mb-1 uppercase tracking-wider">
             TEMPO (ECC : CON)
           </div>
-          <div className="font-mono text-xl font-bold text-white">
+          <div className="text-sm font-bold text-white">
             {repHistory[0] ? `${repHistory[0].eccentricSec}s : ${repHistory[0].concentricSec}s` : '-- : --'}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#0B1120] border border-white/15 flex flex-col justify-between">
-          <div className="text-slate-400 text-xs mb-1 font-mono uppercase">
+        <div className="p-3.5 rounded-xl bg-[#0e0e0f] border border-white/[0.08] flex flex-col justify-between">
+          <div className="text-neutral-400 text-[10px] mb-1 uppercase tracking-wider">
             LAST DURATION
           </div>
-          <div className="font-mono text-xl font-bold text-white">
+          <div className="text-sm font-bold text-white">
             {repHistory[0] ? `${repHistory[0].durationSec}s` : '0.0s'}
           </div>
         </div>
       </div>
 
       {/* 3. REP LOG */}
-      <div className="p-5 rounded-3xl bg-[#0B1120] border border-white/15 shadow-xl flex-1 flex flex-col min-h-[200px]">
-        <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-          <span className="text-xs font-mono uppercase font-bold text-slate-300">
-            Repetition History
-          </span>
-          <span className="text-xs font-mono text-slate-400">
-            {repHistory.length} Total
-          </span>
+      <div className="p-4 rounded-2xl bg-[#0e0e0f] border border-white/[0.08] shadow-xl flex-1 flex flex-col min-h-[160px]">
+        <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08] mb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="text-neutral-500 font-bold">//</span>
+            <span className="text-[11px] uppercase font-bold text-neutral-300">
+              ACTIVITY STREAM
+            </span>
+          </div>
+          <span className="text-[10px] text-neutral-500">Live Telemetry</span>
         </div>
 
-        <div className="flex-1 overflow-y-auto flex flex-col gap-2 max-h-[160px] pr-1">
+        <div className="flex flex-col gap-2 overflow-y-auto max-h-[160px] pr-1">
           {repHistory.length === 0 ? (
-            <div className="flex items-center justify-center my-auto text-slate-400 text-center py-4 text-xs font-mono">
-              Complete your first repetition to record telemetry.
+            <div className="flex flex-col items-center justify-center my-auto text-neutral-500 py-6 text-center text-xs">
+              <span>Ready for rep 01</span>
+              <span className="text-[10px] text-neutral-600 mt-1">Camera active and monitoring</span>
             </div>
           ) : (
-            repHistory.map((rep, idx) => {
-              const isClean = rep.formScore >= 70;
-              return (
-                <div
-                  key={idx}
-                  className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-mono text-white ${
-                    isClean
-                      ? 'bg-white/5 border-white/10'
-                      : 'bg-rose-950/30 border-rose-500/40 text-rose-200'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-white/10 text-[10px] flex items-center justify-center font-bold">
-                      #{rep.repNumber}
-                    </span>
-                    <span>{rep.durationSec}s</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">{rep.eccentricSec}s down</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
-                        isClean
-                          ? 'bg-emerald-500/20 text-emerald-300'
-                          : 'bg-rose-500/20 text-rose-300'
-                      }`}
-                    >
-                      {isClean ? `${rep.formScore}% Clean` : `${rep.formScore}% No Rep`}
-                    </span>
-                  </div>
+            repHistory.map((r, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-2 rounded-lg bg-[#080808] border border-white/[0.05] text-[11px]"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-neutral-200">Rep #{r.repNumber}</span>
+                  <span className="text-neutral-500">•</span>
+                  <span className="text-neutral-400">{r.durationSec}s</span>
                 </div>
-              );
-            })
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                  r.formScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-400/20' : 'bg-rose-500/10 text-rose-400 border border-rose-400/20'
+                }`}>
+                  {r.formScore}% Score
+                </span>
+              </div>
+            ))
           )}
         </div>
       </div>
