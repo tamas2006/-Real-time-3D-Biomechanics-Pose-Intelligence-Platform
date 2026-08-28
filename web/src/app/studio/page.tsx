@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { ExerciseType } from '@/types/fitness';
 import { usePoseTracker } from '@/hooks/usePoseTracker';
@@ -12,7 +12,28 @@ import { NlpMentorStudio } from '@/components/NlpMentorStudio';
 import { sounds } from '@/lib/soundEffects';
 
 export default function StudioPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
   const [exercise, setExercise] = useState<ExerciseType>('squat');
+
+  useEffect(() => {
+    // Trigger smooth fade-in reveal on mount
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleBackToHome = (e: React.MouseEvent) => {
+    e.preventDefault();
+    sounds.playButtonClick();
+    setIsExiting(true);
+
+    setTimeout(() => {
+      router.push('/');
+    }, 450);
+  };
 
   const {
     videoRef,
@@ -37,17 +58,22 @@ export default function StudioPage() {
   } = usePoseTracker(exercise);
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col selection:bg-emerald-400 selection:text-black">
+    <div
+      className={`min-h-screen bg-black text-white flex flex-col selection:bg-emerald-400 selection:text-black transition-all duration-700 ease-out ${
+        isLoaded && !isExiting
+          ? 'opacity-100 scale-100 blur-0 translate-y-0'
+          : 'opacity-0 scale-[0.98] blur-md translate-y-3'
+      }`}
+    >
       {/* Top Studio Bar */}
       <div className="max-w-7xl mx-auto w-full px-6 pt-6 flex items-center justify-between">
-        <Link
-          href="/"
-          onClick={() => sounds.playButtonClick()}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-mono font-bold text-white transition-all active:scale-95 shadow-md"
+        <button
+          onClick={handleBackToHome}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-mono font-bold text-white transition-all active:scale-95 shadow-md cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
-        </Link>
+        </button>
 
         <span className="text-xs font-mono uppercase tracking-widest text-slate-400">
           Live Workout Studio
