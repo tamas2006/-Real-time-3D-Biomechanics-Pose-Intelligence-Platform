@@ -159,15 +159,36 @@ export const LandingHero: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: PIXEL ART STICKER GRAPHIC */}
+        {/* RIGHT COLUMN: PURE VECTOR PIXEL ART GRAPHIC (NO RASTER IMAGE) */}
         <div className="md:col-span-5 flex items-center justify-center">
-          <div className="relative group cursor-pointer" onClick={handleBeginExperience}>
-            <div className="w-64 sm:w-72 md:w-80 rounded-2xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105">
-              <img
-                src="/kinetic_sticker.jpg"
-                alt="Kinetic Coach Pixel Graphic"
-                className="w-full h-auto object-contain"
-              />
+          <div className="relative group cursor-pointer select-none" onClick={handleBeginExperience}>
+            {/* Ambient Floating Pixel Sparkles */}
+            <span className="absolute -top-3 -left-3 text-white text-sm animate-pulse">✦</span>
+            <span className="absolute top-1 -right-4 text-white text-xs animate-bounce" style={{ animationDuration: '3s' }}>✧</span>
+            <span className="absolute -bottom-3 left-6 text-white text-sm animate-pulse" style={{ animationDelay: '500ms' }}>✦</span>
+            <span className="absolute -bottom-2 -right-3 text-white text-xs animate-bounce" style={{ animationDuration: '2.5s' }}>✧</span>
+
+            {/* Main Pixel Capsule */}
+            <div className="relative flex flex-col items-center justify-center px-8 py-7 rounded-3xl bg-[#0c0c0d]/90 border border-white/[0.12] backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] hover:shadow-[0_0_60px_rgba(255,255,255,0.12)] hover:border-white/25 transition-all duration-500 group-hover:scale-105">
+              {/* Top micro label */}
+              <span className="text-[10px] font-pixel uppercase tracking-[0.25em] text-neutral-400 mb-2">
+                POSE INTELLIGENCE
+              </span>
+
+              {/* Main Bold Pixel Text */}
+              <div className="flex flex-col items-center leading-[0.95] tracking-tight font-pixel font-bold text-center">
+                <span className="text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-[0_5px_0px_#1c1c1e]">
+                  KINETIC
+                </span>
+                <span className="text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-[0_5px_0px_#1c1c1e] mt-1.5">
+                  COACH
+                </span>
+              </div>
+
+              {/* Bottom pixel badge */}
+              <div className="mt-4 px-3.5 py-1 rounded-md bg-white text-black font-pixel font-bold text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-md group-hover:bg-neutral-200 transition-colors">
+                <span>&gt;.ONLINE</span>
+              </div>
             </div>
           </div>
         </div>

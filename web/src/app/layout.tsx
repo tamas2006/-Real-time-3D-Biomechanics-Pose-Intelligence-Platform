@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, Bodoni_Moda, JetBrains_Mono, Open_Sans } from "next/font/google";
+import { Syne, Bodoni_Moda, JetBrains_Mono, Open_Sans, Silkscreen } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
@@ -26,6 +26,12 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const silkscreen = Silkscreen({
+  variable: "--font-pixel",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Kinetic.AI — Next-Gen AI Biomechanics & Edge Pose Intelligence",
   description: "Real-time AI pose detection, rep counting, and form correction powered by Next.js and MediaPipe.",
@@ -39,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${bodoniModa.variable} ${openSans.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
+      className={`${syne.variable} ${bodoniModa.variable} ${openSans.variable} ${jetbrainsMono.variable} ${silkscreen.variable} h-full antialiased dark`}
     >
       <body className="min-h-full font-sans antialiased text-white bg-black selection:bg-emerald-400 selection:text-black">
         {children}

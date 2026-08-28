@@ -47,6 +47,10 @@ body {
   font-family: var(--font-mono);
 }
 
+.font-pixel {
+  font-family: var(--font-pixel), monospace;
+}
+
 /* ------------------------------------------------------------- */
 /* MINIMALIST MATTE NOISE TEXTURE OVERLAY */
 /* ------------------------------------------------------------- */
