@@ -88,13 +88,8 @@ export const LandingHero: React.FC = () => {
             <span className="inline-block w-2.5 h-8 bg-white/80 animate-pulse ml-1" />
           </div>
 
-          {/* Subtitle */}
-          <p className="text-xs sm:text-sm font-bold text-neutral-300">
-            Built for athletes, by sports scientists + AI engineers
-          </p>
-
           {/* Clean 3-Checklist Points */}
-          <div className="flex flex-col gap-2 mt-2 text-xs text-neutral-300 leading-relaxed">
+          <div className="flex flex-col gap-2 mt-1 text-xs text-neutral-300 leading-relaxed">
             <div className="flex items-start gap-2.5">
               <CheckSquare className="w-4 h-4 text-white flex-shrink-0 mt-0.5" />
               <span>
