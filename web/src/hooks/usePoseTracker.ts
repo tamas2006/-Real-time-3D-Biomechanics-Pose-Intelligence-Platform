@@ -48,6 +48,11 @@ export function usePoseTracker(exercise: ExerciseType) {
   const cycleViolationsRef = useRef<string[]>([]);
   const currentStageRef = useRef<'START' | 'DOWN' | 'BOTTOM' | 'UP'>('START');
 
+  // Synchronous State Counters to eliminate closure stale values
+  const repCountRef = useRef(0);
+  const validRepsRef = useRef(0);
+  const smoothedLandmarksRef = useRef<any[] | null>(null);
+
   const streamRef = useRef<MediaStream | null>(null);
   const animFrameIdRef = useRef<number | null>(null);
 
@@ -190,7 +195,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
           startCoMY.current = currentCoMY;
-        } else if (angle <= cfg.startThresh - 12) {
+        } else if (angle <= cfg.startThresh - 10) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
           activeMinAngle.current = Math.min(activeMinAngle.current, angle);
@@ -214,9 +219,9 @@ export function usePoseTracker(exercise: ExerciseType) {
           speak(depthPhrases[Math.floor(Math.random() * depthPhrases.length)], true);
         }
       }
-      // 3. Bottom Inflection Hold (Enforces minimum dwell time to eliminate jitter spikes)
+      // 3. Bottom Inflection Hold
       else if (currentStageRef.current === 'BOTTOM') {
-        if (angle >= cfg.inflectionThresh + 12 && now - inflectionEnterTime.current >= 0.06) {
+        if (angle >= cfg.inflectionThresh + 10 && now - inflectionEnterTime.current >= 0.05) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -230,7 +235,7 @@ export function usePoseTracker(exercise: ExerciseType) {
 
           // STRICT CLINICAL FORM & ANTI-CHEAT ENFORCEMENT
           if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
-            const isCleanRep = cycleMinScoreRef.current >= 70 && cycleViolationsRef.current.length === 0;
+            const isCleanRep = cycleMinScoreRef.current >= 65 && cycleViolationsRef.current.length === 0;
 
             if (!isCleanRep) {
               // ❌ REJECTED CHEAT REP
@@ -239,7 +244,7 @@ export function usePoseTracker(exercise: ExerciseType) {
               speak(`No rep! Form failed: ${primaryViolation}.`, true);
 
               const failedMetric: RepMetric = {
-                repNumber: repCount + 1,
+                repNumber: repCountRef.current + 1,
                 durationSec: parseFloat(duration.toFixed(1)),
                 eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
                 concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
@@ -251,21 +256,25 @@ export function usePoseTracker(exercise: ExerciseType) {
               setRepHistory((prev) => [failedMetric, ...prev]);
             } else {
               // ✅ CREDITED CLEAN REP
-              setRepCount((prev) => prev + 1);
-              setValidReps((prev) => prev + 1);
+              repCountRef.current += 1;
+              validRepsRef.current += 1;
+              const currentRepNum = validRepsRef.current;
+
+              setRepCount(repCountRef.current);
+              setValidReps(validRepsRef.current);
               sounds.playRepSuccess();
 
               const praises = [
-                `Rep ${repCount + 1}! Perfect form.`,
-                `Rep ${repCount + 1}! Excellent tempo.`,
-                `Rep ${repCount + 1} confirmed!`,
-                `Solid rep ${repCount + 1}! Keep driving.`
+                `Rep ${currentRepNum}! Perfect form.`,
+                `Rep ${currentRepNum}! Excellent tempo.`,
+                `Rep ${currentRepNum} confirmed!`,
+                `Solid rep ${currentRepNum}! Keep driving.`
               ];
               const chosenPraise = praises[Math.floor(Math.random() * praises.length)];
               speak(chosenPraise, true);
 
               const validMetric: RepMetric = {
-                repNumber: repCount + 1,
+                repNumber: currentRepNum,
                 durationSec: parseFloat(duration.toFixed(1)),
                 eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
                 concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
@@ -299,7 +308,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           cycleMinScoreRef.current = 100;
           cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
-        } else if (angle >= cfg.startThresh + 12) {
+        } else if (angle >= cfg.startThresh + 10) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -313,7 +322,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           speak('Full lockout! Lower with control.', true);
         }
       } else if (currentStageRef.current === 'BOTTOM') {
-        if (angle <= cfg.inflectionThresh - 12) {
+        if (angle <= cfg.inflectionThresh - 10) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
         }
@@ -323,13 +332,17 @@ export function usePoseTracker(exercise: ExerciseType) {
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
           if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
-            setRepCount((prev) => prev + 1);
-            setValidReps((prev) => prev + 1);
+            repCountRef.current += 1;
+            validRepsRef.current += 1;
+            const currentRepNum = validRepsRef.current;
+
+            setRepCount(repCountRef.current);
+            setValidReps(validRepsRef.current);
             sounds.playRepSuccess();
-            speak(`Rep ${repCount + 1}! Clean press.`, true);
+            speak(`Rep ${currentRepNum}! Clean press.`, true);
 
             const validMetric: RepMetric = {
-              repNumber: repCount + 1,
+              repNumber: currentRepNum,
               durationSec: parseFloat(duration.toFixed(1)),
               eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
               concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
@@ -350,10 +363,10 @@ export function usePoseTracker(exercise: ExerciseType) {
         }
       }
     }
-  }, [exercise, repCount, speak]);
+  }, [exercise, speak]);
 
   // -----------------------------------------------------------
-  // Canvas Rendering Loop with Official Google MediaPipe Draw Utils
+  // Canvas Rendering Loop with EMA Temporal Smoothing
   // -----------------------------------------------------------
   const renderFrame = useCallback(async (results: any) => {
     isProcessingRef.current = false;
@@ -384,28 +397,46 @@ export function usePoseTracker(exercise: ExerciseType) {
     ctx.scale(-1, 1);
     ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
-    // 2. Draw Official MediaPipe Pose Connectors & Landmarks
+    // 2. Temporal Exponential Moving Average (EMA) Landmark Smoothing
     if (results.poseLandmarks) {
+      const rawLandmarks = results.poseLandmarks;
+      if (!smoothedLandmarksRef.current || smoothedLandmarksRef.current.length !== rawLandmarks.length) {
+        smoothedLandmarksRef.current = rawLandmarks.map((p: any) => ({ ...p }));
+      } else {
+        const alpha = 0.65; // High responsiveness with rock-solid stability
+        smoothedLandmarksRef.current = rawLandmarks.map((p: any, idx: number) => {
+          const prev = smoothedLandmarksRef.current![idx];
+          return {
+            x: prev.x * (1 - alpha) + p.x * alpha,
+            y: prev.y * (1 - alpha) + p.y * alpha,
+            z: (prev.z || 0) * (1 - alpha) + (p.z || 0) * alpha,
+            visibility: p.visibility || 1.0
+          };
+        });
+      }
+
+      const activeLandmarks = smoothedLandmarksRef.current;
+
       try {
         const { drawConnectors, drawLandmarks } = await import('@mediapipe/drawing_utils');
         const { POSE_CONNECTIONS } = await import('@mediapipe/pose');
 
-        // Draw Glowing Kinetic Cyan Skeleton Connectors
-        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, {
+        // Draw Glowing Kinetic Cyan Skeleton Connectors (Ultra Stable)
+        drawConnectors(ctx, activeLandmarks, POSE_CONNECTIONS, {
           color: '#00F2FE',
-          lineWidth: 5
+          lineWidth: 4
         });
 
-        // Draw Joint Spheres
-        drawLandmarks(ctx, results.poseLandmarks, {
+        // Draw Magenta Joint Spheres
+        drawLandmarks(ctx, activeLandmarks, {
           color: '#FF007F',
           fillColor: '#FFFFFF',
           lineWidth: 2,
-          radius: 6
+          radius: 5
         });
       } catch (e) {}
 
-      processKinematics(results.poseLandmarks);
+      processKinematics(activeLandmarks);
 
       // 3. Draw On-Joint Angle Badge on active joint
       let targetJointIndex = 25; // Left knee
@@ -413,7 +444,7 @@ export function usePoseTracker(exercise: ExerciseType) {
         targetJointIndex = 13; // Left elbow
       }
 
-      const targetJoint = results.poseLandmarks[targetJointIndex];
+      const targetJoint = activeLandmarks[targetJointIndex];
       if (targetJoint && primaryAngle > 0 && (targetJoint.visibility || 1) > 0.35) {
         const jx = targetJoint.x * canvas.width;
         const jy = targetJoint.y * canvas.height;
@@ -469,7 +500,6 @@ export function usePoseTracker(exercise: ExerciseType) {
         return;
       }
 
-      // Universal Mobile & Desktop Camera Constraints
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -500,7 +530,6 @@ export function usePoseTracker(exercise: ExerciseType) {
         sounds.playButtonClick();
         speak('AI Vision Active. Ready for workout.');
 
-        // Continuous High-Speed Frame Processing Loop
         const processLoop = async () => {
           if (videoRef.current && poseRef.current && videoRef.current.readyState >= 2) {
             if (!isProcessingRef.current) {
@@ -550,6 +579,8 @@ export function usePoseTracker(exercise: ExerciseType) {
   };
 
   const resetReps = () => {
+    repCountRef.current = 0;
+    validRepsRef.current = 0;
     setRepCount(0);
     setValidReps(0);
     setRepHistory([]);
