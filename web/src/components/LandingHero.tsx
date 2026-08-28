@@ -18,14 +18,14 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onLaunchStudio }) => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover scale-105 opacity-60"
+          className="w-full h-full object-cover scale-105 opacity-95"
         >
           <source src="/hero_bg.mp4" type="video/mp4" />
         </video>
 
-        {/* Deep Obsidian Overlay Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        {/* Clear Cinematic Overlay */}
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
       </div>
 
       {/* 2. TOP NAVBAR */}
