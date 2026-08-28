@@ -100,7 +100,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               AI Coach Guidance
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Powered by Groq High-Speed LLM. Ask any questions about technique, joint mechanics, or form fixes.
+              Powered by Kinetic AI. Ask any questions about technique, joint mechanics, or form fixes.
             </p>
           </div>
 
@@ -123,7 +123,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center my-auto text-slate-500 py-8 text-center">
               <p className="text-sm font-sans font-medium text-slate-400">Ask your AI Coach anything</p>
-              <p className="text-xs text-slate-500 mt-1">Click a suggestion above or type your question below for instant Groq responses.</p>
+              <p className="text-xs text-slate-500 mt-1">Click a suggestion above or type your question below for instant responses.</p>
             </div>
           ) : (
             messages.map((m, idx) => (
@@ -134,7 +134,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
                 }`}
               >
                 <div className="text-[10px] text-slate-400 font-mono">
-                  {m.sender === 'user' ? 'You' : 'Groq AI Coach'} • {m.time}
+                  {m.sender === 'user' ? 'You' : 'Kinetic AI Coach'} • {m.time}
                 </div>
 
                 <div
