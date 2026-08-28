@@ -99,19 +99,19 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
 
   if (phase === 'inflection') {
     stageLabel = 'DEEP DEPTH';
-    stageColor = 'bg-white/20 text-white border-white/40';
+    stageColor = 'bg-white text-black border-white font-black';
   } else if (phase === 'eccentric') {
     stageLabel = 'LOWERING';
-    stageColor = 'bg-amber-500/20 text-amber-200 border-amber-400/40';
+    stageColor = 'bg-white/20 text-white border-white/40';
   } else if (phase === 'concentric') {
     stageLabel = 'DRIVING UP';
-    stageColor = 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40';
+    stageColor = 'bg-white/30 text-white border-white/60';
   }
 
   return (
     <div
       ref={containerRef}
-      className="relative rounded-3xl overflow-hidden bg-black border border-white/15 shadow-2xl flex flex-col items-center justify-center min-h-[420px] aspect-video w-full"
+      className="relative rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl flex flex-col items-center justify-center min-h-[420px] aspect-video w-full font-mono"
     >
       {/* 1:1 Camera Output Canvas */}
       <div className="relative w-full h-full flex items-center justify-center bg-black">
@@ -125,16 +125,16 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
 
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-contain rounded-3xl"
+          className="w-full h-full object-contain rounded-2xl"
         />
 
         {/* Clean Standby Screen */}
         {!isStreaming && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-8 bg-black/80 backdrop-blur-md">
-            <h4 className="text-2xl sm:text-3xl font-sans font-bold text-white">
-              Camera Viewfinder
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-8 bg-black/85 backdrop-blur-md">
+            <h4 className="text-xl sm:text-2xl font-mono font-bold text-white uppercase tracking-wider">
+              // Camera Viewfinder
             </h4>
-            <p className="text-sm text-slate-300 max-w-sm">
+            <p className="text-xs text-neutral-400 max-w-sm">
               Click <strong className="text-white font-bold">&quot;Start Camera&quot;</strong> above to begin real-time repetition tracking and multimodal AI vision.
             </p>
           </div>
@@ -144,10 +144,10 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
         {isStreaming && (
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-auto z-20">
             <div className="flex items-center gap-2">
-              <div className="px-3.5 py-1 rounded-full bg-black/60 border border-white/20 text-xs font-mono font-bold text-white backdrop-blur-md">
+              <div className="px-3.5 py-1 rounded-lg bg-black/70 border border-white/20 text-xs font-mono font-bold text-white backdrop-blur-md">
                 LIVE • {fps} FPS
               </div>
-              <div className={`px-4 py-1 rounded-full border text-xs font-mono font-bold uppercase transition-all backdrop-blur-md ${stageColor}`}>
+              <div className={`px-3.5 py-1 rounded-lg border text-xs font-mono font-bold uppercase transition-all backdrop-blur-md ${stageColor}`}>
                 {stageLabel}
               </div>
             </div>
@@ -157,17 +157,17 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               <button
                 onClick={captureVisionDiagnostic}
                 disabled={isAnalyzingVision}
-                className="px-3.5 py-1.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-xs font-mono font-bold text-cyan-200 transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer disabled:opacity-50 backdrop-blur-md"
+                className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 <Camera className="w-3.5 h-3.5" />
-                <span>{isAnalyzingVision ? 'Analyzing Frame...' : 'AI Vision Scan'}</span>
+                <span>{isAnalyzingVision ? 'Scanning...' : 'AI Vision Scan'}</span>
               </button>
 
               <button
                 onClick={toggleFullscreen}
-                className="px-3.5 py-1.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-xs font-mono font-bold text-white transition-all cursor-pointer backdrop-blur-md"
+                className="px-3 py-1.5 rounded-lg bg-black/70 hover:bg-black/90 border border-white/20 text-xs font-mono font-bold text-white transition-all cursor-pointer backdrop-blur-md uppercase"
               >
-                {isFullscreen ? 'EXIT FULL' : 'FULLSCREEN'}
+                {isFullscreen ? 'Exit Full' : 'Fullscreen'}
               </button>
             </div>
           </div>
@@ -176,7 +176,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
         {/* Live Warning Banner */}
         {warnings.length > 0 && isStreaming && !visionResult && (
           <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none z-20">
-            <div className="px-5 py-2 rounded-full bg-amber-400 text-black font-sans text-xs font-black uppercase tracking-wide shadow-xl border border-white">
+            <div className="px-4 py-1.5 rounded-lg bg-[#0c0c0d] text-white font-mono text-xs font-bold uppercase tracking-wider shadow-xl border border-white/40">
               {warnings[0]}
             </div>
           </div>
@@ -184,17 +184,17 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
 
         {/* Multimodal AI Vision Diagnostic Modal Card */}
         {visionResult && (
-          <div className="absolute inset-0 bg-black/85 backdrop-blur-xl z-30 p-6 flex flex-col items-center justify-center text-white animate-fadeIn">
-            <div className="relative max-w-lg w-full p-6 rounded-3xl bg-[#0B1120] border border-cyan-400/40 shadow-[0_0_40px_rgba(0,229,255,0.25)] flex flex-col gap-4">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-xl z-30 p-6 flex flex-col items-center justify-center text-white animate-fadeIn">
+            <div className="relative max-w-lg w-full p-6 rounded-2xl bg-[#0c0c0d] border border-white/[0.15] shadow-2xl flex flex-col gap-4">
               {/* Modal Top Bar */}
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="flex items-center gap-2 text-cyan-300 font-mono text-xs font-bold uppercase tracking-wider">
-                  <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                <div className="flex items-center gap-2 text-white font-mono text-xs font-bold uppercase tracking-wider">
+                  <CheckCircle2 className="w-4 h-4 text-white" />
                   <span>Kinetic AI Multimodal Vision Analysis</span>
                 </div>
                 <button
                   onClick={() => setVisionResult(null)}
-                  className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -203,7 +203,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               {/* Snapshot Thumbnail + Visual Assessment */}
               <div className="flex flex-col sm:flex-row gap-4 items-start">
                 {visionResult.snapshotUrl && (
-                  <div className="w-28 h-28 rounded-2xl overflow-hidden border border-cyan-400/50 shadow-md flex-shrink-0 bg-black">
+                  <div className="w-28 h-28 rounded-xl overflow-hidden border border-white/20 shadow-md flex-shrink-0 bg-black">
                     <img
                       src={visionResult.snapshotUrl}
                       alt="Analyzed Frame"
@@ -213,17 +213,17 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
                 )}
 
                 <div className="flex flex-col gap-2 flex-1">
-                  <span className="text-[10px] font-mono uppercase text-slate-400">Visual Posture Assessment:</span>
-                  <p className="text-xs text-slate-200 leading-relaxed font-sans">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Visual Posture Assessment:</span>
+                  <p className="text-xs text-neutral-200 leading-relaxed font-mono">
                     {visionResult.assessment}
                   </p>
                 </div>
               </div>
 
               {/* Actionable Form Correction Box */}
-              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/15 flex flex-col gap-1">
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/15 flex flex-col gap-1">
                 <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Actionable Coaching Cue:</span>
-                <p className="text-xs text-white font-sans font-medium">
+                <p className="text-xs text-white font-mono font-medium">
                   {visionResult.correction}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               {/* Close / Continue Button */}
               <button
                 onClick={() => setVisionResult(null)}
-                className="w-full py-2.5 rounded-xl bg-white hover:bg-slate-200 text-black font-sans font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
               >
                 Continue Workout
               </button>

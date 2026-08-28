@@ -424,24 +424,24 @@ export function usePoseTracker(exercise: ExerciseType) {
         const { drawConnectors, drawLandmarks } = await import('@mediapipe/drawing_utils');
         const { POSE_CONNECTIONS } = await import('@mediapipe/pose');
 
-        // Draw Glowing Kinetic Cyan Skeleton Connectors (Ultra Stable)
+        // 1. Draw Sharp Pure White Skeleton Connectors
         drawConnectors(ctx, activeLandmarks, POSE_CONNECTIONS, {
-          color: '#00F2FE',
-          lineWidth: 4
+          color: '#FFFFFF',
+          lineWidth: 3
         });
 
-        // Draw Magenta Joint Spheres
+        // 2. Draw Black Joint Points with Crisp White Ring
         drawLandmarks(ctx, activeLandmarks, {
-          color: '#FF007F',
-          fillColor: '#FFFFFF',
+          color: '#FFFFFF',
+          fillColor: '#000000',
           lineWidth: 2,
-          radius: 5
+          radius: 5.5
         });
       } catch (e) {}
 
       processKinematics(activeLandmarks);
 
-      // 3. Draw On-Joint Angle Badge on active joint
+      // 3. Draw Minimalist Monochrome On-Joint Angle Badge
       let targetJointIndex = 25; // Left knee
       if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
         targetJointIndex = 13; // Left elbow
@@ -456,16 +456,16 @@ export function usePoseTracker(exercise: ExerciseType) {
         ctx.translate(jx, jy);
         ctx.scale(-1, 1); // Counter-flip text
 
-        ctx.fillStyle = 'rgba(18, 22, 32, 0.90)';
-        ctx.strokeStyle = '#FEF08A';
-        ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(-42, -36, 84, 28, 8);
+        ctx.roundRect(-40, -34, 80, 26, 6);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = '#FEF08A';
-        ctx.font = 'bold 15px monospace';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 13px monospace';
         ctx.textAlign = 'center';
         ctx.fillText(`${primaryAngle}°`, 0, -17);
         ctx.restore();
