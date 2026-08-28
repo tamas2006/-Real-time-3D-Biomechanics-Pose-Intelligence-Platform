@@ -38,3 +38,11 @@ export interface ExerciseConfig {
   minDuration: number;
   description: string;
 }
+
+export interface PairWorkoutSession {
+  athleteId: string;
+  mentorId: string;
+  collaborativeScore: number;
+  synchronizedReps: number;
+  timestamp: number;
+}
