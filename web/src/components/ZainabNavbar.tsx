@@ -17,7 +17,7 @@ export const ZainabNavbar: React.FC = () => {
       </Link>
 
       {/* 2. CENTER FROSTED CAPSULE */}
-      <div className="flex items-center gap-3 sm:gap-6 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
+      <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
         {/* Coach Photo Avatar */}
         <Link
           href="/studio"
@@ -36,18 +36,9 @@ export const ZainabNavbar: React.FC = () => {
         <Link
           href="/studio"
           onClick={() => sounds.playButtonClick()}
-          className="hidden sm:inline-block text-xs font-mono font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors"
+          className="text-xs font-mono font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors pr-1"
         >
           Workout Studio
-        </Link>
-
-        {/* CTA Button */}
-        <Link
-          href="/studio"
-          onClick={() => sounds.playButtonClick()}
-          className="px-5 py-2 rounded-full bg-white text-black text-xs font-bold tracking-wide hover:bg-slate-100 transition-all shadow-md active:scale-95 flex-shrink-0"
-        >
-          Start Training
         </Link>
       </div>
 
