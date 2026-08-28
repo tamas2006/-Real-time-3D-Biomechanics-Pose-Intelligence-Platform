@@ -7,7 +7,7 @@ import { ZainabNavbar } from '@/components/ZainabNavbar';
 
 export const LandingHero: React.FC = () => {
   return (
-    <section className="relative w-full min-h-[85vh] flex flex-col justify-between overflow-hidden bg-black text-white px-6 md:px-12 pt-6 pb-12 select-none">
+    <section className="relative w-full h-screen max-h-screen flex flex-col justify-between overflow-hidden bg-black text-white px-6 md:px-12 py-6 select-none">
       {/* 1. CINEMATIC BACKGROUND VIDEO */}
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <video
@@ -21,31 +21,34 @@ export const LandingHero: React.FC = () => {
         </video>
 
         <div className="absolute inset-0 bg-black/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
       </div>
 
       {/* 2. TOP NAVBAR */}
       <ZainabNavbar />
 
       {/* 3. HERO HEADLINE & CTA */}
-      <div className="relative z-20 max-w-4xl mx-auto w-full my-auto text-center flex flex-col items-center pt-8 pb-10">
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-8 select-none drop-shadow-2xl">
+      <div className="relative z-20 max-w-5xl mx-auto w-full my-auto text-center flex flex-col items-center">
+        <h1 className="text-5xl sm:text-7xl md:text-8xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-8 select-none drop-shadow-2xl">
           Trainer who <span className="text-white font-black">Coaches</span>
         </h1>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex items-center justify-center">
           <Link
             href="/studio"
             onClick={() => sounds.playButtonClick()}
-            className="px-9 py-4 rounded-full bg-white text-black font-black text-sm uppercase tracking-wider shadow-2xl hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all inline-block text-center"
+            className="px-10 py-4.5 rounded-full bg-white text-black font-black text-sm uppercase tracking-wider shadow-2xl hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all inline-block text-center"
           >
             Launch Live Workout Studio
           </Link>
         </div>
       </div>
 
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent pointer-events-none z-10" />
+      {/* 4. MINIMAL BOTTOM BAR */}
+      <div className="relative z-20 max-w-7xl mx-auto w-full flex items-center justify-between text-[11px] font-mono text-slate-400">
+        <span>© 2026 KINETIC.AI</span>
+        <span>AI POSE INTELLIGENCE</span>
+      </div>
     </section>
   );
 };

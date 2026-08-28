@@ -4,13 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { sounds } from '@/lib/soundEffects';
 
-interface ZainabNavbarProps {
-  onLaunchStudio?: () => void;
-}
-
-export const ZainabNavbar: React.FC<ZainabNavbarProps> = ({ onLaunchStudio }) => {
+export const ZainabNavbar: React.FC = () => {
   return (
-    <nav className="relative z-40 flex items-center justify-between gap-4 max-w-7xl mx-auto w-full pt-2 px-2 select-none">
+    <nav className="relative z-40 flex items-center justify-between gap-4 max-w-7xl mx-auto w-full pt-4 px-4 select-none">
       {/* 1. LEFT BRAND LOGO */}
       <Link
         href="/"
@@ -36,23 +32,14 @@ export const ZainabNavbar: React.FC<ZainabNavbarProps> = ({ onLaunchStudio }) =>
           />
         </Link>
 
-        {/* Text Navigation Links */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-sans font-medium text-white/90">
-          <Link
-            href="/studio"
-            onClick={() => sounds.playButtonClick()}
-            className="text-slate-300 hover:text-white transition-colors"
-          >
-            Workout Studio
-          </Link>
-          <a
-            href="#exercises"
-            onClick={() => sounds.playButtonClick()}
-            className="text-slate-300 hover:text-white transition-colors"
-          >
-            Exercises
-          </a>
-        </div>
+        {/* Text Navigation Link */}
+        <Link
+          href="/studio"
+          onClick={() => sounds.playButtonClick()}
+          className="hidden sm:inline-block text-xs font-mono font-bold text-slate-300 hover:text-white uppercase tracking-wider transition-colors"
+        >
+          Workout Studio
+        </Link>
 
         {/* CTA Button */}
         <Link
