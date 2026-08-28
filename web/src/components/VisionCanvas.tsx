@@ -66,7 +66,8 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
     try {
       const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.85);
 
-      const res = await fetch('http://127.0.0.1:8000/api/mentor/vision-diagnostic', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const res = await fetch(`${apiUrl}/api/mentor/vision-diagnostic`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
