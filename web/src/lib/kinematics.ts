@@ -5,66 +5,66 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     id: 'squat',
     name: 'Barbell / Bodyweight Squat',
     primaryJoint: 'Bilateral Knees & Hips',
-    startThresh: 155,
-    inflectionThresh: 95,      // Strict parallel depth (<= 95°)
-    lockoutThresh: 155,         // Full vertical lockout (>= 155°)
-    minROM: 55,                 // Minimum 55° displacement (Rejects half squats)
-    minDuration: 0.90,          // Physiological minimum rep duration
+    startThresh: 148,
+    inflectionThresh: 100,      // Natural parallel depth (<= 100°)
+    lockoutThresh: 148,         // Full standing return (>= 148°)
+    minROM: 40,                 // Minimum 40° displacement (Rejects half squats)
+    minDuration: 0.60,          // Natural repetition tempo
     description: 'Lower until thighs reach parallel or below, driving back to full vertical lockout.'
   },
   bicep_curl: {
     id: 'bicep_curl',
     name: 'Standing Bicep Curl',
     primaryJoint: 'Elbow Flexion',
-    startThresh: 150,
-    inflectionThresh: 52,       // Strict peak flexion (<= 52°)
-    lockoutThresh: 148,         // Full bottom extension (>= 148°)
-    minROM: 75,                 // Minimum 75° displacement (Rejects half curls)
-    minDuration: 0.85,
+    startThresh: 140,
+    inflectionThresh: 65,       // Peak flexion (<= 65°)
+    lockoutThresh: 135,         // Bottom extension (>= 135°)
+    minROM: 50,                 // Rejects partial half curls
+    minDuration: 0.50,
     description: 'Full extension at the bottom to peak squeeze at the top.'
   },
   pushup: {
     id: 'pushup',
     name: 'Standard Push-Up',
     primaryJoint: 'Elbows & Core',
-    startThresh: 155,
-    inflectionThresh: 85,       // Chest to floor depth (<= 85°)
-    lockoutThresh: 152,         // Full elbow lockout (>= 152°)
-    minROM: 55,                 // Minimum 55° displacement (Rejects half pushups)
-    minDuration: 0.85,
+    startThresh: 145,
+    inflectionThresh: 95,       // Chest depth (<= 95°)
+    lockoutThresh: 142,         // Press to lockout (>= 142°)
+    minROM: 40,
+    minDuration: 0.50,
     description: 'Rigid plank with chest lowering near floor and pressing to complete lockout.'
   },
   lunge: {
     id: 'lunge',
     name: 'Forward / Reverse Lunge',
     primaryJoint: 'Lead Knee',
-    startThresh: 155,
-    inflectionThresh: 90,       // Deep 90° split depth (<= 90°)
-    lockoutThresh: 152,         // Full standing return (>= 152°)
-    minROM: 55,
-    minDuration: 0.90,
+    startThresh: 145,
+    inflectionThresh: 100,      // Split depth (<= 100°)
+    lockoutThresh: 142,         // Standing return (>= 142°)
+    minROM: 35,
+    minDuration: 0.60,
     description: 'Deep split lunge with lead thigh parallel to floor before returning to standing.'
   },
   shoulder_press: {
     id: 'shoulder_press',
     name: 'Overhead Shoulder Press',
     primaryJoint: 'Shoulders & Elbows',
-    startThresh: 85,            // Shoulder rack start (<= 85°)
-    inflectionThresh: 162,      // Full overhead vertical arm lockout (>= 162°)
-    lockoutThresh: 92,          // Return to collarbone
-    minROM: 65,                 // Minimum 65° displacement
-    minDuration: 0.85,
+    startThresh: 95,            // Rack start (<= 95°)
+    inflectionThresh: 152,      // Full overhead extension (>= 152°)
+    lockoutThresh: 105,         // Return to shoulders
+    minROM: 45,
+    minDuration: 0.50,
     description: 'Press from clavicle height to full vertical arm lockout overhead.'
   },
   plank: {
     id: 'plank',
     name: 'Core Isometric Plank',
     primaryJoint: 'Spine & Abdominals',
-    startThresh: 160,
-    inflectionThresh: 160,
-    lockoutThresh: 160,
+    startThresh: 155,
+    inflectionThresh: 155,
+    lockoutThresh: 155,
     minROM: 0,
-    minDuration: 2.0,
+    minDuration: 1.5,
     description: 'Maintain a straight, unbroken line across shoulders, hips, and ankles.'
   }
 };
@@ -163,20 +163,15 @@ export function validatePosturePrerequisites(
     const lKnee = calculateAngle3D(lm[23], lm[25], lm[27]);
     const rKnee = calculateAngle3D(lm[24], lm[26], lm[28]);
 
-    // Bilateral knee check (|L - R| <= 25°)
-    const kneeAsymmetry = Math.abs(lKnee - rKnee);
-    if (kneeAsymmetry > 25 && (lKnee > 135 || rKnee > 135)) {
-      return {
-        isValid: false,
-        statusMessage: 'Bilateral Squat Required (Both Legs Symmetrical)',
-        rejectionReason: 'Dancing or single-leg motion rejected',
-        primaryAngle: Math.round((lKnee + rKnee) / 2),
-        postureType: 'INVALID_WALK'
-      };
+    // Handle side-profile vs front-facing tracking naturally
+    let angle: number;
+    if (lKneeVis > 0.65 && rKneeVis < 0.45) {
+      angle = lKnee;
+    } else if (rKneeVis > 0.65 && lKneeVis < 0.45) {
+      angle = rKnee;
+    } else {
+      angle = Math.round((lKnee + rKnee) / 2);
     }
-
-    // Squat angle is the synchronized average of both knees
-    const angle = Math.round((lKnee + rKnee) / 2);
 
     return {
       isValid: true,

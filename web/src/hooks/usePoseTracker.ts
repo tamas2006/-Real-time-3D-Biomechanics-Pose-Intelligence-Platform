@@ -204,10 +204,8 @@ export function usePoseTracker(exercise: ExerciseType) {
       // 2. Lowering (Eccentric)
       else if (currentStageRef.current === 'DOWN') {
         activeMinAngle.current = Math.min(activeMinAngle.current, angle);
-        const verticalDrop = currentCoMY - startCoMY.current;
-        const hasTrueDescent = exercise !== 'squat' || verticalDrop >= 0.04;
 
-        if (angle <= cfg.inflectionThresh && hasTrueDescent) {
+        if (angle <= cfg.inflectionThresh) {
           currentStageRef.current = 'BOTTOM';
           setPhase('inflection');
           hasReachedDepth.current = true;
@@ -216,8 +214,8 @@ export function usePoseTracker(exercise: ExerciseType) {
 
           const depthPhrases = [
             'Good depth! Drive up.',
-            'Deep parallel! Push through mid-foot.',
-            'Target depth reached! Explode up.'
+            'Target depth reached! Push up.',
+            'Deep parallel! Drive through heels.'
           ];
           speak(depthPhrases[Math.floor(Math.random() * depthPhrases.length)], true);
         }
@@ -430,7 +428,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       if (!smoothedLandmarksRef.current || smoothedLandmarksRef.current.length !== rawLandmarks.length) {
         smoothedLandmarksRef.current = rawLandmarks.map((p: any) => ({ ...p }));
       } else {
-        const alpha = 0.85; // Instant zero-lag responsiveness
+        const alpha = 0.75; // Silky smooth jitter-free landmark tracking
         smoothedLandmarksRef.current = rawLandmarks.map((p: any, idx: number) => {
           const prev = smoothedLandmarksRef.current![idx];
           return {
@@ -526,7 +524,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       });
 
       pose.setOptions({
-        modelComplexity: 0, // High-Speed 120+ FPS Edge Inference
+        modelComplexity: 1, // Full High-Precision Landmark Accuracy
         smoothLandmarks: true,
         enableSegmentation: false,
         smoothSegmentation: false,
@@ -549,7 +547,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
             facingMode: 'user',
             width: { ideal: 1280, max: 1920 },
             height: { ideal: 720, max: 1080 },
-            frameRate: { ideal: 120, min: 60 }
+            frameRate: { ideal: 60, max: 60 }
           },
           audio: false
         });
