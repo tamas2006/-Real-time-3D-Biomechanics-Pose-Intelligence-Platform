@@ -13,12 +13,15 @@ export const LandingHero: React.FC = () => {
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   useEffect(() => {
+    // Instant Next.js route prefetching for buttery smooth 0ms route swap
+    router.prefetch('/studio');
+
     const contentTimer = setTimeout(() => {
       setIsContentRevealed(true);
-    }, 120);
+    }, 60);
 
     return () => clearTimeout(contentTimer);
-  }, []);
+  }, [router]);
 
   const handleBeginExperience = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,7 +30,7 @@ export const LandingHero: React.FC = () => {
 
     setTimeout(() => {
       router.push('/studio');
-    }, 450);
+    }, 220);
   };
 
   return (
@@ -40,8 +43,8 @@ export const LandingHero: React.FC = () => {
           loop
           muted
           playsInline
-          className={`w-full h-full object-cover scale-105 transition-all duration-700 ease-out ${
-            isTransitioning ? 'opacity-20 scale-110 blur-lg' : 'opacity-65 scale-105'
+          className={`w-full h-full object-cover will-change-transform transition-all duration-300 ease-out ${
+            isTransitioning ? 'opacity-20 scale-105' : 'opacity-65 scale-100'
           }`}
         >
           <source src="/hero_bg.mp4" type="video/mp4" />
@@ -56,10 +59,10 @@ export const LandingHero: React.FC = () => {
 
       {/* 1. TOP NAVBAR */}
       <div
-        className={`relative z-30 transition-all duration-700 ease-out ${
+        className={`relative z-30 transition-all duration-500 ease-out ${
           isContentRevealed && !isTransitioning
-            ? 'opacity-100 translate-y-0 blur-0 pointer-events-auto'
-            : 'opacity-0 -translate-y-6 blur-sm pointer-events-none'
+            ? 'opacity-100 translate-y-0 pointer-events-auto'
+            : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
       >
         <ZainabNavbar />
@@ -67,11 +70,13 @@ export const LandingHero: React.FC = () => {
 
       {/* 2. HERO 2-COLUMN LAYOUT */}
       <div
-        className={`relative z-30 max-w-6xl mx-auto w-full my-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center transition-all duration-1000 ease-out ${
+        className={`relative z-30 max-w-6xl mx-auto w-full my-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center will-change-transform transition-all duration-300 ease-out ${
           isContentRevealed && !isTransitioning
-            ? 'opacity-100 scale-100 blur-0 translate-y-0 pointer-events-auto'
-            : 'opacity-0 scale-95 blur-md translate-y-6 pointer-events-none'
-        } ${isTransitioning ? 'opacity-0 scale-95 blur-md -translate-y-2' : ''}`}
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+            : isTransitioning
+            ? 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'
+            : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
       >
         {/* LEFT COLUMN: HEADLINE, SUBTITLE, BULLETS, CTA BUTTON */}
         <div className="md:col-span-7 flex flex-col items-start gap-4 text-left">
@@ -151,7 +156,7 @@ export const LandingHero: React.FC = () => {
             <span className="absolute -bottom-2 -right-3 text-white text-xs animate-bounce" style={{ animationDuration: '2.5s' }}>✧</span>
 
             {/* Main Pixel Capsule */}
-            <div className="relative flex flex-col items-center justify-center px-8 py-7 rounded-3xl bg-[#0c0c0d]/90 border border-white/[0.12] backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] hover:shadow-[0_0_60px_rgba(255,255,255,0.12)] hover:border-white/25 transition-all duration-500 group-hover:scale-105">
+            <div className="relative flex flex-col items-center justify-center px-8 py-7 rounded-3xl bg-[#0c0c0d]/90 border border-white/[0.12] backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] hover:shadow-[0_0_60px_rgba(255,255,255,0.12)] hover:border-white/25 transition-all duration-300 group-hover:scale-105">
               {/* Top micro label */}
               <span className="text-[10px] font-pixel uppercase tracking-[0.25em] text-neutral-400 mb-2">
                 POSE INTELLIGENCE
@@ -178,10 +183,10 @@ export const LandingHero: React.FC = () => {
 
       {/* 3. MINIMAL BOTTOM BAR & SOCIAL ROW */}
       <div
-        className={`relative z-30 max-w-6xl mx-auto w-full flex items-center justify-between text-xs text-neutral-500 transition-all duration-700 ease-out ${
+        className={`relative z-30 max-w-6xl mx-auto w-full flex items-center justify-between text-xs text-neutral-500 transition-all duration-500 ease-out ${
           isContentRevealed && !isTransitioning
-            ? 'opacity-100 translate-y-0 blur-0 pointer-events-auto'
-            : 'opacity-0 translate-y-6 blur-sm pointer-events-none'
+            ? 'opacity-100 translate-y-0 pointer-events-auto'
+            : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
         <span>© 2026 kinetic.online — All rights reserved.</span>
@@ -197,10 +202,10 @@ export const LandingHero: React.FC = () => {
       {/* 4. FLOATING ANNOUNCEMENT / COOKIE CAPSULE */}
       {showAnnouncement && (
         <div
-          className={`fixed bottom-6 left-6 z-50 flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300 transition-all duration-700 ease-out ${
+          className={`fixed bottom-6 left-6 z-50 flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300 transition-all duration-500 ease-out ${
             isContentRevealed && !isTransitioning
               ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 translate-y-8 pointer-events-none'
+              : 'opacity-0 translate-y-6 pointer-events-none'
           }`}
         >
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/10 text-white text-[10px] uppercase font-bold tracking-wider">
@@ -227,9 +232,9 @@ export const LandingHero: React.FC = () => {
         </div>
       )}
 
-      {/* Smooth Dark Transition Overlay */}
+      {/* Hardware-Accelerated Smooth Fade Overlay */}
       <div
-        className={`fixed inset-0 bg-black pointer-events-none z-50 transition-opacity duration-500 ease-in-out ${
+        className={`fixed inset-0 bg-black pointer-events-none z-50 will-change-opacity transition-opacity duration-200 ease-out ${
           isTransitioning ? 'opacity-100' : 'opacity-0'
         }`}
       />

@@ -14,17 +14,14 @@ import { sounds } from '@/lib/soundEffects';
 
 export default function StudioPage() {
   const router = useRouter();
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [exercise, setExercise] = useState<ExerciseType>('squat');
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, []);
+    // Instant Next.js route prefetching for smooth back-navigation
+    router.prefetch('/');
+  }, [router]);
 
   const handleBackToHome = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,7 +30,7 @@ export default function StudioPage() {
 
     setTimeout(() => {
       router.push('/');
-    }, 450);
+    }, 200);
   };
 
   const {
@@ -60,10 +57,8 @@ export default function StudioPage() {
 
   return (
     <div
-      className={`min-h-screen bg-[#080808] bg-noise text-white flex flex-col selection:bg-neutral-700 selection:text-white transition-all duration-700 ease-out font-mono ${
-        isLoaded && !isExiting
-          ? 'opacity-100 scale-100 blur-0 translate-y-0'
-          : 'opacity-0 scale-[0.98] blur-md translate-y-3'
+      className={`min-h-screen bg-[#080808] bg-noise text-white flex flex-col selection:bg-neutral-700 selection:text-white will-change-opacity transition-opacity duration-200 ease-out font-mono ${
+        !isExiting ? 'opacity-100' : 'opacity-0'
       }`}
     >
       {/* Top Navbar */}
