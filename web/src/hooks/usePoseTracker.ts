@@ -288,6 +288,10 @@ export function usePoseTracker(exercise: ExerciseType) {
               };
               setRepHistory((prev) => [validMetric, ...prev]);
             }
+          } else {
+            // ❌ REJECTED HALF REP (INSUFFICIENT DEPTH / PARTIAL ROM)
+            sounds.playRepFailed();
+            speak('No rep! Hit full depth.', true);
           }
 
           // Reset cycle
@@ -355,6 +359,10 @@ export function usePoseTracker(exercise: ExerciseType) {
               tempoRatio: 1.0
             };
             setRepHistory((prev) => [validMetric, ...prev]);
+          } else {
+            // ❌ REJECTED HALF SHOULDER PRESS
+            sounds.playRepFailed();
+            speak('No rep! Full overhead lockout required.', true);
           }
 
           currentStageRef.current = 'START';

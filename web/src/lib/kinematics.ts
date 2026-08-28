@@ -5,66 +5,66 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     id: 'squat',
     name: 'Barbell / Bodyweight Squat',
     primaryJoint: 'Bilateral Knees & Hips',
-    startThresh: 150,
-    inflectionThresh: 105,
-    lockoutThresh: 135,
-    minROM: 35,
-    minDuration: 0.85,
-    description: 'Lower until thighs reach parallel with proud chest and knees tracking outwards.'
+    startThresh: 155,
+    inflectionThresh: 95,      // Strict parallel depth (<= 95°)
+    lockoutThresh: 155,         // Full vertical lockout (>= 155°)
+    minROM: 55,                 // Minimum 55° displacement (Rejects half squats)
+    minDuration: 0.90,          // Physiological minimum rep duration
+    description: 'Lower until thighs reach parallel or below, driving back to full vertical lockout.'
   },
   bicep_curl: {
     id: 'bicep_curl',
     name: 'Standing Bicep Curl',
     primaryJoint: 'Elbow Flexion',
-    startThresh: 140,
-    inflectionThresh: 65,
-    lockoutThresh: 130,
-    minROM: 50,
-    minDuration: 0.80,
-    description: 'Keep elbows pinned to your ribs, curling weight upwards through full range.'
+    startThresh: 150,
+    inflectionThresh: 52,       // Strict peak flexion (<= 52°)
+    lockoutThresh: 148,         // Full bottom extension (>= 148°)
+    minROM: 75,                 // Minimum 75° displacement (Rejects half curls)
+    minDuration: 0.85,
+    description: 'Full extension at the bottom to peak squeeze at the top.'
   },
   pushup: {
     id: 'pushup',
     name: 'Standard Push-Up',
     primaryJoint: 'Elbows & Core',
-    startThresh: 140,
-    inflectionThresh: 95,
-    lockoutThresh: 135,
-    minROM: 35,
-    minDuration: 0.80,
-    description: 'Maintain rigid horizontal body line on floor, lowering chest to near floor.'
+    startThresh: 155,
+    inflectionThresh: 85,       // Chest to floor depth (<= 85°)
+    lockoutThresh: 152,         // Full elbow lockout (>= 152°)
+    minROM: 55,                 // Minimum 55° displacement (Rejects half pushups)
+    minDuration: 0.85,
+    description: 'Rigid plank with chest lowering near floor and pressing to complete lockout.'
   },
   lunge: {
     id: 'lunge',
     name: 'Forward / Reverse Lunge',
     primaryJoint: 'Lead Knee',
-    startThresh: 150,
-    inflectionThresh: 100,
-    lockoutThresh: 135,
-    minROM: 40,
-    minDuration: 0.85,
-    description: 'Step into deep lunge until lead thigh is parallel with floor.'
+    startThresh: 155,
+    inflectionThresh: 90,       // Deep 90° split depth (<= 90°)
+    lockoutThresh: 152,         // Full standing return (>= 152°)
+    minROM: 55,
+    minDuration: 0.90,
+    description: 'Deep split lunge with lead thigh parallel to floor before returning to standing.'
   },
   shoulder_press: {
     id: 'shoulder_press',
     name: 'Overhead Shoulder Press',
     primaryJoint: 'Shoulders & Elbows',
-    startThresh: 95,
-    inflectionThresh: 155,
-    lockoutThresh: 110,
-    minROM: 45,
-    minDuration: 0.80,
-    description: 'Press vertically overhead to full elbow lockout without arching spine.'
+    startThresh: 85,            // Shoulder rack start (<= 85°)
+    inflectionThresh: 162,      // Full overhead vertical arm lockout (>= 162°)
+    lockoutThresh: 92,          // Return to collarbone
+    minROM: 65,                 // Minimum 65° displacement
+    minDuration: 0.85,
+    description: 'Press from clavicle height to full vertical arm lockout overhead.'
   },
   plank: {
     id: 'plank',
     name: 'Core Isometric Plank',
     primaryJoint: 'Spine & Abdominals',
-    startThresh: 155,
-    inflectionThresh: 155,
-    lockoutThresh: 155,
+    startThresh: 160,
+    inflectionThresh: 160,
+    lockoutThresh: 160,
     minROM: 0,
-    minDuration: 1.5,
+    minDuration: 2.0,
     description: 'Maintain a straight, unbroken line across shoulders, hips, and ankles.'
   }
 };
@@ -122,7 +122,7 @@ export interface PosturePrerequisiteResult {
 
 /**
  * Deterministic multi-variable kinetic chain prerequisite validator.
- * Blocks dancing, stepping false reps, seated cheats, and air pushing.
+ * Blocks dancing, stepping false reps, half-squats, and incomplete ROM.
  */
 export function validatePosturePrerequisites(
   exercise: ExerciseType,
@@ -163,9 +163,7 @@ export function validatePosturePrerequisites(
     const lKnee = calculateAngle3D(lm[23], lm[25], lm[27]);
     const rKnee = calculateAngle3D(lm[24], lm[26], lm[28]);
 
-    // Anti-Dancing / Anti-Walking Bilateral Filter:
-    // Dancing / walking features single-leg motions or asymmetric leg shifts.
-    // A squat requires both knees to bend synchronously (|L - R| <= 25°).
+    // Bilateral knee check (|L - R| <= 25°)
     const kneeAsymmetry = Math.abs(lKnee - rKnee);
     if (kneeAsymmetry > 25 && (lKnee > 135 || rKnee > 135)) {
       return {
@@ -196,8 +194,6 @@ export function validatePosturePrerequisites(
     const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
     const angle = (lm[13].visibility || 1) >= (lm[14].visibility || 1) ? lElbow : rElbow;
 
-    // Defense against standing dancing / air-pushing:
-    // A push-up strictly requires horizontal prone orientation on the floor (torso inclination >= 38°)
     if (torsoInclination < 38 && (lm[23].visibility || 1) > 0.35) {
       return {
         isValid: false,
@@ -217,7 +213,7 @@ export function validatePosturePrerequisites(
   }
 
   // -------------------------------------------------------------
-  // 3. BICEP CURL KINETIC CHAIN VALIDATION (Anti-Flailing / Anti-Dancing)
+  // 3. BICEP CURL KINETIC CHAIN VALIDATION
   // -------------------------------------------------------------
   if (exercise === 'bicep_curl') {
     const lElbow = calculateAngle3D(lm[11], lm[13], lm[15]);
@@ -225,7 +221,6 @@ export function validatePosturePrerequisites(
     const isLeft = (lm[13].visibility || 1) >= (lm[14].visibility || 1);
     const angle = isLeft ? lElbow : rElbow;
 
-    // Check humerus vector against torso (anti-dancing arm swing)
     const shoulderIdx = isLeft ? 11 : 12;
     const elbowIdx = isLeft ? 13 : 14;
     const hipIdx = isLeft ? 23 : 24;
@@ -234,8 +229,8 @@ export function validatePosturePrerequisites(
     if (shoulderElbowAngle > 35) {
       return {
         isValid: false,
-        statusMessage: 'Pin upper arm to ribs (Stop swinging/dancing)',
-        rejectionReason: 'Arm swing / dancing flailing motion rejected',
+        statusMessage: 'Pin upper arm to ribs (Stop swinging)',
+        rejectionReason: 'Arm swing / flailing motion rejected',
         primaryAngle: angle,
         postureType: 'INVALID_SWING'
       };
