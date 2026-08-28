@@ -27,7 +27,7 @@ export const LandingHero: React.FC = () => {
       {/* 2. TOP NAVBAR */}
       <ZainabNavbar />
 
-      {/* 3. HERO HEADLINE & ELECTRIC NEON CYAN GLOW BUTTON */}
+      {/* 3. HERO HEADLINE & CONTINUOUS LOOPING GLOW BUTTON */}
       <div className="relative z-20 max-w-5xl mx-auto w-full my-auto text-center flex flex-col items-center">
         <h1 className="text-5xl sm:text-7xl md:text-8xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-10 select-none drop-shadow-2xl">
           Trainer who <span className="text-white font-black">Coaches</span>
@@ -37,14 +37,23 @@ export const LandingHero: React.FC = () => {
           <Link
             href="/studio"
             onClick={() => sounds.playButtonClick()}
-            className="group neon-cyan-pill inline-flex items-center gap-3.5 px-9 py-4 rounded-full text-xs font-mono font-bold uppercase tracking-[0.22em] text-white backdrop-blur-2xl active:scale-95 transition-all duration-300"
+            className="group relative p-[1.5px] rounded-full overflow-hidden inline-flex items-center justify-center shadow-[0_0_30px_rgba(0,229,255,0.45)] hover:shadow-[0_0_55px_rgba(0,229,255,0.85)] active:scale-95 transition-all duration-300 hover:scale-105"
           >
-            <span className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]">
-              BEGIN THE EXPERIENCE
-            </span>
-            <span className="text-sm font-sans text-[#00E5FF] transition-transform group-hover:translate-x-1 duration-300 drop-shadow-[0_0_8px_#00E5FF]">
-              →
-            </span>
+            {/* 1. Continuous Looping Rotating Neon Conic Beam */}
+            <div className="absolute inset-[-180%] animate-spin-beam bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,#00E5FF_315deg,#FFFFFF_350deg,#00E5FF_360deg)] pointer-events-none" />
+
+            {/* 2. Outer Diffuse Glow Aura */}
+            <div className="absolute inset-[-180%] animate-spin-beam bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,#00E5FF_315deg,#00E5FF_360deg)] blur-md opacity-85 pointer-events-none" />
+
+            {/* 3. Inner Dark Glass Button Body */}
+            <div className="relative z-10 w-full h-full rounded-full bg-[#030B17]/90 hover:bg-[#030B17]/70 backdrop-blur-2xl px-9 py-4 flex items-center gap-3.5 text-xs font-mono font-bold uppercase tracking-[0.22em] text-white transition-colors duration-300">
+              <span className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]">
+                BEGIN THE EXPERIENCE
+              </span>
+              <span className="text-sm font-sans text-[#00E5FF] transition-transform group-hover:translate-x-1 duration-300 drop-shadow-[0_0_8px_#00E5FF]">
+                →
+              </span>
+            </div>
           </Link>
         </div>
       </div>

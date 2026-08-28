@@ -74,57 +74,19 @@ body {
 }
 
 /* ------------------------------------------------------------- */
-/* ELECTRIC NEON CYAN GLOWING PILL BORDER (Exact Reference Match) */
+/* CONTINUOUS LOOPING NEON CYAN BEAM BORDER ANIMATION */
 /* ------------------------------------------------------------- */
-.neon-cyan-pill {
-  position: relative;
-  background: rgba(3, 11, 23, 0.75);
-  border: 1.5px solid #00E5FF;
-  box-shadow: 
-    0 0 8px #00E5FF,
-    0 0 20px rgba(0, 229, 255, 0.65),
-    0 0 40px rgba(0, 150, 255, 0.45),
-    inset 0 0 12px rgba(0, 229, 255, 0.35);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+@keyframes spin-beam {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.neon-cyan-pill:hover {
-  background: rgba(0, 229, 255, 0.15);
-  border-color: #70FFFF;
-  box-shadow: 
-    0 0 12px #70FFFF,
-    0 0 30px rgba(0, 229, 255, 0.9),
-    0 0 60px rgba(0, 180, 255, 0.7),
-    inset 0 0 18px rgba(0, 229, 255, 0.6);
-  transform: scale(1.05);
-}
-
-.neon-cyan-pill::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  right: 25%;
-  width: 40px;
-  height: 2px;
-  background: #FFFFFF;
-  filter: blur(1px);
-  box-shadow: 0 0 8px 2px #00E5FF;
-  border-radius: 9999px;
-  pointer-events: none;
-}
-
-.neon-cyan-pill::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 25%;
-  width: 40px;
-  height: 2px;
-  background: #FFFFFF;
-  filter: blur(1px);
-  box-shadow: 0 0 8px 2px #00E5FF;
-  border-radius: 9999px;
-  pointer-events: none;
+.animate-spin-beam {
+  animation: spin-beam 3s linear infinite;
 }
 
 /* ------------------------------------------------------------- */
