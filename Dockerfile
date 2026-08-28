@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY backend ./backend
 COPY ml ./ml
-COPY static ./static 2>/dev/null || :
+COPY frontend ./frontend
 
 EXPOSE 8000
 
