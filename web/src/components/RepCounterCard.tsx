@@ -115,23 +115,44 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
               </p>
             </div>
           ) : (
-            repHistory.map((rep, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-white animate-fadeIn hover:bg-white/10 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-amber-400/20 text-amber-200 text-[10px] flex items-center justify-center font-bold">
-                    #{rep.repNumber}
-                  </span>
-                  <span>{rep.durationSec}s Total</span>
+            repHistory.map((rep, idx) => {
+              const isClean = rep.formScore >= 70;
+              return (
+                <div
+                  key={idx}
+                  className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-mono text-white animate-fadeIn transition-colors ${
+                    isClean
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                      : 'bg-rose-950/40 border-rose-500/40 text-rose-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
+                        isClean
+                          ? 'bg-amber-400/20 text-amber-200'
+                          : 'bg-rose-500/30 text-rose-300'
+                      }`}
+                    >
+                      #{rep.repNumber}
+                    </span>
+                    <span>{rep.durationSec}s Total</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-400">{rep.eccentricSec}s down</span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                        isClean
+                          ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-300/30'
+                          : 'bg-rose-500/20 text-rose-300 border border-rose-400/30'
+                      }`}
+                    >
+                      {isClean ? `${rep.formScore}% Clean` : `${rep.formScore}% No Rep`}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-slate-400">{rep.eccentricSec}s down</span>
-                  <span className="text-amber-200 font-bold">{rep.formScore}%</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

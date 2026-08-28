@@ -44,6 +44,8 @@ export function usePoseTracker(exercise: ExerciseType) {
   const hasReachedDepth = useRef(false);
   const inflectionEnterTime = useRef(0);
   const startCoMY = useRef(0);
+  const cycleMinScoreRef = useRef(100);
+  const cycleViolationsRef = useRef<string[]>([]);
   const currentStageRef = useRef<'START' | 'DOWN' | 'BOTTOM' | 'UP'>('START');
 
   const streamRef = useRef<MediaStream | null>(null);
@@ -128,21 +130,33 @@ export function usePoseTracker(exercise: ExerciseType) {
       const aSpread = Math.abs(landmarks[27].x - landmarks[28].x);
       if (aSpread > 0.08 && kSpread < aSpread * 0.72 && angle < 128) {
         currentWarnings.push('Knee valgus detected (push knees outward)');
-        score -= 15;
+        score -= 35;
+        cycleMinScoreRef.current = Math.min(cycleMinScoreRef.current, score);
+        if (!cycleViolationsRef.current.includes('Knee valgus')) {
+          cycleViolationsRef.current.push('Knee valgus');
+        }
         speak('Push knees outward over toes!');
       }
     } else if (exercise === 'pushup') {
       const lElbow = calculateAngle3D(landmarks[11], landmarks[13], landmarks[15]);
       if (lElbow > 85 && angle < 110) {
         currentWarnings.push('Elbows flared (tuck to 45 degrees)');
-        score -= 10;
+        score -= 30;
+        cycleMinScoreRef.current = Math.min(cycleMinScoreRef.current, score);
+        if (!cycleViolationsRef.current.includes('Elbow flare')) {
+          cycleViolationsRef.current.push('Elbow flare');
+        }
         speak('Tuck elbows to 45 degrees.');
       }
     } else if (exercise === 'bicep_curl') {
       const lShoulderElbowAngle = calculateAngle3D(landmarks[23], landmarks[11], landmarks[13]);
-      if (lShoulderElbowAngle > 35 && angle < 100) {
+      if (lShoulderElbowAngle > 30 && angle < 105) {
         currentWarnings.push('Elbow drift detected (keep pinned to ribs)');
-        score -= 15;
+        score -= 35;
+        cycleMinScoreRef.current = Math.min(cycleMinScoreRef.current, score);
+        if (!cycleViolationsRef.current.includes('Elbow swing')) {
+          cycleViolationsRef.current.push('Elbow swing');
+        }
         speak('Keep elbows pinned to ribs.');
       }
     }
@@ -172,6 +186,8 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMinAngle.current = angle;
           activeMaxAngle.current = angle;
           hasReachedDepth.current = false;
+          cycleMinScoreRef.current = 100;
+          cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
           startCoMY.current = currentCoMY;
         } else if (angle <= cfg.startThresh - 12) {
@@ -212,36 +228,54 @@ export function usePoseTracker(exercise: ExerciseType) {
           const duration = now - repStartTimeRef.current;
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
-          // Multi-variable verification check
+          // STRICT CLINICAL FORM & ANTI-CHEAT ENFORCEMENT
           if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
-            setRepCount((prev) => {
-              const nextRep = prev + 1;
+            const isCleanRep = cycleMinScoreRef.current >= 70 && cycleViolationsRef.current.length === 0;
+
+            if (!isCleanRep) {
+              // ❌ REJECTED CHEAT REP
+              const primaryViolation = cycleViolationsRef.current[0] || 'Form breakdown';
+              sounds.playRepFailed();
+              speak(`No rep! Form failed: ${primaryViolation}.`, true);
+
+              const failedMetric: RepMetric = {
+                repNumber: repCount + 1,
+                durationSec: parseFloat(duration.toFixed(1)),
+                eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+                concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+                minAngle: activeMinAngle.current,
+                maxAngle: activeMaxAngle.current,
+                formScore: cycleMinScoreRef.current,
+                tempoRatio: 1.0
+              };
+              setRepHistory((prev) => [failedMetric, ...prev]);
+            } else {
+              // ✅ CREDITED CLEAN REP
+              setRepCount((prev) => prev + 1);
+              setValidReps((prev) => prev + 1);
               sounds.playRepSuccess();
 
               const praises = [
-                `Rep ${nextRep}! Perfect form.`,
-                `Rep ${nextRep}! Excellent tempo.`,
-                `Rep ${nextRep} confirmed!`,
-                `Solid rep ${nextRep}! Keep driving.`
+                `Rep ${repCount + 1}! Perfect form.`,
+                `Rep ${repCount + 1}! Excellent tempo.`,
+                `Rep ${repCount + 1} confirmed!`,
+                `Solid rep ${repCount + 1}! Keep driving.`
               ];
               const chosenPraise = praises[Math.floor(Math.random() * praises.length)];
               speak(chosenPraise, true);
 
-              return nextRep;
-            });
-            setValidReps((prev) => prev + 1);
-
-            const metric: RepMetric = {
-              repNumber: repCount + 1,
-              durationSec: parseFloat(duration.toFixed(1)),
-              eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-              concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-              minAngle: activeMinAngle.current,
-              maxAngle: activeMaxAngle.current,
-              formScore: score,
-              tempoRatio: 1.0
-            };
-            setRepHistory((prev) => [metric, ...prev]);
+              const validMetric: RepMetric = {
+                repNumber: repCount + 1,
+                durationSec: parseFloat(duration.toFixed(1)),
+                eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+                concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+                minAngle: activeMinAngle.current,
+                maxAngle: activeMaxAngle.current,
+                formScore: score,
+                tempoRatio: 1.0
+              };
+              setRepHistory((prev) => [validMetric, ...prev]);
+            }
           }
 
           // Reset cycle
@@ -250,6 +284,8 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMinAngle.current = angle;
           activeMaxAngle.current = angle;
           hasReachedDepth.current = false;
+          cycleMinScoreRef.current = 100;
+          cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
         }
       }
@@ -260,6 +296,8 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMinAngle.current = angle;
           activeMaxAngle.current = angle;
           hasReachedDepth.current = false;
+          cycleMinScoreRef.current = 100;
+          cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
         } else if (angle >= cfg.startThresh + 12) {
           currentStageRef.current = 'UP';
@@ -285,13 +323,22 @@ export function usePoseTracker(exercise: ExerciseType) {
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
           if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
-            setRepCount((prev) => {
-              const nextRep = prev + 1;
-              sounds.playRepSuccess();
-              speak(`Rep ${nextRep}! Clean press.`, true);
-              return nextRep;
-            });
+            setRepCount((prev) => prev + 1);
             setValidReps((prev) => prev + 1);
+            sounds.playRepSuccess();
+            speak(`Rep ${repCount + 1}! Clean press.`, true);
+
+            const validMetric: RepMetric = {
+              repNumber: repCount + 1,
+              durationSec: parseFloat(duration.toFixed(1)),
+              eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+              concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+              minAngle: activeMinAngle.current,
+              maxAngle: activeMaxAngle.current,
+              formScore: score,
+              tempoRatio: 1.0
+            };
+            setRepHistory((prev) => [validMetric, ...prev]);
           }
 
           currentStageRef.current = 'START';
