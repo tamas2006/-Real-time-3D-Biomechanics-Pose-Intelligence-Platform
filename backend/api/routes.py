@@ -194,7 +194,21 @@ async def mentor_chat(req: MentorChatRequest):
         avg_score=req.avg_score,
         recent_warnings=req.recent_warnings
     )
-    return ans
+class VisionDiagnosticRequest(BaseModel):
+    image_b64: str
+    exercise: str = "squat"
+    angle: float = 90.0
+    warnings: List[str] = []
+
+@router.post("/mentor/vision-diagnostic", summary="Multimodal Vision AI Analysis of Athlete Posture Snapshot")
+async def vision_diagnostic(req: VisionDiagnosticRequest):
+    result = nlp_mentor.analyze_posture_vision(
+        image_b64=req.image_b64,
+        exercise=req.exercise,
+        angle=req.angle,
+        warnings=req.warnings
+    )
+    return result
 
 # -------------------------------------------------------------
 # HIGH-FIDELITY ENGLISH AUDIO STREAMING (gTTS)
