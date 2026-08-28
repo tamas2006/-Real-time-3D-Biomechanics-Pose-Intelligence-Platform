@@ -1,13 +1,32 @@
 """
-Real-Time Biomechanical NLP Mentorship Service in Pure Professional English.
+Real-Time Biomechanical NLP Mentorship Service powered by Groq High-Speed LLM Inference.
 Provides clinical-grade movement cues, form correction, and interactive conversational reasoning.
 """
+import os
 import random
 from typing import List, Dict, Any
+from dotenv import load_dotenv
+
+# Load .env file automatically
+load_dotenv()
+
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    GROQ_AVAILABLE = False
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
 class NLPMentorEngine:
     def __init__(self):
-        self.persona = "Lead Biomechanics Coach & Sports Scientist"
+        self.persona = "Olympic Biomechanics Head Coach & Sports Scientist"
+        self.client = None
+        if GROQ_AVAILABLE and GROQ_API_KEY:
+            try:
+                self.client = Groq(api_key=GROQ_API_KEY)
+            except Exception as e:
+                print(f"[NLPMentorEngine] Groq init warning: {e}")
 
     def generate_rep_coaching(
         self,
@@ -21,73 +40,62 @@ class NLPMentorEngine:
         warnings: List[str]
     ) -> Dict[str, Any]:
         """
-        Generates dynamic natural language coaching feedback for a completed repetition.
+        Generates dynamic natural language coaching feedback for a completed repetition using Groq.
         """
         exercise_clean = exercise.replace("_", " ").title()
 
-        # 1. Critical Biomechanical Form Corrections
-        if warnings and len(warnings) > 0:
-            primary_warn = warnings[0].lower()
-            if "knee" in primary_warn or "cave" in primary_warn:
-                cue = f"Rep {rep_number}: Knee valgus detected. Push your knees outward over your mid-toes to protect your ligaments."
-                short_cue = "Push knees outward!"
-            elif "torso" in primary_warn or "pitch" in primary_warn:
-                cue = f"Rep {rep_number}: Excessive torso lean. Keep your chest proud and core braced."
-                short_cue = "Keep chest proud!"
-            elif "flare" in primary_warn or "elbow" in primary_warn:
-                cue = f"Rep {rep_number}: Elbow flare detected. Tuck elbows to 45 degrees to protect the rotator cuff."
-                short_cue = "Tuck elbows to 45 degrees!"
-            elif "swing" in primary_warn:
-                cue = f"Rep {rep_number}: Keep elbows pinned to your ribcage. Do not use momentum."
-                short_cue = "Pin elbows to ribs!"
-            else:
-                cue = f"Rep {rep_number}: {warnings[0]}. Focus on strict joint path."
-                short_cue = warnings[0]
+        # If Groq client is active, generate ultra-dynamic high precision cue
+        if self.client:
+            try:
+                system_prompt = (
+                    f"You are {self.persona}. You are monitoring an athlete doing {exercise_clean}. "
+                    "Provide a concise, 1-2 sentence real-time vocal feedback cue for their repetition. "
+                    "Be encouraging, scientifically accurate, and focused on immediate anatomical correction or positive reinforcement. "
+                    "Do not use markdown formatting or emojis, output pure clean speakable text."
+                )
+                user_content = (
+                    f"Rep #{rep_number} completed. "
+                    f"Range of Motion: {rom:.1f} degrees. "
+                    f"Duration: {duration:.1f}s (Eccentric: {eccentric_sec:.1f}s, Concentric: {concentric_sec:.1f}s). "
+                    f"Form Score: {form_score}/100. "
+                    f"Violations detected: {', '.join(warnings) if warnings else 'None (Clean Rep)'}."
+                )
 
+                resp = self.client.chat.completions.create(
+                    model="openai/gpt-oss-120b",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    max_tokens=80,
+                    temperature=0.6
+                )
+                spoken = resp.choices[0].message.content.strip()
+                short_cue = warnings[0] if warnings else f"Rep {rep_number} verified"
+
+                return {
+                    "spoken_text": spoken,
+                    "short_cue": short_cue,
+                    "sentiment": "correction" if warnings else "praise",
+                    "score": form_score
+                }
+            except Exception as e:
+                print(f"[Groq Rep Coaching Error]: {e}")
+
+        # Fallback procedural coaching
+        if warnings and len(warnings) > 0:
+            cue = f"Rep {rep_number}: {warnings[0]}. Focus on strict joint path and control."
             return {
                 "spoken_text": cue,
-                "short_cue": short_cue,
+                "short_cue": warnings[0],
                 "sentiment": "correction",
                 "score": form_score
             }
 
-        # 2. Perfect Form & High Velocity
-        if form_score >= 90:
-            praise_phrases = [
-                f"Rep {rep_number} was textbook! Full range of motion with excellent control.",
-                f"Flawless rep {rep_number}. Perfect joint lockout and cadence. Keep that rhythm!",
-                f"Outstanding execution on rep {rep_number}. Kinetic chain was completely stacked.",
-                f"Rep {rep_number} nailed full depth with clinical stability. Stay locked in!"
-            ]
-            cue = random.choice(praise_phrases)
-            return {
-                "spoken_text": cue,
-                "short_cue": f"Rep {rep_number}! Perfect form.",
-                "sentiment": "praise",
-                "score": form_score
-            }
-
-        # 3. Tempo / Speed Adjustments
-        if eccentric_sec < 0.6:
-            cue = f"Rep {rep_number}: You rushed the descent. Control the 2 to 3 second negative to build tendon resilience."
-            return {
-                "spoken_text": cue,
-                "short_cue": "Control the negative phase!",
-                "sentiment": "tempo_advice",
-                "score": form_score
-            }
-
-        # 4. General Solid Repetition
-        solid_phrases = [
-            f"Good work on rep {rep_number}. Drive strong through your mid-foot on the ascent.",
-            f"Solid rep {rep_number}. Keep breathing steadily throughout the movement.",
-            f"Rep {rep_number} completed with {rom:.0f} degrees of clean displacement."
-        ]
-        cue = random.choice(solid_phrases)
         return {
-            "spoken_text": cue,
-            "short_cue": f"Rep {rep_number} logged.",
-            "sentiment": "positive",
+            "spoken_text": f"Solid execution on rep {rep_number}. Keep driving through mid-foot!",
+            "short_cue": f"Rep {rep_number} logged",
+            "sentiment": "praise",
             "score": form_score
         }
 
@@ -98,59 +106,59 @@ class NLPMentorEngine:
         rep_count: int = 0,
         avg_score: int = 100,
         recent_warnings: List[str] = None
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         """
-        Interactive conversational NLP assistant for exercise questions and biomechanics advice.
+        Conversational reasoning engine powered by Groq LLM.
         """
-        q = query.lower().strip()
+        exercise_clean = exercise.replace("_", " ").title()
         recent_warnings = recent_warnings or []
-        ex_name = exercise.replace("_", " ").title()
 
-        if any(w in q for w in ["depth", "low", "parallel"]):
-            return {
-                "response": f"For {ex_name}, optimal biomechanical depth requires the hip crease to descend level with or slightly below the top of the patella (femoral-tibial angle ≤ 110°). This maximizes gluteus maximus and quad stretch-shortening cycles while mitigating patellofemoral shearing pressure.",
-                "actionable_cue": "Cue: 'Open your hips and drop between your knees, not on top of them.'"
-            }
+        if self.client:
+            try:
+                system_prompt = (
+                    f"You are the world's top {self.persona}. The athlete is currently training {exercise_clean} "
+                    f"and has completed {rep_count} repetitions with an average form score of {avg_score}%. "
+                    f"Recent telemetry alerts: {', '.join(recent_warnings) if recent_warnings else 'Optimal form'}. "
+                    "Provide a clear, practical, sports-science backed answer in 2-3 sentences max. "
+                    "Always end with a single short, punchy vocal cue enclosed in brackets like: [Actionable Cue: Push knees over pinky toes]."
+                )
 
-        elif any(w in q for w in ["knee", "pain", "cave", "valgus"]):
-            return {
-                "response": "Knee valgus collapse is commonly caused by underactive gluteus medius stabilizers or restricted ankle dorsiflexion. When knees collapse inward, shear force across the ACL increases by up to 300%.",
-                "actionable_cue": "Cue: 'Screw your feet into the floor to pre-activate your external hip rotators.'"
-            }
+                resp = self.client.chat.completions.create(
+                    model="openai/gpt-oss-120b",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": query}
+                    ],
+                    max_tokens=250,
+                    temperature=0.7
+                )
+                full_text = resp.choices[0].message.content.strip()
 
-        elif any(w in q for w in ["tempo", "speed", "fast", "slow"]):
-            return {
-                "response": f"For maximum hypertrophy and joint longevity in {ex_name}, we recommend a 3-0-1-0 tempo: 3 seconds controlled eccentric descent, 0 pause at bottom, 1 second explosive concentric ascent, and 0 pause at top lockout.",
-                "actionable_cue": "Cue: 'Count 3-2-1 on the way down, explode up in 1 second.'"
-            }
+                # Extract actionable cue if present
+                actionable_cue = None
+                if "[Actionable Cue:" in full_text:
+                    parts = full_text.split("[Actionable Cue:")
+                    clean_response = parts[0].strip()
+                    actionable_cue = parts[1].replace("]", "").strip()
+                else:
+                    clean_response = full_text
 
-        elif any(w in q for w in ["pushup", "elbow", "shoulder"]):
-            return {
-                "response": "In horizontal pressing (push-ups), flaring elbows at 90° pinches the supraspinatus tendon against the acromion. Tucking elbows to 45° creates an arrow shape that optimizes pectoralis major fiber recruitment.",
-                "actionable_cue": "Cue: 'Make an arrow shape with your upper body, not a T.'"
-            }
-
-        elif any(w in q for w in ["curl", "bicep", "arm"]):
-            return {
-                "response": "To fully isolate the biceps brachii short and long heads, keep elbows pinned tightly to the mid-axillary ribline. Any forward elbow swing engages anterior deltoids and robs the biceps of peak tension at 70° flexion.",
-                "actionable_cue": "Cue: 'Pin elbows to your ribs like they are welded in place.'"
-            }
-
-        elif any(w in q for w in ["score", "why", "form"]):
-            if recent_warnings:
                 return {
-                    "response": f"Your recent reps flagged '{recent_warnings[0]}'. Your current set average is {avg_score}%. Addressing joint deviation on the eccentric transition will immediately elevate your score.",
-                    "actionable_cue": "Cue: 'Focus on vertical spinal neutrality and symmetry on both limbs.'"
+                    "response": clean_response,
+                    "actionable_cue": actionable_cue or "Maintain core stability throughout range of motion.",
+                    "exercise": exercise,
+                    "model": "Groq (openai/gpt-oss-120b)"
                 }
-            return {
-                "response": f"You're currently averaging {avg_score}% form score across {rep_count} logged reps. Your joint paths and range-of-motion meet athletic clinical standards.",
-                "actionable_cue": "Cue: 'Maintain consistent cadence to preserve this form through fatigue.'"
-            }
+            except Exception as e:
+                print(f"[Groq Query Error]: {e}")
 
-        else:
-            return {
-                "response": f"As your AI Biomechanics Mentor, I am continuously tracking your 3D spatial joint vectors during {ex_name}. You have completed {rep_count} reps at {avg_score}% quality. Ask me about depth cues, tempo optimization, joint angles, or fatigue management!",
-                "actionable_cue": "Cue: 'Stay braced through your abdominal cylinder on every repetition.'"
-            }
+        # Local fallback
+        return {
+            "response": f"For {exercise_clean}, prioritize joint stack alignment and control the eccentric descent to maximize muscle tension.",
+            "actionable_cue": "Control the descent, drive explosively through mid-foot.",
+            "exercise": exercise,
+            "model": "Local Biomechanics Rulebook"
+        }
 
+# Global Singleton Instance
 nlp_mentor = NLPMentorEngine()
