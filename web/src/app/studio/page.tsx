@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cookie } from 'lucide-react';
+import { ArrowLeft, Cookie, BarChart3 } from 'lucide-react';
 import { ExerciseType } from '@/types/fitness';
 import { usePoseTracker } from '@/hooks/usePoseTracker';
 import { ZainabNavbar } from '@/components/ZainabNavbar';
@@ -10,6 +10,7 @@ import { Header } from '@/components/Header';
 import { VisionCanvas } from '@/components/VisionCanvas';
 import { RepCounterCard } from '@/components/RepCounterCard';
 import { NlpMentorStudio } from '@/components/NlpMentorStudio';
+import { WorkoutAnalyticsModal } from '@/components/WorkoutAnalyticsModal';
 import { sounds } from '@/lib/soundEffects';
 
 export default function StudioPage() {
@@ -17,6 +18,7 @@ export default function StudioPage() {
   const [isExiting, setIsExiting] = useState(false);
   const [exercise, setExercise] = useState<ExerciseType>('squat');
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     // Instant Next.js route prefetching for smooth back-navigation
@@ -76,9 +78,22 @@ export default function StudioPage() {
             <span>Back to Home</span>
           </button>
 
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
-            <span className="text-neutral-500 font-bold">//</span>
-            <span className="uppercase tracking-widest text-[11px] text-neutral-300">Live Studio</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                sounds.playButtonClick();
+                setShowAnalytics(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-900 border border-white/[0.08] hover:border-white/25 text-xs text-neutral-300 hover:text-white transition-all cursor-pointer"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Telemetry Analytics</span>
+            </button>
+
+            <div className="flex items-center gap-2 text-xs text-neutral-400">
+              <span className="text-neutral-500 font-bold">//</span>
+              <span className="uppercase tracking-widest text-[11px] text-neutral-300">Live Studio</span>
+            </div>
           </div>
         </div>
 
@@ -176,6 +191,14 @@ export default function StudioPage() {
           </div>
         </div>
       )}
+
+      {/* Workout Analytics & Telemetry Modal */}
+      <WorkoutAnalyticsModal
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+        repHistory={repHistory}
+        exercise={exercise}
+      />
     </div>
   );
 }
