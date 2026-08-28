@@ -443,6 +443,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       }
 
       const activeLandmarks = smoothedLandmarksRef.current;
+      if (!activeLandmarks) return;
 
       // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
       ctx.strokeStyle = '#FFFFFF';
