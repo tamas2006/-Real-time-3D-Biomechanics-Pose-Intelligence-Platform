@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ExerciseType } from '@/types/fitness';
 import { sounds } from '@/lib/soundEffects';
-import { playMarathiVoice } from '@/lib/marathiVoice';
+import { playVoiceCue } from '@/lib/voiceCoach';
 
 interface NlpMentorStudioProps {
   exercise: ExerciseType;
@@ -28,9 +28,9 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'coach',
-      text: `राम राम शेठ! कसा आहेस? मी तुमचा AI जिमचा जिगरी मित्र आहे. तू ${exercise.replace('_', ' ')} करतोयस ना? तुमच्या प्रत्येक हालचालीवर ३D मध्ये लक्ष आहे. लावा ताकद शेठ! फॉर्म बद्दल काहीही विचारा!`,
-      cue: "टिप: 'शेठ, श्वास घट्ट रोवून लावा ताकद!'",
-      time: 'आत्ताच'
+      text: `Hello athlete. I am your real-time Biomechanical AI Mentor. I am continuously analyzing your 3D joint trajectory for ${exercise.replace('_', ' ')}. Ask me anything about joint kinematics, tempo control, or form correction.`,
+      cue: "Cue: 'Maintain consistent abdominal bracing throughout every repetition.'",
+      time: 'Just now'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -74,28 +74,29 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
         };
         setMessages((prev) => [...prev, coachMsg]);
 
-        // Speak Native Marathi voice
+        // Speak pure English coaching cue
         const textToSpeak = data.actionable_cue || data.response;
-        playMarathiVoice(textToSpeak, true);
+        playVoiceCue(textToSpeak, true);
       }
     } catch (e) {
       const fallbackMsg: Message = {
         sender: 'coach',
-        text: `लावा ताकद शेठ! ${exercise.replace('_', ' ')} मध्ये खाली जाताना ३ सेकंद सावकाश जा आणि वर येताना पूर्ण ताकदीने या. विषयच संपला!`,
-        cue: "टिप: 'लावा ताकद शेठ, नादच खुळा!'",
+        text: `For ${exercise.replace('_', ' ')}, prioritize a controlled 3-second eccentric lowering phase to maximize muscle fiber tension and joint stability.`,
+        cue: "Cue: 'Control the descent, drive explosively through mid-foot.'",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, fallbackMsg]);
+      playVoiceCue("Control the descent, drive explosively through mid-foot.", true);
     } finally {
       setIsLoading(false);
     }
   };
 
   const quickPrompts = [
-    'शेठ गुडघे दुखतायत काय करू?',
-    'Squat मध्ये किती खाली जाऊ शेठ?',
-    'Pushup मारताना कोपरं कशी ठेवू?',
-    'लावा ताकद शेठ!'
+    'How do I fix knee cave-in?',
+    'What is optimal squat depth?',
+    'How should elbows be positioned in pushups?',
+    'Give me a cue to isolate biceps'
   ];
 
   return (
@@ -110,11 +111,11 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
             <span className="w-3 h-3 rounded-full bg-[#27C93F]" />
           </div>
           <span className="text-xs font-mono text-slate-400 tracking-widest uppercase font-bold">
-            MARATHI.MENTOR // लावा ताकद शेठ!
+            NLP.MENTOR // REAL-TIME COGNITIVE COACH
           </span>
           <div className="flex items-center gap-2 text-[11px] font-mono text-amber-200">
             <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
-            <span>शेठ ONLINE आहे</span>
+            <span>AI MENTOR ONLINE</span>
           </div>
         </div>
 
@@ -123,20 +124,20 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
             <div>
               <div className="text-amber-200 font-mono text-xs font-bold tracking-widest uppercase mb-1">
-                <span>HIGH-ENERGY MARATHI GYM BUDDY</span>
+                <span>CONVERSATIONAL BIOMECHANICS REASONING</span>
               </div>
               <h3 className="text-3xl md:text-4xl font-serif text-white">
-                आपला AI <span className="italic text-amber-200">जिमचा मित्र (शेठ)</span>
+                Real-Time NLP <span className="italic text-amber-200">Mentorship</span>
               </h3>
             </div>
 
-            {/* Quick Question Chips in Marathi */}
+            {/* Quick Question Chips in English */}
             <div className="flex flex-wrap items-center gap-2">
               {quickPrompts.map((p, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(p)}
-                  className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-[11px] font-sans font-medium text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
+                  className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-[11px] font-mono text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
                 >
                   {p}
                 </button>
@@ -155,14 +156,14 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               >
                 <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
                   <span className="font-bold uppercase tracking-wider text-amber-200">
-                    {m.sender === 'user' ? 'तुम्ही (शेठ)' : 'जिमचा मित्र (AI Coach)'}
+                    {m.sender === 'user' ? 'Athlete' : 'AI Biomechanics Coach'}
                   </span>
                   <span>•</span>
                   <span>{m.time}</span>
                 </div>
 
                 <div
-                  className={`p-4 rounded-2xl leading-relaxed font-sans text-sm ${
+                  className={`p-4 rounded-2xl leading-relaxed font-mono text-xs ${
                     m.sender === 'user'
                       ? 'bg-amber-400/20 text-amber-100 border border-amber-300/30'
                       : 'bg-white/[0.06] text-slate-200 border border-white/10'
@@ -170,7 +171,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
                 >
                   <p>{m.text}</p>
                   {m.cue && (
-                    <div className="mt-2.5 pt-2 border-t border-white/10 text-amber-200 font-bold text-xs">
+                    <div className="mt-2.5 pt-2 border-t border-white/10 text-cyan-300 font-bold text-[11px]">
                       {m.cue}
                     </div>
                   )}
@@ -181,7 +182,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
             {isLoading && (
               <div className="self-start flex items-center gap-2 text-slate-400 text-xs font-mono p-3 rounded-2xl bg-white/5">
                 <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
-                <span>शेठ विचार करतोय...</span>
+                <span>Analyzing 3D joint trajectory stream...</span>
               </div>
             )}
           </div>
@@ -193,15 +194,15 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="शेठला काहीही विचारा... (उदा. 'शेठ squat मध्ये कंबर दुखतेय')"
-              className="flex-1 bg-transparent px-4 py-2 text-xs font-sans text-white placeholder-slate-500 outline-none"
+              placeholder="Ask your AI coach about depth cues, knee tracking, tempo, or anatomy..."
+              className="flex-1 bg-transparent px-4 py-2 text-xs font-mono text-white placeholder-slate-500 outline-none"
             />
             <button
               onClick={() => handleSendMessage()}
               disabled={isLoading || !inputText.trim()}
-              className="px-6 py-2.5 rounded-xl bg-white text-slate-950 font-sans font-bold text-xs uppercase tracking-wider hover:bg-slate-100 transition-all disabled:opacity-40 active:scale-95 shadow-md"
+              className="px-6 py-2.5 rounded-xl bg-white text-slate-950 font-mono font-bold text-xs uppercase tracking-wider hover:bg-slate-100 transition-all disabled:opacity-40 active:scale-95 shadow-md"
             >
-              शेठला विचारा
+              Ask Coach
             </button>
           </div>
         </div>

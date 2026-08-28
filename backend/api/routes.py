@@ -197,27 +197,27 @@ async def mentor_chat(req: MentorChatRequest):
     return ans
 
 # -------------------------------------------------------------
-# HIGH-FIDELITY MARATHI AUDIO STREAMING (gTTS)
+# HIGH-FIDELITY ENGLISH AUDIO STREAMING (gTTS)
 # -------------------------------------------------------------
 import io
 from fastapi.responses import StreamingResponse
 from gtts import gTTS
 
-@router.get("/mentor/tts", summary="Generate streaming Marathi speech audio MP3")
-async def generate_marathi_tts(text: str):
+@router.get("/mentor/tts", summary="Generate streaming spoken audio MP3")
+async def generate_speech_tts(text: str, lang: str = "en"):
     try:
-        clean_text = text.strip() or "लावा ताकद शेठ!"
-        tts = gTTS(text=clean_text, lang="mr", slow=False)
+        clean_text = text.strip() or "Good repetition. Keep driving!"
+        tts = gTTS(text=clean_text, lang=lang, slow=False)
         mp3_fp = io.BytesIO()
         tts.write_to_fp(mp3_fp)
         mp3_fp.seek(0)
         return StreamingResponse(mp3_fp, media_type="audio/mpeg")
     except Exception as e:
-        # Fallback to English/Hindi if network issue
-        tts = gTTS(text=text, lang="hi", slow=False)
+        tts = gTTS(text=text or "Keep your core braced.", lang="en", slow=False)
         mp3_fp = io.BytesIO()
         tts.write_to_fp(mp3_fp)
         mp3_fp.seek(0)
         return StreamingResponse(mp3_fp, media_type="audio/mpeg")
+
 
 

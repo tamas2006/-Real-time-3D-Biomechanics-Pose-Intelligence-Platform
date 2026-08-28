@@ -2,10 +2,14 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ExerciseType, MovementPhase, RepMetric, Landmark } from '@/types/fitness';
-import { calculateAngle3D, EXERCISE_CONFIGS, validatePosturePrerequisites } from '@/lib/kinematics';
+import {
+  calculateAngle3D,
+  calculateCenterOfMassY,
+  EXERCISE_CONFIGS,
+  validatePosturePrerequisites
+} from '@/lib/kinematics';
 import { sounds } from '@/lib/soundEffects';
-
-import { playMarathiVoice } from '@/lib/marathiVoice';
+import { playVoiceCue } from '@/lib/voiceCoach';
 
 export function usePoseTracker(exercise: ExerciseType) {
   const [isStreaming, setIsStreaming] = useState(false);
@@ -17,6 +21,7 @@ export function usePoseTracker(exercise: ExerciseType) {
   const [repCount, setRepCount] = useState(0);
   const [validReps, setValidReps] = useState(0);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [postureStatus, setPostureStatus] = useState<string>('Ready');
   const [repHistory, setRepHistory] = useState<RepMetric[]>([]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
@@ -28,26 +33,28 @@ export function usePoseTracker(exercise: ExerciseType) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const cameraRef = useRef<any>(null);
   const poseRef = useRef<any>(null);
 
-  // State Machine Local Refs
+  // Kinetic State Machine & Trajectory Buffer Refs
   const isProcessingRef = useRef(false);
   const lastFrameTimeRef = useRef(performance.now());
   const repStartTimeRef = useRef(0);
   const activeMinAngle = useRef(360);
   const activeMaxAngle = useRef(0);
   const hasReachedDepth = useRef(false);
+  const inflectionEnterTime = useRef(0);
+  const startCoMY = useRef(0);
   const currentStageRef = useRef<'START' | 'DOWN' | 'BOTTOM' | 'UP'>('START');
-  const lastVoiceCueRef = useRef('');
-  const lastVoiceTimeRef = useRef(0);
+
+  const streamRef = useRef<MediaStream | null>(null);
+  const animFrameIdRef = useRef<number | null>(null);
 
   // -----------------------------------------------------------
-  // Real-Time Spoken AI Voice Coach in Fluent Marathi
+  // Real-Time Spoken AI Voice Coach (Pure English)
   // -----------------------------------------------------------
   const speak = useCallback((text: string, force = false) => {
     if (!voiceEnabled) return;
-    playMarathiVoice(text, force);
+    playVoiceCue(text, force);
   }, [voiceEnabled]);
 
   // -----------------------------------------------------------
@@ -85,7 +92,7 @@ export function usePoseTracker(exercise: ExerciseType) {
   }, [exercise]);
 
   // -----------------------------------------------------------
-  // Biomechanical Angle & Real-Time Marathi Voice Motivation Engine
+  // Multi-Gate Kinematic & Anti-False-Rep Progression Engine
   // -----------------------------------------------------------
   const processKinematics = useCallback((lm: any[]) => {
     const landmarks: Landmark[] = lm.map((p, idx) => ({
@@ -96,41 +103,47 @@ export function usePoseTracker(exercise: ExerciseType) {
       visibility: p.visibility || 1.0
     }));
 
+    // GATE 1 & 2: Structural Posture & Kinetic Chain Prerequisite Check
     const posture = validatePosturePrerequisites(exercise, landmarks);
     const angle = posture.primaryAngle;
     setPrimaryAngle(angle);
+    setPostureStatus(posture.statusMessage);
 
     if (!posture.isValid) {
       setWarnings([posture.statusMessage]);
       setPhase('idle');
+      if (posture.rejectionReason && currentStageRef.current !== 'START') {
+        speak(posture.statusMessage);
+      }
+      currentStageRef.current = 'START';
       return;
     }
 
     let score = 100;
     const currentWarnings: string[] = [];
 
-    // Real-Time Form Analysis & Live Vocal Corrections in Pure Marathi
+    // Real-Time Joint Form Analysis & Spoken Warnings
     if (exercise === 'squat') {
       const kSpread = Math.abs(landmarks[25].x - landmarks[26].x);
       const aSpread = Math.abs(landmarks[27].x - landmarks[28].x);
-      if (aSpread > 0.08 && kSpread < aSpread * 0.70 && angle < 125) {
-        currentWarnings.push('शेठ गुडघे आत वळतायत, बाहेर ढकला!');
+      if (aSpread > 0.08 && kSpread < aSpread * 0.72 && angle < 128) {
+        currentWarnings.push('Knee valgus detected (push knees outward)');
         score -= 15;
-        speak('शेठ गुडघे बाहेर ढकला!');
+        speak('Push knees outward over toes!');
       }
     } else if (exercise === 'pushup') {
       const lElbow = calculateAngle3D(landmarks[11], landmarks[13], landmarks[15]);
       if (lElbow > 85 && angle < 110) {
-        currentWarnings.push('कोपरं शरीराच्या जवळ ठेवा शेठ');
+        currentWarnings.push('Elbows flared (tuck to 45 degrees)');
         score -= 10;
-        speak('कोपरं जवळ ठेवा शेठ!');
+        speak('Tuck elbows to 45 degrees.');
       }
     } else if (exercise === 'bicep_curl') {
       const lShoulderElbowAngle = calculateAngle3D(landmarks[23], landmarks[11], landmarks[13]);
       if (lShoulderElbowAngle > 35 && angle < 100) {
-        currentWarnings.push('कोपरं बरगड्यांना चिकटवून ठेवा शेठ');
+        currentWarnings.push('Elbow drift detected (keep pinned to ribs)');
         score -= 15;
-        speak('कोपरं चिकटवून ठेवा शेठ!');
+        speak('Keep elbows pinned to ribs.');
       }
     }
 
@@ -142,6 +155,7 @@ export function usePoseTracker(exercise: ExerciseType) {
     // Rep State Machine Thresholds
     const cfg = EXERCISE_CONFIGS[exercise];
     const now = performance.now() / 1000;
+    const currentCoMY = calculateCenterOfMassY(landmarks);
 
     let depth = 0;
     if (exercise === 'shoulder_press') {
@@ -159,7 +173,8 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMaxAngle.current = angle;
           hasReachedDepth.current = false;
           repStartTimeRef.current = now;
-        } else if (angle <= cfg.startThresh - 15) {
+          startCoMY.current = currentCoMY;
+        } else if (angle <= cfg.startThresh - 12) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
           activeMinAngle.current = Math.min(activeMinAngle.current, angle);
@@ -172,19 +187,20 @@ export function usePoseTracker(exercise: ExerciseType) {
           currentStageRef.current = 'BOTTOM';
           setPhase('inflection');
           hasReachedDepth.current = true;
+          inflectionEnterTime.current = now;
           sounds.playDepthInflection();
 
           const depthPhrases = [
-            'कडक depth शेठ, लावा ताकद!',
-            'मस्त खोल गेलायस शेठ, आता वर!',
-            'एक नंबर depth, लावा जोर!'
+            'Good depth! Drive up.',
+            'Deep parallel! Push through mid-foot.',
+            'Target depth reached! Explode up.'
           ];
           speak(depthPhrases[Math.floor(Math.random() * depthPhrases.length)], true);
         }
       }
-      // 3. Bottom Inflection Hold
+      // 3. Bottom Inflection Hold (Enforces minimum dwell time to eliminate jitter spikes)
       else if (currentStageRef.current === 'BOTTOM') {
-        if (angle >= cfg.inflectionThresh + 15) {
+        if (angle >= cfg.inflectionThresh + 12 && now - inflectionEnterTime.current >= 0.06) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -196,19 +212,17 @@ export function usePoseTracker(exercise: ExerciseType) {
           const duration = now - repStartTimeRef.current;
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
-          // Verified Valid Repetition
+          // Multi-variable verification check
           if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
             setRepCount((prev) => {
               const nextRep = prev + 1;
               sounds.playRepSuccess();
 
-              // High-Energy Slang Praise in Marathi
               const praises = [
-                `लावा ताकद शेठ! rep ${nextRep}!`,
-                `एक नंबर शेठ! rep ${nextRep} कडक!`,
-                `नादच खुळा शेठ! rep ${nextRep}!`,
-                `राडा झाला पाहिजे शेठ! rep ${nextRep}!`,
-                `विषय खोल शेठ! rep ${nextRep} पडला!`
+                `Rep ${nextRep}! Perfect form.`,
+                `Rep ${nextRep}! Excellent tempo.`,
+                `Rep ${nextRep} confirmed!`,
+                `Solid rep ${nextRep}! Keep driving.`
               ];
               const chosenPraise = praises[Math.floor(Math.random() * praises.length)];
               speak(chosenPraise, true);
@@ -247,7 +261,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMaxAngle.current = angle;
           hasReachedDepth.current = false;
           repStartTimeRef.current = now;
-        } else if (angle >= cfg.startThresh + 15) {
+        } else if (angle >= cfg.startThresh + 12) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -258,10 +272,10 @@ export function usePoseTracker(exercise: ExerciseType) {
           setPhase('inflection');
           hasReachedDepth.current = true;
           sounds.playDepthInflection();
-          speak('पूर्ण वर हात कर भावा!', true);
+          speak('Full lockout! Lower with control.', true);
         }
       } else if (currentStageRef.current === 'BOTTOM') {
-        if (angle <= cfg.inflectionThresh - 15) {
+        if (angle <= cfg.inflectionThresh - 12) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
         }
@@ -274,7 +288,7 @@ export function usePoseTracker(exercise: ExerciseType) {
             setRepCount((prev) => {
               const nextRep = prev + 1;
               sounds.playRepSuccess();
-              speak(`मस्त भावा! rep ${nextRep}!`, true);
+              speak(`Rep ${nextRep}! Clean press.`, true);
               return nextRep;
             });
             setValidReps((prev) => prev + 1);
@@ -380,9 +394,6 @@ export function usePoseTracker(exercise: ExerciseType) {
     ctx.restore();
   }, [exercise, primaryAngle, processKinematics]);
 
-  const streamRef = useRef<MediaStream | null>(null);
-  const animFrameIdRef = useRef<number | null>(null);
-
   // -----------------------------------------------------------
   // Cross-Platform Mobile & Desktop Camera Engine
   // -----------------------------------------------------------
@@ -407,7 +418,7 @@ export function usePoseTracker(exercise: ExerciseType) {
       poseRef.current = pose;
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('कॅमेरा ॲक्सेस उपलब्ध नाही. कृपया सुरक्षित HTTPS लिंक वापरा.');
+        alert('Camera access is not supported. Please use a secure HTTPS connection.');
         return;
       }
 
@@ -423,7 +434,6 @@ export function usePoseTracker(exercise: ExerciseType) {
           audio: false
         });
       } catch (err) {
-        // Fallback for older mobile devices
         stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: false
@@ -441,7 +451,7 @@ export function usePoseTracker(exercise: ExerciseType) {
 
         setIsStreaming(true);
         sounds.playButtonClick();
-        speak('शेठ, AI कॅमेरा चालू झालाय. लावा ताकद!');
+        speak('AI Vision Active. Ready for workout.');
 
         // Continuous High-Speed Frame Processing Loop
         const processLoop = async () => {
@@ -464,7 +474,7 @@ export function usePoseTracker(exercise: ExerciseType) {
       }
     } catch (err: any) {
       console.error('Error initializing optical camera:', err);
-      alert(`कॅमेरा चालू करताना एरर आला: ${err.message || err.name || 'Permission Denied'}`);
+      alert(`Camera initialization error: ${err.message || err.name || 'Permission Denied'}`);
     }
   };
 
@@ -489,7 +499,7 @@ export function usePoseTracker(exercise: ExerciseType) {
     setDepthPercentage(0);
     setPhase('idle');
     sounds.playButtonClick();
-    speak('कडक workout झाला शेठ!');
+    speak('Workout session completed.');
   };
 
   const resetReps = () => {
@@ -498,7 +508,7 @@ export function usePoseTracker(exercise: ExerciseType) {
     setRepHistory([]);
     currentStageRef.current = 'START';
     sounds.playButtonClick();
-    speak('Reps reset केलेत शेठ, नवीन set सुरू करा!');
+    speak('Repetition counter reset.');
   };
 
   return {
@@ -513,6 +523,7 @@ export function usePoseTracker(exercise: ExerciseType) {
     repCount,
     validReps,
     warnings,
+    postureStatus,
     repHistory,
     voiceEnabled,
     aiDetected,

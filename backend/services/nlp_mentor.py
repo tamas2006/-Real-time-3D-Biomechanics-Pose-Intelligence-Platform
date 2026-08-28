@@ -1,12 +1,13 @@
 """
-Real-Time Biomechanical NLP Mentorship Service in High-Energy Slang Marathi ("लावा ताकद शेठ!" Style).
+Real-Time Biomechanical NLP Mentorship Service in Pure Professional English.
+Provides clinical-grade movement cues, form correction, and interactive conversational reasoning.
 """
 import random
 from typing import List, Dict, Any
 
 class NLPMentorEngine:
     def __init__(self):
-        self.persona = "जिमचा रांगडा मित्र (High-Energy 'लावा ताकद शेठ' Gym Buddy)"
+        self.persona = "Lead Biomechanics Coach & Sports Scientist"
 
     def generate_rep_coaching(
         self,
@@ -20,24 +21,29 @@ class NLPMentorEngine:
         warnings: List[str]
     ) -> Dict[str, Any]:
         """
-        Generates dynamic slang Marathi coaching feedback for a completed repetition.
+        Generates dynamic natural language coaching feedback for a completed repetition.
         """
-        # 1. Critical Biomechanical Form Corrections in Slang Marathi
+        exercise_clean = exercise.replace("_", " ").title()
+
+        # 1. Critical Biomechanical Form Corrections
         if warnings and len(warnings) > 0:
             primary_warn = warnings[0].lower()
             if "knee" in primary_warn or "cave" in primary_warn:
-                cue = f"अरे शेठ! {rep_number} व्या rep ला गुडघे आत वळतायत रे. गुडघे बाहेर ढकला शेठ, लिगामेंटवर लोड येईल!"
-                short_cue = "शेठ गुडघे बाहेर ढकला!"
+                cue = f"Rep {rep_number}: Knee valgus detected. Push your knees outward over your mid-toes to protect your ligaments."
+                short_cue = "Push knees outward!"
             elif "torso" in primary_warn or "pitch" in primary_warn:
-                cue = f"शेठ, छाती अशी पुढे झुकवू नका! छाती ताठ ठेवा, कणा सरळ पाहिजे शेठ!"
-                short_cue = "छाती ताठ ठेवा शेठ!"
+                cue = f"Rep {rep_number}: Excessive torso lean. Keep your chest proud and core braced."
+                short_cue = "Keep chest proud!"
             elif "flare" in primary_warn or "elbow" in primary_warn:
-                cue = f"अरे कोपरं बाहेर नका काढू शेठ, कोपरं बरगड्यांच्या जवळ ठेवा, खांदा वाचेल!"
-                short_cue = "कोपरं जवळ ठेवा शेठ!"
+                cue = f"Rep {rep_number}: Elbow flare detected. Tuck elbows to 45 degrees to protect the rotator cuff."
+                short_cue = "Tuck elbows to 45 degrees!"
+            elif "swing" in primary_warn:
+                cue = f"Rep {rep_number}: Keep elbows pinned to your ribcage. Do not use momentum."
+                short_cue = "Pin elbows to ribs!"
             else:
-                cue = f"अरे शेठ, {warnings[0]}! नीट लक्ष द्या आणि फॉर्म घट्ट ठेवा!"
-                short_cue = "फॉर्म घट्ट ठेवा शेठ!"
-            
+                cue = f"Rep {rep_number}: {warnings[0]}. Focus on strict joint path."
+                short_cue = warnings[0]
+
             return {
                 "spoken_text": cue,
                 "short_cue": short_cue,
@@ -45,43 +51,42 @@ class NLPMentorEngine:
                 "score": form_score
             }
 
-        # 2. Perfect Form & High Energy Slang Praise
+        # 2. Perfect Form & High Velocity
         if form_score >= 90:
             praise_phrases = [
-                f"लावा ताकद शेठ! {rep_number} वा rep एकदम कडक, नादच खुळा!",
-                f"एक नंबर शेठ! काय तो फॉर्म, काय ती depth, एकदम ओके मध्ये!",
-                f"राडा झाला पाहिजे शेठ! {rep_number} वा rep एकदम तोड झाला!",
-                f"कडक शेठ! असाच चालू ठेवा, विषयच संपला!",
-                f"शाब्बास शेठ! काय kinetic chain locked आहे, विषय खोल!"
+                f"Rep {rep_number} was textbook! Full range of motion with excellent control.",
+                f"Flawless rep {rep_number}. Perfect joint lockout and cadence. Keep that rhythm!",
+                f"Outstanding execution on rep {rep_number}. Kinetic chain was completely stacked.",
+                f"Rep {rep_number} nailed full depth with clinical stability. Stay locked in!"
             ]
             cue = random.choice(praise_phrases)
             return {
                 "spoken_text": cue,
-                "short_cue": "लावा ताकद शेठ, कडक!",
+                "short_cue": f"Rep {rep_number}! Perfect form.",
                 "sentiment": "praise",
                 "score": form_score
             }
 
         # 3. Tempo / Speed Adjustments
         if eccentric_sec < 0.6:
-            cue = f"अरे शेठ! खाली जाताना एवढी घाई कशाला? २-३ सेकंद सावकाश खाली जा, मसलवर पूर्ण ताण बसू द्या शेठ!"
+            cue = f"Rep {rep_number}: You rushed the descent. Control the 2 to 3 second negative to build tendon resilience."
             return {
                 "spoken_text": cue,
-                "short_cue": "सावकाश खाली जा शेठ!",
+                "short_cue": "Control the negative phase!",
                 "sentiment": "tempo_advice",
                 "score": form_score
             }
 
         # 4. General Solid Repetition
         solid_phrases = [
-            f"मस्त शेठ! {rep_number} वा rep भारी झाला. श्वास सोडून वर ढकला!",
-            f"दमलास काय शेठ? लावा जोर, अजून reps बाकी आहेत!",
-            f"चालू द्या शेठ! ताकद दाखवा आता!"
+            f"Good work on rep {rep_number}. Drive strong through your mid-foot on the ascent.",
+            f"Solid rep {rep_number}. Keep breathing steadily throughout the movement.",
+            f"Rep {rep_number} completed with {rom:.0f} degrees of clean displacement."
         ]
         cue = random.choice(solid_phrases)
         return {
             "spoken_text": cue,
-            "short_cue": "चालू द्या शेठ!",
+            "short_cue": f"Rep {rep_number} logged.",
             "sentiment": "positive",
             "score": form_score
         }
@@ -95,56 +100,57 @@ class NLPMentorEngine:
         recent_warnings: List[str] = None
     ) -> Dict[str, str]:
         """
-        High-energy slang Marathi gym-buddy conversational Q&A.
+        Interactive conversational NLP assistant for exercise questions and biomechanics advice.
         """
         q = query.lower().strip()
         recent_warnings = recent_warnings or []
+        ex_name = exercise.replace("_", " ").title()
 
-        if any(w in q for w in ["knee", "cave", "valgus", "गुडघे", "पाय"]):
+        if any(w in q for w in ["depth", "low", "parallel"]):
             return {
-                "response": "अरे शेठ, squat मारताना glutes कमजोर असले की गुडघे आत वळतात. मग meniscus वर लोड येतो. उपाय एकदम सोपा शेठ: जमिनीवर पाय घट्ट रोवून उभे राहा आणि squat मारताना गुडघे दोन्ही बाजूला ढकला, विषयच संपला!",
-                "actionable_cue": "टिप: शेठ, पाय जमिनीवर घट्ट पिळा आणि गुडघे बाहेर ढकलून लावा ताकद!"
+                "response": f"For {ex_name}, optimal biomechanical depth requires the hip crease to descend level with or slightly below the top of the patella (femoral-tibial angle ≤ 110°). This maximizes gluteus maximus and quad stretch-shortening cycles while mitigating patellofemoral shearing pressure.",
+                "actionable_cue": "Cue: 'Open your hips and drop between your knees, not on top of them.'"
             }
 
-        elif any(w in q for w in ["depth", "low", "parallel", "खाली", "खोल"]):
+        elif any(w in q for w in ["knee", "pain", "cave", "valgus"]):
             return {
-                "response": "शेठ, squat मध्ये खरी ताकद तेव्हाच लागते जेव्हा मांड्या जमिनीला समांतर किंवा थोडे खाली जातात (कमीत कमी १०० अंश). अर्धवट squat मारून फक्त गुडघे दुखतील शेठ, quads आणि glutes वाढवायचे असतील तर पूर्ण खाली बसा!",
-                "actionable_cue": "टिप: शेठ, मांड्या जमिनीला समांतर होईपर्यंत सावकाश खाली बसा, मग बघा काय पंप येतो!"
+                "response": "Knee valgus collapse is commonly caused by underactive gluteus medius stabilizers or restricted ankle dorsiflexion. When knees collapse inward, shear force across the ACL increases by up to 300%.",
+                "actionable_cue": "Cue: 'Screw your feet into the floor to pre-activate your external hip rotators.'"
             }
 
-        elif any(w in q for w in ["tempo", "speed", "fast", "slow", "वेळ", "सावकाश"]):
+        elif any(w in q for w in ["tempo", "speed", "fast", "slow"]):
             return {
-                "response": "शेठ ऐका, ३-०-१-० चा नियम वापरा! म्हणजे खाली जाताना १-२-३ मोजून सावकाश जा, खाली अजिबात थांबू नका, आणि वर येताना पूर्ण ताकदीने लावा जोर! नादच खुळा पंप बसेल शेठ!",
-                "actionable_cue": "टिप: खाली जाताना ३ सेकंद सावकाश, वर येताना लावा ताकद शेठ!"
+                "response": f"For maximum hypertrophy and joint longevity in {ex_name}, we recommend a 3-0-1-0 tempo: 3 seconds controlled eccentric descent, 0 pause at bottom, 1 second explosive concentric ascent, and 0 pause at top lockout.",
+                "actionable_cue": "Cue: 'Count 3-2-1 on the way down, explode up in 1 second.'"
             }
 
-        elif any(w in q for w in ["pushup", "elbow", "shoulder", "पुशअप", "छाती"]):
+        elif any(w in q for w in ["pushup", "elbow", "shoulder"]):
             return {
-                "response": "अरे शेठ, पुशअप मारताना कोपरं ९० अंशात बाहेर उघडू नका, खांदा जाम होईल. कोपरं शरीराच्या जवळ ४५ अंशात ठेवा, म्हणजे वरून बाणासारखा (arrow) आकार दिसेल. छातीवर मस्त ताण बसेल शेठ!",
-                "actionable_cue": "टिप: कोपरं शरीराच्या जवळ ४५ अंशात ठेवा आणि छाती खाली टेकवा शेठ!"
+                "response": "In horizontal pressing (push-ups), flaring elbows at 90° pinches the supraspinatus tendon against the acromion. Tucking elbows to 45° creates an arrow shape that optimizes pectoralis major fiber recruitment.",
+                "actionable_cue": "Cue: 'Make an arrow shape with your upper body, not a T.'"
             }
 
-        elif any(w in q for w in ["curl", "bicep", "arm", "बायसेप", "हात"]):
+        elif any(w in q for w in ["curl", "bicep", "arm"]):
             return {
-                "response": "शेठ, bicep curl मारताना कंबर हलवून जर्क मारू नका! कोपरं बरगड्यांना एकदम फेविकॉलसारखी चिकटवून ठेवा. फक्त हात कोपऱ्यातून वाकवून वजन वर घ्या. डोळे पांढरे करणारा पंप येईल शेठ!",
-                "actionable_cue": "टिप: कोपरं बरगड्यांना चिकटवून ठेवा, कंबर अजिबात हलवू नका शेठ!"
+                "response": "To fully isolate the biceps brachii short and long heads, keep elbows pinned tightly to the mid-axillary ribline. Any forward elbow swing engages anterior deltoids and robs the biceps of peak tension at 70° flexion.",
+                "actionable_cue": "Cue: 'Pin elbows to your ribs like they are welded in place.'"
             }
 
-        elif any(w in q for w in ["score", "why", "form", "स्कोर", "कसा"]):
+        elif any(w in q for w in ["score", "why", "form"]):
             if recent_warnings:
                 return {
-                    "response": f"शेठ, आधीच्या reps मध्ये '{recent_warnings[0]}' अशी चूक दिसली रे. सध्याचा score {avg_score}% आहे. फक्त खाली जाताना घाई नको, score लगेच १००% होईल शेठ!",
-                    "actionable_cue": "टिप: पाठ ताठ ठेवा आणि घाई न करता लावा ताकद शेठ!"
+                    "response": f"Your recent reps flagged '{recent_warnings[0]}'. Your current set average is {avg_score}%. Addressing joint deviation on the eccentric transition will immediately elevate your score.",
+                    "actionable_cue": "Cue: 'Focus on vertical spinal neutrality and symmetry on both limbs.'"
                 }
             return {
-                "response": f"अरे वा शेठ! {rep_count} reps मारलेत आणि फॉर्म {avg_score}% एकदम कडक आहे! अजिबात मागे हटू नका, राडा झाला पाहिजे!",
-                "actionable_cue": "टिप: लावा ताकद शेठ, शेवटपर्यंत हाच rhythm ठेवा!"
+                "response": f"You're currently averaging {avg_score}% form score across {rep_count} logged reps. Your joint paths and range-of-motion meet athletic clinical standards.",
+                "actionable_cue": "Cue: 'Maintain consistent cadence to preserve this form through fatigue.'"
             }
 
         else:
             return {
-                "response": f"अरे शेठ! मी तुमचा AI जिमचा जिगरी मित्र आहे. तुमच्या प्रत्येक हालचालीवर ३D मध्ये लक्ष आहे. आतापर्यंत {rep_count} reps झालेत आणि फॉर्म {avg_score}% एकदम ओके मध्ये आहे. squat, pushup, tempo किंवा pump बद्दल काहीही विचारा शेठ!",
-                "actionable_cue": "टिप: लावा ताकद शेठ, बिंधास्त काहीही विचारा!"
+                "response": f"As your AI Biomechanics Mentor, I am continuously tracking your 3D spatial joint vectors during {ex_name}. You have completed {rep_count} reps at {avg_score}% quality. Ask me about depth cues, tempo optimization, joint angles, or fatigue management!",
+                "actionable_cue": "Cue: 'Stay braced through your abdominal cylinder on every repetition.'"
             }
 
 nlp_mentor = NLPMentorEngine()
