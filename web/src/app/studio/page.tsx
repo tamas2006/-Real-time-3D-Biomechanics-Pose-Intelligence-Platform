@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Megaphone } from 'lucide-react';
+import { ArrowLeft, Cookie } from 'lucide-react';
 import { ExerciseType } from '@/types/fitness';
 import { usePoseTracker } from '@/hooks/usePoseTracker';
 import { ZainabNavbar } from '@/components/ZainabNavbar';
@@ -155,26 +155,26 @@ export default function StudioPage() {
         </footer>
       </main>
 
-      {/* Floating Announcement / Cookie Capsule matching screenshot */}
+      {/* Floating Cookie Consent Capsule matching screenshot */}
       {showAnnouncement && (
-        <div className="fixed bottom-6 left-6 z-50 animate-fadeIn flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/10 text-white text-[10px] uppercase font-bold tracking-wider">
-            <Megaphone className="w-3 h-3" />
-            <span>Announcement</span>
+        <div className="fixed bottom-6 left-6 z-50 animate-fadeIn flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300 font-mono">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-white text-[10px] uppercase font-bold tracking-wider">
+            <Cookie className="w-3 h-3" />
+            <span>Cookies</span>
           </div>
-          <p className="text-[11px] text-neutral-300 flex-1">
-            Kinetic AI v2.0 live with Groq Multimodal Vision.
+          <p className="text-[11px] text-neutral-300 flex-1 leading-tight">
+            We use one cookie for <strong className="text-white font-bold">anonymous site analytics</strong>. Reject keeps you fully untracked.
           </p>
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowAnnouncement(false)}
-              className="px-3 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[11px] font-bold cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[11px] font-bold cursor-pointer transition-colors"
             >
               Reject
             </button>
             <button
               onClick={() => setShowAnnouncement(false)}
-              className="px-3 py-1 rounded-lg bg-white text-black text-[11px] font-bold cursor-pointer hover:bg-neutral-200 transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-white text-black text-[11px] font-bold cursor-pointer hover:bg-neutral-200 transition-colors"
             >
               Accept
             </button>
