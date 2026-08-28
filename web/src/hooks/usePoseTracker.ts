@@ -128,9 +128,9 @@ export function usePoseTracker(exercise: ExerciseType) {
     if (exercise === 'squat') {
       const kSpread = Math.abs(landmarks[25].x - landmarks[26].x);
       const aSpread = Math.abs(landmarks[27].x - landmarks[28].x);
-      if (aSpread > 0.08 && kSpread < aSpread * 0.72 && angle < 128) {
+      if (aSpread > 0.12 && kSpread < aSpread * 0.48 && angle < 115) {
         currentWarnings.push('Knee valgus detected (push knees outward)');
-        score -= 35;
+        score -= 25;
         cycleMinScoreRef.current = Math.min(cycleMinScoreRef.current, score);
         if (!cycleViolationsRef.current.includes('Knee valgus')) {
           cycleViolationsRef.current.push('Knee valgus');
