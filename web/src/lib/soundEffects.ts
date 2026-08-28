@@ -1,6 +1,6 @@
 /**
  * Web Audio API Sound Synthesizer.
- * Generates zero-latency procedural UI sounds, rep completion chimes, and workout beats.
+ * Generates zero-latency procedural UI sounds, rep completion chimes, and error buzzers.
  */
 
 class SoundSynthesizer {
@@ -91,6 +91,11 @@ class SoundSynthesizer {
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    } catch (e) {}
+  }
 
   // Low buzzer for failed / cheating rep
   playRepFailed() {
