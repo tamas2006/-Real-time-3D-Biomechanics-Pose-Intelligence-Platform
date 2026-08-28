@@ -6,7 +6,6 @@ import { usePoseTracker } from '@/hooks/usePoseTracker';
 import { LandingHero } from '@/components/LandingHero';
 import { InteractiveProtractor } from '@/components/InteractiveProtractor';
 import { BiomechanicalRules } from '@/components/BiomechanicalRules';
-import { ModelArchitectureShowcase } from '@/components/ModelArchitectureShowcase';
 import { NlpMentorStudio } from '@/components/NlpMentorStudio';
 import { Header } from '@/components/Header';
 import { VisionCanvas } from '@/components/VisionCanvas';
@@ -50,36 +49,29 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col selection:bg-emerald-400 selection:text-black">
-      {/* 1. DYNAMIC EDITORIAL HERO */}
+      {/* 1. HERO */}
       <LandingHero onLaunchStudio={scrollToStudio} />
 
-      {/* 2. INTERACTIVE BIOMECHANICAL PROTRACTOR LAB */}
-      <InteractiveProtractor />
-
-      {/* 3. MAIN LIVE AI WORKOUT STUDIO SECTION */}
+      {/* 2. MAIN LIVE AI WORKOUT STUDIO */}
       <section
         id="studio"
         ref={studioRef}
-        className="relative z-20 max-w-7xl mx-auto w-full px-6 md:px-12 py-12 my-6"
+        className="relative z-20 max-w-7xl mx-auto w-full px-6 md:px-12 py-10 my-4"
       >
-        <div className="p-8 md:p-12 rounded-[44px] acrylic-glass-dark border-2 border-white/30 shadow-[0_30px_70px_rgba(0,0,0,0.4)] backdrop-blur-3xl flex flex-col gap-8 text-white">
+        <div className="p-6 md:p-10 rounded-3xl bg-[#0B1120] border border-white/15 shadow-2xl flex flex-col gap-6 text-white">
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/15 pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-emerald-300 text-xs font-mono font-bold tracking-widest uppercase mb-2">
-                <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
-                <span>EDGE VISION ENGINE // MODEL K-175</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight">
-                Live AI Biomechanics <span className="italic text-cyan-200">Studio</span>
+              <h2 className="text-3xl md:text-4xl font-sans font-bold text-white tracking-tight">
+                Live AI Workout Studio
               </h2>
+              <p className="text-slate-400 text-xs mt-1">
+                Position your camera with target limbs visible to track reps and receive real-time voice coaching.
+              </p>
             </div>
-            <p className="text-slate-300 text-sm max-w-md font-open-sans italic leading-relaxed">
-              Position your webcam so your target limbs are visible. Execute complete repetitions to record verified tempo & cadence telemetry.
-            </p>
           </div>
 
-          {/* Top Tactile Control Header */}
+          {/* Controls */}
           <Header
             exercise={exercise}
             onSelectExercise={(ex) => {
@@ -94,7 +86,7 @@ export default function Home() {
           />
 
           {/* Studio Workspace Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Vision Viewfinder Area (8 Columns) */}
             <div className="lg:col-span-8 flex flex-col gap-4">
               <VisionCanvas
@@ -112,7 +104,7 @@ export default function Home() {
               />
             </div>
 
-            {/* Repetition & Kinematics Sidebar (4 Columns) */}
+            {/* Repetition Sidebar (4 Columns) */}
             <div className="lg:col-span-4 flex flex-col h-full">
               <RepCounterCard
                 repCount={repCount}
@@ -125,7 +117,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. REAL-TIME NLP BIOMECHANICAL MENTORSHIP STUDIO */}
+      {/* 3. REAL-TIME AI COACH Q&A */}
       <NlpMentorStudio
         exercise={exercise}
         repCount={repCount}
@@ -133,13 +125,13 @@ export default function Home() {
         warnings={warnings}
       />
 
-      {/* 5. THE BIOMECHANICAL RULEBOOK */}
+      {/* 4. INTERACTIVE DEPTH SIMULATOR */}
+      <InteractiveProtractor />
+
+      {/* 5. SUPPORTED EXERCISES */}
       <BiomechanicalRules />
 
-      {/* 6. MODEL ARCHITECTURE & 175K DATASET SHOWCASE */}
-      <ModelArchitectureShowcase />
-
-      {/* 7. FOOTER */}
+      {/* 6. FOOTER */}
       <Footer />
     </div>
   );

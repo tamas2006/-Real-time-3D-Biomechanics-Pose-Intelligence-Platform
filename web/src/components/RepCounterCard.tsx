@@ -22,30 +22,28 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      {/* 1. TRANSLUCENT OBSIDIAN STATS CARD (Tamas-Ingle Style) */}
-      <div className="p-6 rounded-[32px] bg-[#0B1120]/75 border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl flex items-center justify-between text-white">
+      {/* 1. REPETITIONS & DEPTH CARD */}
+      <div className="p-6 rounded-3xl bg-[#0B1120] border border-white/15 shadow-xl flex items-center justify-between text-white">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/15 text-[10px] font-mono tracking-widest uppercase text-slate-300 mb-3 shadow-inner">
-            <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
-            <span>PHYSICAL REPETITIONS // VERIFIED</span>
+          <div className="text-xs font-mono uppercase text-slate-400 font-bold mb-2">
+            Completed Reps
           </div>
 
-          <div className="flex items-baseline gap-4">
-            {/* Split Flap Glowing Number Display */}
-            <div className="px-5 py-2.5 rounded-2xl bg-black/60 text-white font-mono font-black text-5xl tracking-tight shadow-xl border border-white/20">
+          <div className="flex items-baseline gap-3">
+            <div className="px-5 py-2 rounded-2xl bg-black/60 text-white font-mono font-black text-5xl tracking-tight border border-white/15">
               {repCount < 10 ? `0${repCount}` : repCount}
             </div>
 
             <div className="flex flex-col">
-              <span className="text-xs font-mono font-bold text-amber-200 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/40 w-max shadow-sm">
+              <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/30 w-max">
                 {validReps} Verified
               </span>
-              <span className="text-[10px] font-mono text-slate-400 mt-1">100% Full ROM Gate</span>
+              <span className="text-[10px] font-mono text-slate-400 mt-1">Full ROM Required</span>
             </div>
           </div>
         </div>
 
-        {/* Circular Dial Depth Gauge */}
+        {/* Circular Depth Gauge */}
         <div className="relative flex items-center justify-center w-24 h-24">
           <svg className="w-full h-full -rotate-90">
             <circle
@@ -60,35 +58,35 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
               cx="48"
               cy="48"
               r={radius}
-              stroke="#FEF08A"
+              stroke="#10B981"
               strokeWidth="7"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
-              className="transition-all duration-100 drop-shadow-[0_0_8px_#FEF08A]"
+              className="transition-all duration-100"
             />
           </svg>
-          <div className="absolute font-mono text-sm font-black text-amber-200">
+          <div className="absolute font-mono text-sm font-black text-white">
             {depthPercentage}%
           </div>
         </div>
       </div>
 
-      {/* 2. KINETIC TEMPO TELEMETRY METERS */}
+      {/* 2. TEMPO STATS */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-4 rounded-2xl bg-[#0B1120]/75 border border-white/20 shadow-lg backdrop-blur-2xl flex flex-col justify-between">
+        <div className="p-4 rounded-2xl bg-[#0B1120] border border-white/15 flex flex-col justify-between">
           <div className="text-slate-400 text-xs mb-1 font-mono uppercase">
-            <span className="text-[10px]">ECC / CON TEMPO</span>
+            TEMPO (ECC : CON)
           </div>
           <div className="font-mono text-xl font-bold text-white">
             {repHistory[0] ? `${repHistory[0].eccentricSec}s : ${repHistory[0].concentricSec}s` : '-- : --'}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#0B1120]/75 border border-white/20 shadow-lg backdrop-blur-2xl flex flex-col justify-between">
+        <div className="p-4 rounded-2xl bg-[#0B1120] border border-white/15 flex flex-col justify-between">
           <div className="text-slate-400 text-xs mb-1 font-mono uppercase">
-            <span className="text-[10px]">LAST DURATION</span>
+            LAST DURATION
           </div>
           <div className="font-mono text-xl font-bold text-white">
             {repHistory[0] ? `${repHistory[0].durationSec}s` : '0.0s'}
@@ -96,23 +94,21 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
         </div>
       </div>
 
-      {/* 3. VERIFIED MOVEMENT AUDIT LOG */}
-      <div className="p-5 rounded-[28px] bg-[#0B1120]/75 border border-white/20 shadow-lg backdrop-blur-2xl flex-1 flex flex-col min-h-[220px]">
+      {/* 3. REP LOG */}
+      <div className="p-5 rounded-3xl bg-[#0B1120] border border-white/15 shadow-xl flex-1 flex flex-col min-h-[200px]">
         <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
           <span className="text-xs font-mono uppercase font-bold text-slate-300">
-            Verified Movement Log
+            Repetition History
           </span>
-          <span className="text-[10px] font-mono text-slate-400 bg-white/10 px-2 py-0.5 rounded-full border border-white/15">
-            {repHistory.length} Logged
+          <span className="text-xs font-mono text-slate-400">
+            {repHistory.length} Total
           </span>
         </div>
 
         <div className="flex-1 overflow-y-auto flex flex-col gap-2 max-h-[160px] pr-1">
           {repHistory.length === 0 ? (
-            <div className="flex flex-col items-center justify-center my-auto text-slate-400 text-center gap-2 py-4">
-              <p className="text-xs font-mono max-w-xs leading-relaxed text-slate-400">
-                Complete your first repetition to record tempo & cadence telemetry.
-              </p>
+            <div className="flex items-center justify-center my-auto text-slate-400 text-center py-4 text-xs font-mono">
+              Complete your first repetition to record telemetry.
             </div>
           ) : (
             repHistory.map((rep, idx) => {
@@ -120,31 +116,25 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
               return (
                 <div
                   key={idx}
-                  className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-mono text-white animate-fadeIn transition-colors ${
+                  className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-mono text-white ${
                     isClean
-                      ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                      : 'bg-rose-950/40 border-rose-500/40 text-rose-200'
+                      ? 'bg-white/5 border-white/10'
+                      : 'bg-rose-950/30 border-rose-500/40 text-rose-200'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
-                        isClean
-                          ? 'bg-amber-400/20 text-amber-200'
-                          : 'bg-rose-500/30 text-rose-300'
-                      }`}
-                    >
+                    <span className="w-5 h-5 rounded-full bg-white/10 text-[10px] flex items-center justify-center font-bold">
                       #{rep.repNumber}
                     </span>
-                    <span>{rep.durationSec}s Total</span>
+                    <span>{rep.durationSec}s</span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-slate-400">{rep.eccentricSec}s down</span>
                     <span
                       className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
                         isClean
-                          ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-300/30'
-                          : 'bg-rose-500/20 text-rose-300 border border-rose-400/30'
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : 'bg-rose-500/20 text-rose-300'
                       }`}
                     >
                       {isClean ? `${rep.formScore}% Clean` : `${rep.formScore}% No Rep`}
