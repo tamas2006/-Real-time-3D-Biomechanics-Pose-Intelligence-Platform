@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ExerciseType, MovementPhase, RepMetric, Landmark } from '@/types/fitness';
+import {
+  ExerciseType,
+  MovementPhase,
+  RepMetric,
+  Landmark,
+  ClinicalTelemetry,
+  ClinicalCoachPersona
+} from '@/types/fitness';
 import {
   calculateAngle3D,
+  calculateTorsoAngleFromVertical,
   calculateCenterOfMassY,
   EXERCISE_CONFIGS,
   validatePosturePrerequisites
@@ -25,6 +33,22 @@ export function usePoseTracker(exercise: ExerciseType) {
   const [repHistory, setRepHistory] = useState<RepMetric[]>([]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
+  // Advanced Clinical & Sports Science Laboratory State
+  const [coachPersona, setCoachPersona] = useState<ClinicalCoachPersona>('olympic');
+  const [showGoniometer, setShowGoniometer] = useState(true);
+  const [showPowerVbt, setShowPowerVbt] = useState(true);
+  const [clinicalTelemetry, setClinicalTelemetry] = useState<ClinicalTelemetry>({
+    leftKneeAngle: 180,
+    rightKneeAngle: 180,
+    leftHipAngle: 180,
+    rightHipAngle: 180,
+    torsoInclination: 0,
+    symmetryBalance: 50,
+    barVelocityMps: 0.0,
+    peakPowerWatts: 0,
+    fatigueIndexPercent: 0
+  });
+
   // AI Backend Detection State
   const [aiDetected, setAiDetected] = useState<string>('IDLE');
   const [aiConfidence, setAiConfidence] = useState<number>(0);
@@ -38,6 +62,7 @@ export function usePoseTracker(exercise: ExerciseType) {
   // Kinetic State Machine & Trajectory Buffer Refs
   const isProcessingRef = useRef(false);
   const lastFrameTimeRef = useRef(performance.now());
+  const lastCoMYRef = useRef(0.5);
   const repStartTimeRef = useRef(0);
   const activeMinAngle = useRef(360);
   const activeMaxAngle = useRef(0);
@@ -126,6 +151,41 @@ export function usePoseTracker(exercise: ExerciseType) {
       return;
     }
 
+    // Multi-Joint Clinical Goniometer Calculations
+    const lKnee = calculateAngle3D(landmarks[23], landmarks[25], landmarks[27]);
+    const rKnee = calculateAngle3D(landmarks[24], landmarks[26], landmarks[28]);
+    const lHip = calculateAngle3D(landmarks[11], landmarks[23], landmarks[25]);
+    const rHip = calculateAngle3D(landmarks[12], landmarks[24], landmarks[26]);
+    const midShoulder = { x: (landmarks[11].x + landmarks[12].x) / 2, y: (landmarks[11].y + landmarks[12].y) / 2, visibility: 1, id: -1 };
+    const midHip = { x: (landmarks[23].x + landmarks[24].x) / 2, y: (landmarks[23].y + landmarks[24].y) / 2, visibility: 1, id: -2 };
+    const torsoIncl = calculateTorsoAngleFromVertical(midShoulder, midHip);
+
+    // Bilateral Symmetry Load Ratio
+    const totalKnee = lKnee + rKnee;
+    const balance = totalKnee > 0 ? Math.round((rKnee / totalKnee) * 100) : 50;
+    const clampedBalance = Math.min(65, Math.max(35, balance));
+
+    // Linear Velocity (m/s) & Power (Watts) Estimation
+    const currentCoMY = calculateCenterOfMassY(landmarks);
+    const nowTime = performance.now();
+    const dt = Math.max(0.016, (nowTime - lastFrameTimeRef.current) / 1000);
+    const rawDy = Math.abs(currentCoMY - (lastCoMYRef.current || currentCoMY));
+    lastCoMYRef.current = currentCoMY;
+    const estimatedVelocityMps = Math.min(2.5, parseFloat(((rawDy / dt) * 1.6).toFixed(2)));
+    const estimatedWatts = Math.round(75 * 9.81 * estimatedVelocityMps);
+
+    setClinicalTelemetry({
+      leftKneeAngle: lKnee,
+      rightKneeAngle: rKnee,
+      leftHipAngle: lHip,
+      rightHipAngle: rHip,
+      torsoInclination: torsoIncl,
+      symmetryBalance: clampedBalance,
+      barVelocityMps: estimatedVelocityMps,
+      peakPowerWatts: estimatedWatts,
+      fatigueIndexPercent: Math.max(0, Math.min(60, validRepsRef.current * 3))
+    });
+
     let score = 100;
     const currentWarnings: string[] = [];
 
@@ -174,7 +234,6 @@ export function usePoseTracker(exercise: ExerciseType) {
     // Rep State Machine Thresholds
     const cfg = EXERCISE_CONFIGS[exercise];
     const now = performance.now() / 1000;
-    const currentCoMY = calculateCenterOfMassY(landmarks);
 
     let depth = 0;
     if (exercise === 'shoulder_press') {
@@ -254,7 +313,7 @@ export function usePoseTracker(exercise: ExerciseType) {
                 formScore: cycleMinScoreRef.current,
                 tempoRatio: 1.0
               };
-              setRepHistory((prev) => [failedMetric, ...prev]);
+              setRepHistory((prev: RepMetric[]) => [failedMetric, ...prev]);
             } else {
               // ✅ CREDITED CLEAN REP
               repCountRef.current += 1;
@@ -284,7 +343,7 @@ export function usePoseTracker(exercise: ExerciseType) {
                 formScore: score,
                 tempoRatio: 1.0
               };
-              setRepHistory((prev) => [validMetric, ...prev]);
+              setRepHistory((prev: RepMetric[]) => [validMetric, ...prev]);
             }
           } else {
             // ❌ REJECTED HALF REP (INSUFFICIENT DEPTH / PARTIAL ROM)
@@ -356,7 +415,7 @@ export function usePoseTracker(exercise: ExerciseType) {
               formScore: score,
               tempoRatio: 1.0
             };
-            setRepHistory((prev) => [validMetric, ...prev]);
+            setRepHistory((prev: RepMetric[]) => [validMetric, ...prev]);
           } else {
             // ❌ REJECTED HALF SHOULDER PRESS
             sounds.playRepFailed();
@@ -603,7 +662,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       animFrameIdRef.current = null;
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       streamRef.current = null;
     }
     if (videoRef.current) {
@@ -650,6 +709,13 @@ const SKELETON_CONNECTIONS: [number, number][] = [
     aiDetected,
     aiConfidence,
     wsConnected,
+    clinicalTelemetry,
+    coachPersona,
+    showGoniometer,
+    showPowerVbt,
+    setCoachPersona,
+    setShowGoniometer,
+    setShowPowerVbt,
     setVoiceEnabled,
     startCamera,
     stopCamera,

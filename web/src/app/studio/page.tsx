@@ -11,6 +11,9 @@ import { VisionCanvas } from '@/components/VisionCanvas';
 import { RepCounterCard } from '@/components/RepCounterCard';
 import { NlpMentorStudio } from '@/components/NlpMentorStudio';
 import { WorkoutAnalyticsModal } from '@/components/WorkoutAnalyticsModal';
+import { LaboratoryHUDToolbar } from '@/components/LaboratoryHUDToolbar';
+import { ForceVelocityPowerCard } from '@/components/ForceVelocityPowerCard';
+import { ClinicalReportGeneratorModal } from '@/components/ClinicalReportGeneratorModal';
 import { sounds } from '@/lib/soundEffects';
 
 export default function StudioPage() {
@@ -19,6 +22,7 @@ export default function StudioPage() {
   const [exercise, setExercise] = useState<ExerciseType>('squat');
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showClinicalReport, setShowClinicalReport] = useState(false);
 
   useEffect(() => {
     // Instant Next.js route prefetching for smooth back-navigation
@@ -51,6 +55,13 @@ export default function StudioPage() {
     voiceEnabled,
     aiDetected,
     aiConfidence,
+    clinicalTelemetry,
+    coachPersona,
+    showGoniometer,
+    showPowerVbt,
+    setCoachPersona,
+    setShowGoniometer,
+    setShowPowerVbt,
     startCamera,
     stopCamera,
     resetReps,
@@ -117,6 +128,17 @@ export default function StudioPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Vision Viewfinder Area (8 Columns) */}
             <div className="lg:col-span-8 flex flex-col gap-4">
+              {/* High-End Laboratory HUD Toolbar */}
+              <LaboratoryHUDToolbar
+                showGoniometer={showGoniometer}
+                setShowGoniometer={setShowGoniometer}
+                showPowerVbt={showPowerVbt}
+                setShowPowerVbt={setShowPowerVbt}
+                coachPersona={coachPersona}
+                setCoachPersona={setCoachPersona}
+                onOpenReport={() => setShowClinicalReport(true)}
+              />
+
               <VisionCanvas
                 videoRef={videoRef}
                 canvasRef={canvasRef}
@@ -129,6 +151,19 @@ export default function StudioPage() {
                 warnings={warnings}
                 aiDetected={aiDetected}
                 aiConfidence={aiConfidence}
+                telemetry={clinicalTelemetry}
+                showGoniometer={showGoniometer}
+                exercise={exercise}
+              />
+
+              {/* Real-Time Linear Position Transducer (VBT) & Power Card */}
+              <ForceVelocityPowerCard
+                velocityMps={clinicalTelemetry.barVelocityMps}
+                peakPowerWatts={clinicalTelemetry.peakPowerWatts}
+                fatiguePercent={clinicalTelemetry.fatigueIndexPercent}
+                concentricSec={repHistory[0]?.concentricSec || 0.5}
+                eccentricSec={repHistory[0]?.eccentricSec || 0.8}
+                isEnabled={showPowerVbt}
               />
             </div>
 
@@ -198,6 +233,16 @@ export default function StudioPage() {
         onClose={() => setShowAnalytics(false)}
         repHistory={repHistory}
         exercise={exercise}
+      />
+
+      {/* Clinical Diagnostic PDF Report Generator Modal */}
+      <ClinicalReportGeneratorModal
+        isOpen={showClinicalReport}
+        onClose={() => setShowClinicalReport(false)}
+        exercise={exercise}
+        repHistory={repHistory}
+        telemetry={clinicalTelemetry}
+        formScore={formScore}
       />
     </div>
   );

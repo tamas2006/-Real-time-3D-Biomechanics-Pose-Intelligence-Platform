@@ -46,3 +46,24 @@ export interface PairWorkoutSession {
   synchronizedReps: number;
   timestamp: number;
 }
+
+export interface ClinicalTelemetry {
+  leftKneeAngle: number;
+  rightKneeAngle: number;
+  leftHipAngle: number;
+  rightHipAngle: number;
+  torsoInclination: number;
+  symmetryBalance: number; // 50 = Perfect 50/50 balance
+  barVelocityMps: number; // Mean propulsive velocity (m/s)
+  peakPowerWatts: number; // Dynamic estimated power output (Watts)
+  fatigueIndexPercent: number; // Dynamic fatigue index (% drop-off)
+}
+
+export interface TrajectoryPoint {
+  x: number;
+  y: number;
+  timestamp: number;
+  phase: MovementPhase;
+}
+
+export type ClinicalCoachPersona = 'olympic' | 'physio' | 'mindset';

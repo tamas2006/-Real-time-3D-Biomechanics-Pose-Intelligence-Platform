@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { MovementPhase } from '@/types/fitness';
+import { MovementPhase, ClinicalTelemetry } from '@/types/fitness';
 import { sounds } from '@/lib/soundEffects';
 import { Camera, X, CheckCircle2 } from 'lucide-react';
+import { ClinicalGoniometerHUD } from '@/components/ClinicalGoniometerHUD';
 
 interface VisionCanvasProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -17,6 +18,9 @@ interface VisionCanvasProps {
   warnings: string[];
   aiDetected?: string;
   aiConfidence?: number;
+  telemetry?: ClinicalTelemetry;
+  showGoniometer?: boolean;
+  exercise?: string;
 }
 
 interface VisionResult {
@@ -36,7 +40,10 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
   primaryAngle,
   depthPercentage,
   formScore,
-  warnings
+  warnings,
+  telemetry,
+  showGoniometer = true,
+  exercise = 'squat'
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAnalyzingVision, setIsAnalyzingVision] = useState(false);
@@ -172,6 +179,15 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               </button>
             </div>
           </div>
+        )}
+
+        {/* Spatial Goniometer HUD Overlay */}
+        {isStreaming && telemetry && (
+          <ClinicalGoniometerHUD
+            telemetry={telemetry}
+            exercise={exercise}
+            isEnabled={showGoniometer}
+          />
         )}
 
         {/* Live Warning Banner */}
