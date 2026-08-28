@@ -16,19 +16,19 @@ export const ZainabNavbar: React.FC = () => {
         <span>KINETIC.AI</span>
       </Link>
 
-      {/* 2. CENTER FROSTED CAPSULE */}
+      {/* 2. CENTER FROSTED CAPSULE WITH SAITAMA AVATAR */}
       <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
-        {/* Coach Photo Avatar */}
+        {/* Saitama Avatar */}
         <Link
           href="/studio"
           onClick={() => sounds.playButtonClick()}
-          className="relative flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-white/40 cursor-pointer hover:scale-105 transition-transform"
+          className="relative flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-white/50 cursor-pointer hover:scale-110 transition-transform shadow-md"
           title="Launch Studio"
         >
           <img
             src="/coach_pfp.jpg"
             alt="AI Coach"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-center"
           />
         </Link>
 
