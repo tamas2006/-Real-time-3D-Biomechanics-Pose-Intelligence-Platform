@@ -1,80 +1,67 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { sounds } from '@/lib/soundEffects';
 
 interface ZainabNavbarProps {
-  onLaunchStudio: () => void;
+  onLaunchStudio?: () => void;
 }
 
 export const ZainabNavbar: React.FC<ZainabNavbarProps> = ({ onLaunchStudio }) => {
-  const [activeTab, setActiveTab] = useState('studio');
-
-  const handleTabClick = (tab: string, targetId?: string) => {
-    sounds.playButtonClick();
-    setActiveTab(tab);
-    if (targetId) {
-      const el = document.getElementById(targetId);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <nav className="relative z-40 flex items-center justify-between gap-4 max-w-7xl mx-auto w-full pt-2 px-2 select-none">
       {/* 1. LEFT BRAND LOGO */}
-      <div className="flex items-center gap-2 text-white text-sm font-mono font-black tracking-wider uppercase">
+      <Link
+        href="/"
+        onClick={() => sounds.playButtonClick()}
+        className="flex items-center gap-2 text-white text-sm font-mono font-black tracking-wider uppercase hover:opacity-80 transition-opacity"
+      >
         <span>KINETIC.AI</span>
-      </div>
+      </Link>
 
       {/* 2. CENTER FROSTED CAPSULE */}
       <div className="flex items-center gap-3 sm:gap-6 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
         {/* Coach Photo Avatar */}
-        <div
-          onClick={onLaunchStudio}
+        <Link
+          href="/studio"
+          onClick={() => sounds.playButtonClick()}
           className="relative flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-white/40 cursor-pointer hover:scale-105 transition-transform"
-          title="AI Coach"
+          title="Launch Studio"
         >
           <img
             src="/coach_pfp.jpg"
             alt="AI Coach"
             className="w-full h-full object-cover object-top"
           />
-        </div>
+        </Link>
 
         {/* Text Navigation Links */}
         <div className="hidden md:flex items-center gap-6 text-sm font-sans font-medium text-white/90">
-          <button
-            onClick={() => {
-              handleTabClick('studio');
-              onLaunchStudio();
-            }}
-            className={`hover:text-white transition-colors ${
-              activeTab === 'studio' ? 'font-bold text-white' : 'text-slate-300'
-            }`}
+          <Link
+            href="/studio"
+            onClick={() => sounds.playButtonClick()}
+            className="text-slate-300 hover:text-white transition-colors"
           >
             Workout Studio
-          </button>
+          </Link>
           <a
             href="#exercises"
-            onClick={() => handleTabClick('exercises', 'exercises')}
-            className={`hover:text-white transition-colors ${
-              activeTab === 'exercises' ? 'font-bold text-white' : 'text-slate-300'
-            }`}
+            onClick={() => sounds.playButtonClick()}
+            className="text-slate-300 hover:text-white transition-colors"
           >
             Exercises
           </a>
         </div>
 
         {/* CTA Button */}
-        <button
-          onClick={() => {
-            sounds.playButtonClick();
-            onLaunchStudio();
-          }}
+        <Link
+          href="/studio"
+          onClick={() => sounds.playButtonClick()}
           className="px-5 py-2 rounded-full bg-white text-black text-xs font-bold tracking-wide hover:bg-slate-100 transition-all shadow-md active:scale-95 flex-shrink-0"
         >
           Start Training
-        </button>
+        </Link>
       </div>
 
       {/* 3. RIGHT GITHUB ICON */}

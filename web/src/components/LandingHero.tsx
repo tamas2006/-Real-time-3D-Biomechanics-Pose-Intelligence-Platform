@@ -1,14 +1,11 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { sounds } from '@/lib/soundEffects';
 import { ZainabNavbar } from '@/components/ZainabNavbar';
 
-interface LandingHeroProps {
-  onLaunchStudio: () => void;
-}
-
-export const LandingHero: React.FC<LandingHeroProps> = ({ onLaunchStudio }) => {
+export const LandingHero: React.FC = () => {
   return (
     <section className="relative w-full min-h-[85vh] flex flex-col justify-between overflow-hidden bg-black text-white px-6 md:px-12 pt-6 pb-12 select-none">
       {/* 1. CINEMATIC BACKGROUND VIDEO */}
@@ -28,7 +25,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onLaunchStudio }) => {
       </div>
 
       {/* 2. TOP NAVBAR */}
-      <ZainabNavbar onLaunchStudio={onLaunchStudio} />
+      <ZainabNavbar />
 
       {/* 3. HERO HEADLINE & CTA */}
       <div className="relative z-20 max-w-4xl mx-auto w-full my-auto text-center flex flex-col items-center pt-8 pb-10">
@@ -37,15 +34,13 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onLaunchStudio }) => {
         </h1>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <button
-            onClick={() => {
-              sounds.playButtonClick();
-              onLaunchStudio();
-            }}
-            className="px-9 py-4 rounded-full bg-white text-black font-black text-sm uppercase tracking-wider shadow-2xl hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all"
+          <Link
+            href="/studio"
+            onClick={() => sounds.playButtonClick()}
+            className="px-9 py-4 rounded-full bg-white text-black font-black text-sm uppercase tracking-wider shadow-2xl hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all inline-block text-center"
           >
             Launch Live Workout Studio
-          </button>
+          </Link>
         </div>
       </div>
 
