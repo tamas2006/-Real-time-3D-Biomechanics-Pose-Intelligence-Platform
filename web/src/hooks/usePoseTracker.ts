@@ -201,7 +201,8 @@ export function usePoseTracker(exercise: ExerciseType) {
           activeMinAngle.current = Math.min(activeMinAngle.current, angle);
         }
       }
-        // 2. Lowering (Eccentric)
+      // 2. Lowering (Eccentric)
+      else if (currentStageRef.current === 'DOWN') {
         activeMinAngle.current = Math.min(activeMinAngle.current, angle);
         const verticalDrop = currentCoMY - startCoMY.current;
         const hasTrueDescent = exercise !== 'squat' || verticalDrop >= 0.04;
