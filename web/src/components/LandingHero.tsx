@@ -37,7 +37,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onLaunchStudio }) => {
       {/* 4. HERO EDITORIAL HEADLINE & VALUE PROPOSITION */}
       <div className="relative z-20 max-w-5xl mx-auto w-full my-auto text-center flex flex-col items-center pt-8 pb-12">
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-6 select-none drop-shadow-md">
-          Trainer who <span className="text-emerald-400 font-black">Coaches</span>
+          Trainer who <span className="text-emerald-500 font-black">Coaches</span>
         </h1>
 
         {/* Value Proposition Pills (Pure White-Yellowish Glowing Dots) */}
