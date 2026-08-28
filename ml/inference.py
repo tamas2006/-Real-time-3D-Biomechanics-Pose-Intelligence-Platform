@@ -3,9 +3,15 @@ Sub-Millisecond Real-Time Inference Engine for Pose Classification.
 """
 from typing import List, Dict, Tuple, Optional, Any
 import os
-import joblib
 import numpy as np
 from ml.feature_extractor import PoseFeatureExtractor
+
+try:
+    import joblib
+    JOBLIB_AVAILABLE = True
+except ImportError:
+    JOBLIB_AVAILABLE = False
+    joblib = None
 
 class ExerciseClassifier:
     """
@@ -24,7 +30,7 @@ class ExerciseClassifier:
         self._load_model()
 
     def _load_model(self):
-        if os.path.exists(self.model_path):
+        if JOBLIB_AVAILABLE and joblib and os.path.exists(self.model_path):
             self.bundle = joblib.load(self.model_path)
             self.model = self.bundle["model"]
             self.label_encoder = self.bundle["label_encoder"]
