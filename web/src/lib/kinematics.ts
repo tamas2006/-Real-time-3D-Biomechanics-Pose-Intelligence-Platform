@@ -5,55 +5,55 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     id: 'squat',
     name: 'Barbell / Bodyweight Squat',
     primaryJoint: 'Bilateral Knees & Hips',
-    startThresh: 145,
-    inflectionThresh: 120,
-    lockoutThresh: 132,
-    minROM: 20,
-    minDuration: 0.35,
+    startThresh: 150,
+    inflectionThresh: 105,
+    lockoutThresh: 135,
+    minROM: 35,
+    minDuration: 0.85,
     description: 'Lower until thighs reach parallel with proud chest and knees tracking outwards.'
   },
   bicep_curl: {
     id: 'bicep_curl',
     name: 'Standing Bicep Curl',
     primaryJoint: 'Elbow Flexion',
-    startThresh: 135,
-    inflectionThresh: 85,
-    lockoutThresh: 125,
-    minROM: 30,
-    minDuration: 0.35,
+    startThresh: 140,
+    inflectionThresh: 65,
+    lockoutThresh: 130,
+    minROM: 50,
+    minDuration: 0.80,
     description: 'Keep elbows pinned to your ribs, curling weight upwards through full range.'
   },
   pushup: {
     id: 'pushup',
     name: 'Standard Push-Up',
     primaryJoint: 'Elbows & Core',
-    startThresh: 135,
-    inflectionThresh: 105,
-    lockoutThresh: 128,
-    minROM: 25,
-    minDuration: 0.35,
+    startThresh: 140,
+    inflectionThresh: 95,
+    lockoutThresh: 135,
+    minROM: 35,
+    minDuration: 0.80,
     description: 'Maintain rigid horizontal body line on floor, lowering chest to near floor.'
   },
   lunge: {
     id: 'lunge',
     name: 'Forward / Reverse Lunge',
     primaryJoint: 'Lead Knee',
-    startThresh: 145,
-    inflectionThresh: 115,
+    startThresh: 150,
+    inflectionThresh: 100,
     lockoutThresh: 135,
-    minROM: 25,
-    minDuration: 0.35,
+    minROM: 40,
+    minDuration: 0.85,
     description: 'Step into deep lunge until lead thigh is parallel with floor.'
   },
   shoulder_press: {
     id: 'shoulder_press',
     name: 'Overhead Shoulder Press',
     primaryJoint: 'Shoulders & Elbows',
-    startThresh: 100,
-    inflectionThresh: 145,
-    lockoutThresh: 112,
-    minROM: 30,
-    minDuration: 0.35,
+    startThresh: 95,
+    inflectionThresh: 155,
+    lockoutThresh: 110,
+    minROM: 45,
+    minDuration: 0.80,
     description: 'Press vertically overhead to full elbow lockout without arching spine.'
   },
   plank: {
@@ -64,7 +64,7 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     inflectionThresh: 155,
     lockoutThresh: 155,
     minROM: 0,
-    minDuration: 1.0,
+    minDuration: 1.5,
     description: 'Maintain a straight, unbroken line across shoulders, hips, and ankles.'
   }
 };
@@ -122,7 +122,7 @@ export interface PosturePrerequisiteResult {
 
 /**
  * Deterministic multi-variable kinetic chain prerequisite validator.
- * Blocks walking/stepping false reps, seated cheats, and air pushing.
+ * Blocks dancing, stepping false reps, seated cheats, and air pushing.
  */
 export function validatePosturePrerequisites(
   exercise: ExerciseType,
@@ -143,7 +143,7 @@ export function validatePosturePrerequisites(
   const torsoInclination = calculateTorsoAngleFromVertical(midShoulder, midHip);
 
   // -------------------------------------------------------------
-  // 1. SQUAT KINETIC CHAIN VALIDATION (Bilateral Symmetry & Anti-Walk)
+  // 1. SQUAT KINETIC CHAIN VALIDATION (Bilateral Symmetry & Anti-Dancing)
   // -------------------------------------------------------------
   if (exercise === 'squat') {
     const lKneeVis = lm[25].visibility || 1;
@@ -163,15 +163,15 @@ export function validatePosturePrerequisites(
     const lKnee = calculateAngle3D(lm[23], lm[25], lm[27]);
     const rKnee = calculateAngle3D(lm[24], lm[26], lm[28]);
 
-    // Anti-Walk / Single-Leg Stepping Filter:
-    // Walking features one leg straight (e.g. 165°) while other is bent (e.g. 110°).
-    // A squat strictly requires bilateral symmetry (both knees bending together).
+    // Anti-Dancing / Anti-Walking Bilateral Filter:
+    // Dancing / walking features single-leg motions or asymmetric leg shifts.
+    // A squat requires both knees to bend synchronously (|L - R| <= 25°).
     const kneeAsymmetry = Math.abs(lKnee - rKnee);
-    if (kneeAsymmetry > 35 && (lKnee > 145 || rKnee > 145)) {
+    if (kneeAsymmetry > 25 && (lKnee > 135 || rKnee > 135)) {
       return {
         isValid: false,
-        statusMessage: 'Bilateral Squat Required (Both Legs)',
-        rejectionReason: 'Walking or single-leg motion rejected',
+        statusMessage: 'Bilateral Squat Required (Both Legs Symmetrical)',
+        rejectionReason: 'Dancing or single-leg motion rejected',
         primaryAngle: Math.round((lKnee + rKnee) / 2),
         postureType: 'INVALID_WALK'
       };
@@ -196,7 +196,7 @@ export function validatePosturePrerequisites(
     const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
     const angle = (lm[13].visibility || 1) >= (lm[14].visibility || 1) ? lElbow : rElbow;
 
-    // Defense against standing air-pushing:
+    // Defense against standing dancing / air-pushing:
     // A push-up strictly requires horizontal prone orientation on the floor (torso inclination >= 38°)
     if (torsoInclination < 38 && (lm[23].visibility || 1) > 0.35) {
       return {
@@ -217,18 +217,25 @@ export function validatePosturePrerequisites(
   }
 
   // -------------------------------------------------------------
-  // 3. BICEP CURL KINETIC CHAIN VALIDATION
+  // 3. BICEP CURL KINETIC CHAIN VALIDATION (Anti-Flailing / Anti-Dancing)
   // -------------------------------------------------------------
   if (exercise === 'bicep_curl') {
     const lElbow = calculateAngle3D(lm[11], lm[13], lm[15]);
     const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
-    const angle = lElbow < rElbow ? lElbow : rElbow;
+    const isLeft = (lm[13].visibility || 1) >= (lm[14].visibility || 1);
+    const angle = isLeft ? lElbow : rElbow;
 
-    if (torsoInclination > 35) {
+    // Check humerus vector against torso (anti-dancing arm swing)
+    const shoulderIdx = isLeft ? 11 : 12;
+    const elbowIdx = isLeft ? 13 : 14;
+    const hipIdx = isLeft ? 23 : 24;
+
+    const shoulderElbowAngle = calculateAngle3D(lm[hipIdx], lm[shoulderIdx], lm[elbowIdx]);
+    if (shoulderElbowAngle > 35) {
       return {
         isValid: false,
-        statusMessage: 'Keep torso upright without swinging',
-        rejectionReason: 'Excessive torso momentum',
+        statusMessage: 'Pin upper arm to ribs (Stop swinging/dancing)',
+        rejectionReason: 'Arm swing / dancing flailing motion rejected',
         primaryAngle: angle,
         postureType: 'INVALID_SWING'
       };
@@ -236,68 +243,74 @@ export function validatePosturePrerequisites(
 
     return {
       isValid: true,
-      statusMessage: 'Optimal Curl Alignment',
+      statusMessage: 'Optimal Curl Posture',
       primaryAngle: angle,
       postureType: 'OPTIMAL'
     };
   }
 
   // -------------------------------------------------------------
-  // 4. OVERHEAD SHOULDER PRESS
-  // -------------------------------------------------------------
-  if (exercise === 'shoulder_press') {
-    const lElbow = calculateAngle3D(lm[11], lm[13], lm[15]);
-    const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
-    const angle = (lm[13].visibility || 1) >= (lm[14].visibility || 1) ? lElbow : rElbow;
-
-    return {
-      isValid: true,
-      statusMessage: 'Optimal Press Alignment',
-      primaryAngle: angle,
-      postureType: 'OPTIMAL'
-    };
-  }
-
-  // -------------------------------------------------------------
-  // 5. LUNGE
+  // 4. LUNGE KINETIC CHAIN VALIDATION
   // -------------------------------------------------------------
   if (exercise === 'lunge') {
     const lKnee = calculateAngle3D(lm[23], lm[25], lm[27]);
     const rKnee = calculateAngle3D(lm[24], lm[26], lm[28]);
-    const angle = lKnee < rKnee ? lKnee : rKnee;
+    const leadKneeAngle = Math.min(lKnee, rKnee);
 
     return {
       isValid: true,
-      statusMessage: 'Optimal Lunge Stance',
+      statusMessage: 'Optimal Lunge Posture',
+      primaryAngle: leadKneeAngle,
+      postureType: 'OPTIMAL'
+    };
+  }
+
+  // -------------------------------------------------------------
+  // 5. OVERHEAD SHOULDER PRESS VALIDATION
+  // -------------------------------------------------------------
+  if (exercise === 'shoulder_press') {
+    const lElbow = calculateAngle3D(lm[11], lm[13], lm[15]);
+    const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
+    const angle = Math.round((lElbow + rElbow) / 2);
+
+    return {
+      isValid: true,
+      statusMessage: 'Optimal Press Posture',
       primaryAngle: angle,
       postureType: 'OPTIMAL'
     };
   }
 
   // -------------------------------------------------------------
-  // 6. ISOMETRIC PLANK
+  // 6. CORE ISOMETRIC PLANK VALIDATION
   // -------------------------------------------------------------
   if (exercise === 'plank') {
     const lSpine = calculateAngle3D(lm[11], lm[23], lm[27]);
     const rSpine = calculateAngle3D(lm[12], lm[24], lm[28]);
-    const angle = Math.round((lSpine + rSpine) / 2);
+    const spineAngle = Math.round((lSpine + rSpine) / 2);
 
     if (torsoInclination < 38) {
       return {
         isValid: false,
-        statusMessage: 'Hold horizontal prone plank on floor',
-        primaryAngle: angle,
+        statusMessage: 'Assume horizontal plank position',
+        rejectionReason: 'Standing position rejected for plank',
+        primaryAngle: spineAngle,
         postureType: 'INVALID_AIR_PUSH'
       };
     }
 
     return {
       isValid: true,
-      statusMessage: 'Hold Rigid Core Line',
-      primaryAngle: angle,
+      statusMessage: 'Hold Isometric Plank',
+      primaryAngle: spineAngle,
       postureType: 'OPTIMAL'
     };
   }
 
-  return { isValid: true, statusMessage: 'Ready', primaryAngle: 180, postureType: 'OPTIMAL' };
+  return {
+    isValid: true,
+    statusMessage: 'Tracking active',
+    primaryAngle: 180,
+    postureType: 'OPTIMAL'
+  };
 }
