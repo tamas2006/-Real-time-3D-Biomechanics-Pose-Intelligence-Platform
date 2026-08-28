@@ -9,3 +9,4 @@ requests>=2.31.0
 python-dotenv>=1.0.1
 aiofiles>=23.2.1
 gunicorn>=21.2.0
+gTTS>=2.5.0

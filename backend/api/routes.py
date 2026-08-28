@@ -214,11 +214,18 @@ async def vision_diagnostic(req: VisionDiagnosticRequest):
 # HIGH-FIDELITY ENGLISH AUDIO STREAMING (gTTS)
 # -------------------------------------------------------------
 import io
-from fastapi.responses import StreamingResponse
-from gtts import gTTS
+from fastapi.responses import StreamingResponse, Response
+
+try:
+    from gtts import gTTS
+    GTTS_AVAILABLE = True
+except ImportError:
+    GTTS_AVAILABLE = False
 
 @router.get("/mentor/tts", summary="Generate streaming spoken audio MP3")
 async def generate_speech_tts(text: str, lang: str = "en"):
+    if not GTTS_AVAILABLE:
+        return Response(status_code=204)
     try:
         clean_text = text.strip() or "Good repetition. Keep driving!"
         tts = gTTS(text=clean_text, lang=lang, slow=False)
@@ -227,11 +234,7 @@ async def generate_speech_tts(text: str, lang: str = "en"):
         mp3_fp.seek(0)
         return StreamingResponse(mp3_fp, media_type="audio/mpeg")
     except Exception as e:
-        tts = gTTS(text=text or "Keep your core braced.", lang="en", slow=False)
-        mp3_fp = io.BytesIO()
-        tts.write_to_fp(mp3_fp)
-        mp3_fp.seek(0)
-        return StreamingResponse(mp3_fp, media_type="audio/mpeg")
+        return Response(status_code=204)
 
 
 
