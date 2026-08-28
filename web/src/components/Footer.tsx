@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowUp, Zap, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -9,45 +9,39 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative w-full bg-[#EAE8E1] text-slate-800 pt-20 pb-12 px-6 md:px-12 mt-20 overflow-hidden border-t-4 border-[#DCD9D0]">
-      {/* Top Wave Curve */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-slate-300">
+    <footer className="relative w-full bg-black text-white pt-20 pb-12 px-6 md:px-12 mt-20 overflow-hidden border-t border-white/15 select-none">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/10">
         <div className="flex flex-col items-center md:items-start text-center md:text-left">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
-              <Zap className="w-3.5 h-3.5 text-cyan-300 fill-cyan-300" />
-            </div>
-            <span className="text-xl font-black font-mono tracking-wider text-slate-900">
+            <span className="text-xl font-black font-mono tracking-wider text-white">
               KINETIC.AI
             </span>
           </div>
-          <p className="text-xs text-slate-600 max-w-sm font-sans">
+          <p className="text-xs text-slate-400 max-w-sm font-sans">
             Next-Gen Edge Biomechanics & AI Pose Intelligence. Designed with modern editorial precision for athletes and coaches.
           </p>
         </div>
 
-        {/* Badges without emojis */}
+        {/* Pure Clean Obsidian Badges */}
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-mono font-bold text-slate-700 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>MediaPipe 60 FPS</span>
+          <div className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-xs font-mono font-bold text-slate-300 shadow-sm">
+            MediaPipe 60 FPS
           </div>
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-mono font-bold text-slate-700 shadow-sm">
-            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            <span>175,000 Dataset</span>
+          <div className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-xs font-mono font-bold text-slate-300 shadow-sm">
+            175,000 Dataset
           </div>
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-mono font-bold text-slate-700 shadow-sm">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Zero False Reps</span>
+          <div className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-xs font-mono font-bold text-slate-300 shadow-sm">
+            Zero False Reps
           </div>
         </div>
 
         {/* Scroll To Top Button */}
         <button
           onClick={scrollToTop}
-          className="w-12 h-12 rounded-full bg-white border-2 border-slate-300 hover:border-slate-900 hover:bg-slate-900 hover:text-white flex items-center justify-center shadow-md transition-all active:scale-95 group"
+          className="w-12 h-12 rounded-full bg-white/10 border border-white/20 hover:border-white hover:bg-white hover:text-black flex items-center justify-center shadow-md transition-all active:scale-95 group text-white"
+          aria-label="Scroll to Top"
         >
-          <ArrowUp className="w-5 h-5 text-slate-700 group-hover:text-white transition-colors" />
+          <ArrowUp className="w-5 h-5 text-white group-hover:text-black transition-colors" />
         </button>
       </div>
 

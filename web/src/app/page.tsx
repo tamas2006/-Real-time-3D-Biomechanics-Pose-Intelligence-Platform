@@ -12,7 +12,6 @@ import { Header } from '@/components/Header';
 import { VisionCanvas } from '@/components/VisionCanvas';
 import { RepCounterCard } from '@/components/RepCounterCard';
 import { Footer } from '@/components/Footer';
-import { EXERCISE_CONFIGS } from '@/lib/kinematics';
 
 export default function Home() {
   const [exercise, setExercise] = useState<ExerciseType>('squat');
@@ -50,14 +49,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-slate-900 flex flex-col selection:bg-yellow-300 selection:text-black">
-      {/* 1. DYNAMIC EDITORIAL HERO (Matching Reference Aesthetic with Fitness Theme) */}
+    <div className="min-h-screen bg-black text-white flex flex-col selection:bg-emerald-400 selection:text-black">
+      {/* 1. DYNAMIC EDITORIAL HERO */}
       <LandingHero onLaunchStudio={scrollToStudio} />
 
       {/* 2. INTERACTIVE BIOMECHANICAL PROTRACTOR LAB */}
       <InteractiveProtractor />
 
-      {/* 3. MAIN LIVE AI WORKOUT STUDIO SECTION (Styled like a luxury physical apparatus) */}
+      {/* 3. MAIN LIVE AI WORKOUT STUDIO SECTION */}
       <section
         id="studio"
         ref={studioRef}
@@ -67,7 +66,7 @@ export default function Home() {
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/15 pb-6">
             <div>
-              <div className="flex items-center gap-2 text-amber-200 text-xs font-mono font-bold tracking-widest uppercase mb-2">
+              <div className="flex items-center gap-2 text-emerald-300 text-xs font-mono font-bold tracking-widest uppercase mb-2">
                 <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
                 <span>EDGE VISION ENGINE // MODEL K-175</span>
               </div>
@@ -134,12 +133,10 @@ export default function Home() {
         warnings={warnings}
       />
 
-      {/* 5. THE BIOMECHANICAL RULEBOOK (6 Movement Patterns in Mac Terminal Window Cards) */}
-      <section id="features">
-        <BiomechanicalRules />
-      </section>
+      {/* 5. THE BIOMECHANICAL RULEBOOK */}
+      <BiomechanicalRules />
 
-      {/* 6. MODEL ARCHITECTURE & 140K DATASET SHOWCASE */}
+      {/* 6. MODEL ARCHITECTURE & 175K DATASET SHOWCASE */}
       <ModelArchitectureShowcase />
 
       {/* 7. FOOTER */}

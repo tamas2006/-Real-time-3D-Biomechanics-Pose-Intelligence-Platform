@@ -263,16 +263,16 @@ export const SpotifyStation: React.FC = () => {
   const progressPercent = Math.min(100, Math.max(0, (liveTrack.progressMs / (liveTrack.durationMs || 1)) * 100));
 
   return (
-    <div className="relative p-5 sm:p-6 rounded-[36px] bg-[#EAE7E0] text-slate-800 shadow-[0_25px_60px_rgba(0,0,0,0.35),inset_0_2px_4px_rgba(255,255,255,0.9),inset_0_-4px_8px_rgba(0,0,0,0.15)] border-4 border-[#D8D4C7] max-w-xl w-full mx-auto flex flex-col gap-4 select-none backdrop-blur-md">
+    <div className="relative p-5 sm:p-6 rounded-[36px] bg-[#0B1120] text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] border-2 border-white/20 max-w-xl w-full mx-auto flex flex-col gap-4 select-none backdrop-blur-xl">
       {/* Top Header / Spotify Live Status */}
-      <div className="flex items-center justify-between border-b border-slate-300/80 pb-3">
+      <div className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-2">
           <div
             className={`w-2.5 h-2.5 rounded-full ${
-              isConnected ? 'bg-[#1DB954] animate-pulse shadow-[0_0_8px_#1DB954]' : 'bg-slate-400'
+              isConnected ? 'bg-[#1DB954] animate-pulse shadow-[0_0_8px_#1DB954]' : 'bg-emerald-400'
             }`}
           />
-          <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-slate-700">
+          <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-slate-300">
             {isConnected ? `● Live Spotify Synced (${syncStatus})` : 'Spotify Workout Radio'}
           </span>
         </div>
@@ -286,18 +286,18 @@ export const SpotifyStation: React.FC = () => {
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-mono font-black uppercase tracking-wider shadow-sm transition-all active:scale-95 ${
             isConnected
               ? 'bg-[#1DB954] text-white hover:bg-[#1aa34a]'
-              : 'bg-[#191414] text-[#1DB954] border border-[#1DB954]/50 hover:bg-black'
+              : 'bg-white/10 text-[#1DB954] border border-[#1DB954]/50 hover:bg-white/20'
           }`}
         >
           <Music2 className="w-3.5 h-3.5" />
-          <span>{isConnected ? 'Synced ✓' : 'Connect Spotify (1-Click)'}</span>
+          <span>{isConnected ? 'Synced ✓' : 'Connect Spotify'}</span>
         </button>
       </div>
 
       {/* Main Player Row */}
       <div className="flex items-center justify-between gap-4 sm:gap-6">
         {/* Left Spinning Vinyl Album Art */}
-        <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full vinyl-grooves border-4 border-slate-900 shadow-xl flex items-center justify-center">
+        <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full vinyl-grooves border-4 border-black/80 shadow-xl flex items-center justify-center bg-black/60">
           <div
             className={`w-full h-full rounded-full flex items-center justify-center p-2.5 ${
               liveTrack.isPlaying ? 'animate-spin-slow' : ''
@@ -306,7 +306,7 @@ export const SpotifyStation: React.FC = () => {
             <img
               src={liveTrack.albumArt}
               alt={liveTrack.title}
-              className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
+              className="w-10 h-10 rounded-full object-cover border-2 border-emerald-400 shadow-md"
             />
           </div>
         </div>
@@ -315,29 +315,29 @@ export const SpotifyStation: React.FC = () => {
         <div className="flex-1 flex flex-col gap-2 min-w-0">
           <div className="flex items-center justify-between">
             <div className="truncate pr-2">
-              <h4 className="text-sm font-bold text-slate-900 truncate leading-snug">
+              <h4 className="text-sm font-bold text-white truncate leading-snug">
                 {liveTrack.title}
               </h4>
-              <p className="text-[11px] font-mono text-slate-500 truncate">
+              <p className="text-[11px] font-mono text-slate-400 truncate">
                 {liveTrack.artist}
               </p>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 flex-shrink-0">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 border border-emerald-400/30 flex-shrink-0">
               {liveTrack.bpm} BPM
             </span>
           </div>
 
           {/* Live Dynamic Scrubber Bar */}
-          <div className="w-full bg-slate-300 h-2 rounded-full overflow-hidden p-0.5 shadow-inner cursor-pointer">
+          <div className="w-full bg-black/50 h-2 rounded-full overflow-hidden p-0.5 border border-white/10 cursor-pointer">
             <div
-              className="h-full bg-[#1DB954] rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(29,185,84,0.4)]"
+              className="h-full bg-[#1DB954] rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(29,185,84,0.6)]"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
           {/* Time & Remote Controls */}
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] font-mono font-bold text-slate-500">
+            <span className="text-[10px] font-mono font-bold text-slate-400">
               {formatMs(liveTrack.progressMs)}
             </span>
 
@@ -345,7 +345,7 @@ export const SpotifyStation: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleRemotePrev}
-                className="text-slate-600 hover:text-slate-900 transition-colors active:scale-90"
+                className="text-slate-400 hover:text-white transition-colors active:scale-90"
                 title="Previous Track"
               >
                 <SkipBack className="w-4 h-4 fill-current" />
@@ -353,39 +353,39 @@ export const SpotifyStation: React.FC = () => {
 
               <button
                 onClick={handleRemotePlayPause}
-                className="w-10 h-10 rounded-full bg-slate-900 text-white hover:bg-slate-800 flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                className="w-10 h-10 rounded-full bg-white text-black hover:bg-slate-200 flex items-center justify-center shadow-md active:scale-90 transition-transform"
                 title={liveTrack.isPlaying ? 'Pause' : 'Play'}
               >
                 {liveTrack.isPlaying ? (
-                  <Pause className="w-4 h-4 fill-white text-white" />
+                  <Pause className="w-4 h-4 fill-black text-black" />
                 ) : (
-                  <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+                  <Play className="w-4 h-4 fill-black text-black ml-0.5" />
                 )}
               </button>
 
               <button
                 onClick={handleRemoteNext}
-                className="text-slate-600 hover:text-slate-900 transition-colors active:scale-90"
+                className="text-slate-400 hover:text-white transition-colors active:scale-90"
                 title="Next Track"
               >
                 <SkipForward className="w-4 h-4 fill-current" />
               </button>
             </div>
 
-            <span className="text-[10px] font-mono font-bold text-slate-500">
+            <span className="text-[10px] font-mono font-bold text-slate-400">
               {formatMs(liveTrack.durationMs)}
             </span>
           </div>
         </div>
 
         {/* Right Vinyl Ring */}
-        <div className="hidden sm:flex relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full vinyl-grooves border-4 border-slate-900 shadow-xl items-center justify-center">
+        <div className="hidden sm:flex relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full vinyl-grooves border-4 border-black/80 shadow-xl items-center justify-center bg-black/60">
           <div
             className={`w-full h-full rounded-full flex items-center justify-center ${
               liveTrack.isPlaying ? 'animate-spin-slow' : ''
             }`}
           >
-            <div className="w-7 h-7 rounded-full bg-[#1DB954] border-2 border-slate-900 flex items-center justify-center font-mono text-[9px] font-bold text-white shadow-inner">
+            <div className="w-7 h-7 rounded-full bg-[#1DB954] border-2 border-black flex items-center justify-center font-mono text-[9px] font-bold text-black shadow-inner">
               LIVE
             </div>
           </div>

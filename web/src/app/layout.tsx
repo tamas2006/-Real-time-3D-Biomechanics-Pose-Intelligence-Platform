@@ -43,9 +43,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${bodoniModa.variable} ${openSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${outfit.variable} ${bodoniModa.variable} ${openSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full font-sans antialiased text-slate-900 bg-[#3b82f6] selection:bg-amber-300 selection:text-slate-900">
+      <body className="min-h-full font-sans antialiased text-white bg-black selection:bg-emerald-400 selection:text-black">
         {children}
       </body>
     </html>

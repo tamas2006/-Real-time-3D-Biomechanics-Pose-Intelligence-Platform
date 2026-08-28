@@ -62,11 +62,11 @@ export const BiomechanicalRules: React.FC = () => {
           <div className="text-cyan-400 font-mono text-xs font-bold tracking-widest uppercase mb-2">
             <span>CLINICAL BIOMECHANICS RULEBOOK</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-serif text-slate-900 tracking-tight">
-            6 Movement <span className="italic text-blue-600">Protocols</span>
+          <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight">
+            6 Movement <span className="italic text-cyan-400">Protocols</span>
           </h2>
         </div>
-        <p className="text-slate-600 text-sm max-w-md font-sans leading-relaxed">
+        <p className="text-slate-300 text-sm max-w-md font-sans leading-relaxed">
           Each movement protocol is governed by mathematical range-of-motion constraints, spatial plane verification, and zero-false-positive hysteresis gates.
         </p>
       </div>
