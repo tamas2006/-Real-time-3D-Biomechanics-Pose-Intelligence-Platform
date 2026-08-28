@@ -27,11 +27,18 @@ export const LandingHero: React.FC = () => {
       {/* 2. TOP NAVBAR */}
       <ZainabNavbar />
 
-      {/* 3. HERO HEADLINE & CONTINUOUS LOOPING GLOW BUTTON */}
+      {/* 3. HERO HEADLINE IN EXACT "TAMAS INGLE" SYNE + BODONI MODA ITALIC TYPOGRAPHY */}
       <div className="relative z-20 max-w-5xl mx-auto w-full my-auto text-center flex flex-col items-center">
-        <h1 className="text-5xl sm:text-7xl md:text-8xl font-sans font-black tracking-tight text-white leading-tight uppercase mb-10 select-none drop-shadow-2xl">
-          Trainer who <span className="text-white font-black">Coaches</span>
+        <h1 className="text-5xl sm:text-7xl md:text-8xl font-display font-bold tracking-[0.06em] text-white leading-[1.05] uppercase select-none drop-shadow-2xl">
+          TRAINER
         </h1>
+        <h2 className="text-5xl sm:text-7xl md:text-8xl font-vogue italic font-normal text-white leading-[1.1] mb-6 select-none drop-shadow-2xl">
+          WHO COACHES
+        </h2>
+
+        <p className="text-xs sm:text-sm font-open-sans italic text-slate-300 max-w-md mb-10 leading-relaxed text-center">
+          Real-time 3D pose intelligence and biomechanical coaching powered by edge vision and clinical form guarding.
+        </p>
 
         <div className="flex items-center justify-center">
           <Link

@@ -1,28 +1,24 @@
 import type { Metadata } from "next";
-import { Outfit, Instrument_Serif, JetBrains_Mono, Open_Sans, Bodoni_Moda } from "next/font/google";
+import { Syne, Bodoni_Moda, JetBrains_Mono, Open_Sans } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
 });
 
 const bodoniModa = Bodoni_Moda({
   variable: "--font-vogue",
   subsets: ["latin"],
   style: ["normal", "italic"],
+  weight: ["400", "600", "700", "800", "900"],
 });
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
   subsets: ["latin"],
   style: ["normal", "italic"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-serif",
-  weight: "400",
-  subsets: ["latin"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -43,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${bodoniModa.variable} ${openSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
+      className={`${syne.variable} ${bodoniModa.variable} ${openSans.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full font-sans antialiased text-white bg-black selection:bg-emerald-400 selection:text-black">
         {children}

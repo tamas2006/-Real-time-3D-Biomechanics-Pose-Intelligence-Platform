@@ -7,11 +7,11 @@
     --color-bg-deep: #050505;
     --color-bg-card: #0c0c0e;
     --color-bg-feature: #16161a;
-    --font-outfit: 'Outfit', sans-serif;
-    --font-vogue: 'Bodoni Moda', 'Didot', serif;
-    --font-open-sans: 'Open Sans', sans-serif;
-    --font-serif: 'Instrument Serif', Georgia, serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: var(--font-syne);
+    --font-sans: var(--font-syne);
+    --font-vogue: var(--font-vogue);
+    --font-open-sans: var(--font-open-sans);
+    --font-mono: var(--font-mono);
   }
 }
 
@@ -24,19 +24,19 @@ body {
   background: #050505;
   color: #EDECE4;
   overflow-x: hidden;
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-syne), sans-serif;
 }
 
 .font-vogue {
-  font-family: var(--font-vogue), 'Bodoni Moda', 'Didot', serif;
-}
-
-.font-serif {
-  font-family: var(--font-serif);
+  font-family: var(--font-vogue), 'Bodoni Moda', Didot, 'Cinzel', serif;
 }
 
 .font-sans {
-  font-family: var(--font-outfit);
+  font-family: var(--font-syne), sans-serif;
 }
 
 .font-open-sans {
