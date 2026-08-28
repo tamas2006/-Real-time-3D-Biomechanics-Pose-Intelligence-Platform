@@ -113,7 +113,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           <span className="text-xs font-mono text-slate-400 tracking-widest uppercase font-bold">
             NLP.MENTOR // REAL-TIME COGNITIVE COACH
           </span>
-          <div className="flex items-center gap-2 text-[11px] font-mono text-amber-200">
+          <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-300">
             <span className="w-2 h-2 rounded-full warm-glow-dot animate-pulse" />
             <span>AI MENTOR ONLINE</span>
           </div>

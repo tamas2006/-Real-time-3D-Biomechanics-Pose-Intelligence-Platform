@@ -90,11 +90,11 @@
 }
 
 /* ------------------------------------------------------------- */
-/* PURE WHITE-YELLOWISH SOFT GLOWING DOT */
+/* SLEEK VIBRANT EMERALD GREEN GLOWING DOT */
 /* ------------------------------------------------------------- */
 .warm-glow-dot {
-  background-color: #FEF9C3;
-  box-shadow: 0 0 8px 1.5px rgba(254, 240, 138, 0.9), 0 0 3px 1px #FFFFFF;
+  background-color: #10B981;
+  box-shadow: 0 0 10px 2.5px rgba(16, 185, 129, 0.85), 0 0 3px 1px #6EE7B7;
 }
 
 /* ------------------------------------------------------------- */
