@@ -136,7 +136,7 @@ class NLPMentorEngine:
                 return {
                     "response": full_text,
                     "exercise": exercise,
-                    "model": "Groq (openai/gpt-oss-120b)"
+                    "model": "Kinetic AI (Neural Reasoning Engine)"
                 }
             except Exception as e:
                 print(f"[Groq Query Error]: {e}")
@@ -220,7 +220,7 @@ class NLPMentorEngine:
                 "assessment": assessment,
                 "correction": correction,
                 "score": 92 if not warnings else 75,
-                "model": "Groq Multimodal Vision (qwen/qwen3.8-27b)"
+                "model": "Kinetic AI Multimodal Vision"
             }
         except Exception as e:
             print(f"[Groq Vision Error]: {e}")

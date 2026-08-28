@@ -109,7 +109,7 @@ export const LandingHero: React.FC = () => {
             <div className="flex items-start gap-2.5">
               <CheckSquare className="w-4 h-4 text-white flex-shrink-0 mt-0.5" />
               <span>
-                <strong className="text-white font-bold">Groq Multimodal Vision AI</strong>{' '}
+                <strong className="text-white font-bold">Kinetic AI Multimodal Vision</strong>{' '}
                 <span className="text-neutral-500 text-[11px]">(real-time reasoning & posture diagnostics)</span>
               </span>
             </div>

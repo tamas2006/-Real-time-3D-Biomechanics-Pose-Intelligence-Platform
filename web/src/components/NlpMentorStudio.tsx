@@ -138,7 +138,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center my-auto text-neutral-500 py-8 text-center">
               <p className="text-xs font-bold text-neutral-300 uppercase tracking-wider">// Ask anything</p>
-              <p className="text-[11px] text-neutral-500 mt-1">Select a suggestion above or enter your question below for instant Groq responses.</p>
+              <p className="text-[11px] text-neutral-500 mt-1">Select a suggestion above or enter your question below for instant Kinetic AI responses.</p>
             </div>
           ) : (
             messages.map((m, idx) => (

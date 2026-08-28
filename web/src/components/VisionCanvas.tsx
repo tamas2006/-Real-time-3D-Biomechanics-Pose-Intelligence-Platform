@@ -83,7 +83,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
           assessment: data.assessment,
           correction: data.correction,
           score: data.score || 90,
-          model: data.model || 'Groq Multimodal Vision',
+          model: data.model || 'Kinetic AI Multimodal Vision',
           snapshotUrl: dataUrl
         });
       }
@@ -190,7 +190,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2 text-cyan-300 font-mono text-xs font-bold uppercase tracking-wider">
                   <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                  <span>Groq Multimodal Vision Analysis</span>
+                  <span>Kinetic AI Multimodal Vision Analysis</span>
                 </div>
                 <button
                   onClick={() => setVisionResult(null)}
