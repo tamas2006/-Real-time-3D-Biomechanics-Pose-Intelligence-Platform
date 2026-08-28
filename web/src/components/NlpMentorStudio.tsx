@@ -151,8 +151,10 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           )}
 
           {isLoading && (
-            <div className="self-start text-slate-400 text-xs p-3 rounded-2xl bg-white/5 font-mono">
-              Groq is thinking...
+            <div className="self-start flex items-center gap-1.5 p-3 rounded-2xl bg-white/5 border border-white/10 w-max">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           )}
         </div>
