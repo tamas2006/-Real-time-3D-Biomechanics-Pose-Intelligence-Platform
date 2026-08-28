@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { ExerciseType } from '@/types/fitness';
 import { sounds } from '@/lib/soundEffects';
-import { playVoiceCue } from '@/lib/voiceCoach';
 
 interface NlpMentorStudioProps {
   exercise: ExerciseType;
@@ -15,7 +14,6 @@ interface NlpMentorStudioProps {
 interface Message {
   sender: 'user' | 'coach';
   text: string;
-  cue?: string;
   time: string;
 }
 
@@ -25,14 +23,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
   formScore,
   warnings
 }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      sender: 'coach',
-      text: `Hello! I am your AI Coach tracking your ${exercise.replace('_', ' ')}. Ask me about joint angles, tempo control, depth, or form fixes.`,
-      cue: "Tip: 'Maintain abdominal bracing throughout every repetition.'",
-      time: 'Just now'
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,23 +60,24 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
         const coachMsg: Message = {
           sender: 'coach',
           text: data.response,
-          cue: data.actionable_cue,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         setMessages((prev) => [...prev, coachMsg]);
-
-        const textToSpeak = data.actionable_cue || data.response;
-        playVoiceCue(textToSpeak, true);
+      } else {
+        const errMsg: Message = {
+          sender: 'coach',
+          text: 'Unable to reach Groq AI model at this moment. Please check connection.',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages((prev) => [...prev, errMsg]);
       }
     } catch (e) {
-      const fallbackMsg: Message = {
+      const errMsg: Message = {
         sender: 'coach',
-        text: `For ${exercise.replace('_', ' ')}, prioritize a controlled 3-second lowering phase to build joint stability.`,
-        cue: "Tip: 'Control the descent, drive explosively through mid-foot.'",
+        text: 'Network error connecting to Groq AI server.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages((prev) => [...prev, fallbackMsg]);
-      playVoiceCue("Control the descent, drive explosively through mid-foot.", true);
+      setMessages((prev) => [...prev, errMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +91,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
   ];
 
   return (
-    <section className="py-16 px-6 md:px-12 max-w-7xl mx-auto w-full">
+    <section className="py-12 px-6 md:px-12 max-w-7xl mx-auto w-full">
       <div className="rounded-3xl bg-[#0B1120] border border-white/15 shadow-2xl p-6 md:p-8 flex flex-col gap-6 text-white">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
@@ -108,7 +100,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               AI Coach Guidance
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Ask questions about exercise form, anatomy, and technique.
+              Powered by Groq High-Speed LLM. Ask any questions about technique, joint mechanics, or form fixes.
             </p>
           </div>
 
@@ -118,7 +110,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
               <button
                 key={idx}
                 onClick={() => handleSendMessage(p)}
-                className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-xs font-sans text-slate-300 hover:text-white transition-all active:scale-95"
+                className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-xs font-sans text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer"
               >
                 {p}
               </button>
@@ -127,38 +119,40 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
         </div>
 
         {/* Chat History */}
-        <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 text-xs font-sans">
-          {messages.map((m, idx) => (
-            <div
-              key={idx}
-              className={`flex flex-col gap-1 max-w-2xl ${
-                m.sender === 'user' ? 'self-end items-end' : 'self-start items-start'
-              }`}
-            >
-              <div className="text-[10px] text-slate-400 font-mono">
-                {m.sender === 'user' ? 'You' : 'AI Coach'} • {m.time}
-              </div>
-
+        <div className="flex flex-col gap-3 min-h-[160px] max-h-[360px] overflow-y-auto p-4 rounded-2xl bg-black/40 border border-white/10 text-xs font-sans">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center my-auto text-slate-500 py-8 text-center">
+              <p className="text-sm font-sans font-medium text-slate-400">Ask your AI Coach anything</p>
+              <p className="text-xs text-slate-500 mt-1">Click a suggestion above or type your question below for instant Groq responses.</p>
+            </div>
+          ) : (
+            messages.map((m, idx) => (
               <div
-                className={`p-3.5 rounded-2xl leading-relaxed text-xs ${
-                  m.sender === 'user'
-                    ? 'bg-emerald-500/20 text-emerald-100 border border-emerald-400/30'
-                    : 'bg-white/5 text-slate-200 border border-white/10'
+                key={idx}
+                className={`flex flex-col gap-1 max-w-2xl ${
+                  m.sender === 'user' ? 'self-end items-end' : 'self-start items-start'
                 }`}
               >
-                <p>{m.text}</p>
-                {m.cue && (
-                  <div className="mt-2 pt-2 border-t border-white/10 text-emerald-300 font-bold text-xs">
-                    {m.cue}
-                  </div>
-                )}
+                <div className="text-[10px] text-slate-400 font-mono">
+                  {m.sender === 'user' ? 'You' : 'Groq AI Coach'} • {m.time}
+                </div>
+
+                <div
+                  className={`p-3.5 rounded-2xl leading-relaxed text-xs ${
+                    m.sender === 'user'
+                      ? 'bg-emerald-500/20 text-emerald-100 border border-emerald-400/30'
+                      : 'bg-white/5 text-slate-200 border border-white/10'
+                  }`}
+                >
+                  <p>{m.text}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
 
           {isLoading && (
             <div className="self-start text-slate-400 text-xs p-3 rounded-2xl bg-white/5 font-mono">
-              AI Coach is thinking...
+              Groq is thinking...
             </div>
           )}
         </div>
@@ -176,7 +170,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
           <button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !inputText.trim()}
-            className="px-5 py-2.5 rounded-xl bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-slate-200 transition-all disabled:opacity-40"
+            className="px-5 py-2.5 rounded-xl bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-slate-200 transition-all disabled:opacity-40 cursor-pointer"
           >
             Ask
           </button>
