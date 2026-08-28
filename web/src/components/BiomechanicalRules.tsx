@@ -68,7 +68,7 @@ export const BiomechanicalRules: React.FC = () => {
                 <h3 className="text-lg font-bold text-white font-sans">
                   {ex.title}
                 </h3>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-emerald-300 font-mono">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-neutral-300 font-mono">
                   {ex.category}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export const BiomechanicalRules: React.FC = () => {
             </div>
 
             <div className="pt-3 border-t border-white/10 text-xs text-slate-300">
-              <strong className="text-emerald-400 font-mono">Coach Cue:</strong> {ex.cue}
+              <strong className="text-white font-mono">Coach Cue:</strong> {ex.cue}
             </div>
           </div>
         ))}

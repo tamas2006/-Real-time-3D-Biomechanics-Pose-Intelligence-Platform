@@ -155,7 +155,7 @@ export const NlpMentorStudio: React.FC<NlpMentorStudioProps> = ({
                 <div
                   className={`p-3.5 rounded-xl leading-relaxed text-xs ${
                     m.sender === 'user'
-                      ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-400/25'
+                      ? 'bg-white/15 text-white border border-white/25'
                       : 'bg-[#141416] text-neutral-200 border border-white/[0.08]'
                   }`}
                 >

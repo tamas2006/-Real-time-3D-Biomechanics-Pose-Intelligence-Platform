@@ -47,7 +47,7 @@ export default function RootLayout({
       lang="en"
       className={`${syne.variable} ${bodoniModa.variable} ${openSans.variable} ${jetbrainsMono.variable} ${silkscreen.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full font-sans antialiased text-white bg-black selection:bg-emerald-400 selection:text-black">
+      <body className="min-h-full font-sans antialiased text-white bg-black selection:bg-neutral-700 selection:text-white">
         {children}
       </body>
     </html>

@@ -99,7 +99,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
 
   if (phase === 'inflection') {
     stageLabel = 'DEEP DEPTH';
-    stageColor = 'bg-emerald-500/30 text-emerald-200 border-emerald-400';
+    stageColor = 'bg-white/20 text-white border-white/40';
   } else if (phase === 'eccentric') {
     stageLabel = 'LOWERING';
     stageColor = 'bg-amber-500/20 text-amber-200 border-amber-400/40';
@@ -221,9 +221,9 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
               </div>
 
               {/* Actionable Form Correction Box */}
-              <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex flex-col gap-1">
-                <span className="text-[10px] font-mono uppercase text-emerald-300 font-bold">Actionable Coaching Cue:</span>
-                <p className="text-xs text-emerald-100 font-sans font-medium">
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/15 flex flex-col gap-1">
+                <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Actionable Coaching Cue:</span>
+                <p className="text-xs text-white font-sans font-medium">
                   {visionResult.correction}
                 </p>
               </div>

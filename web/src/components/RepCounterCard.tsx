@@ -36,7 +36,7 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-400/20 w-max">
+              <span className="text-[11px] font-bold text-white bg-white/10 px-2 py-0.5 rounded-md border border-white/20 w-max">
                 {validReps} Verified
               </span>
               <span className="text-[10px] text-neutral-500 mt-1">Full Range Required</span>
@@ -59,7 +59,7 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
               cx="40"
               cy="40"
               r={radius}
-              stroke="#10B981"
+              stroke="#FFFFFF"
               strokeWidth="6"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
@@ -125,7 +125,7 @@ export const RepCounterCard: React.FC<RepCounterCardProps> = ({
                   <span className="text-neutral-400">{r.durationSec}s</span>
                 </div>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                  r.formScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-400/20' : 'bg-rose-500/10 text-rose-400 border border-rose-400/20'
+                  r.formScore >= 80 ? 'bg-white/10 text-white border border-white/20' : 'bg-rose-500/10 text-rose-400 border border-rose-400/20'
                 }`}>
                   {r.formScore}% Score
                 </span>
