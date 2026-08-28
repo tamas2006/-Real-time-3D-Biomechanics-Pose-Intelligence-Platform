@@ -309,3 +309,11 @@ export function validatePosturePrerequisites(
     postureType: 'OPTIMAL'
   };
 }
+
+/**
+ * Computes bilateral pair synchronization score between two athletes or mentor-athlete pairs.
+ */
+export function calculatePairSynchronizationScore(angleA: number, angleB: number): number {
+  const diff = Math.abs(angleA - angleB);
+  return Math.max(0, Math.min(100, Math.round(100 - (diff * 1.5))));
+}
