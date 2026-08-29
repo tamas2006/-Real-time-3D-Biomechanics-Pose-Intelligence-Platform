@@ -22,47 +22,39 @@ export const Header: React.FC<HeaderProps> = ({
   onReset
 }) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#0e0e0f] border border-white/[0.08] shadow-xl text-white font-mono">
-      {/* Left Brand Badge */}
+    <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-none bg-[#0a0a0a] border border-[#222222] text-white font-mono">
+      {/* Left Exercise Dropdown */}
       <div className="flex items-center gap-2">
-        <span className="text-neutral-500 font-bold">//</span>
-        <span className="text-xs font-bold tracking-wider uppercase text-neutral-300">
-          TRAINER TELEMETRY
-        </span>
+        <span className="text-[11px] uppercase tracking-wider text-neutral-400 font-bold">Exercise:</span>
+        <select
+          value={exercise}
+          onChange={(e) => {
+            sounds.playButtonClick();
+            onSelectExercise(e.target.value as ExerciseType);
+          }}
+          className="bg-black text-xs font-bold text-white border border-[#333333] px-3 py-1.5 rounded-none outline-none cursor-pointer"
+        >
+          <option value="squat" className="bg-black text-white">Squat</option>
+          <option value="bicep_curl" className="bg-black text-white">Bicep Curl</option>
+          <option value="pushup" className="bg-black text-white">Push-Up</option>
+          <option value="lunge" className="bg-black text-white">Lunge</option>
+          <option value="shoulder_press" className="bg-black text-white">Shoulder Press</option>
+          <option value="plank" className="bg-black text-white">Plank</option>
+        </select>
       </div>
 
-      {/* Center & Right Controls */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Exercise Dropdown */}
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#080808] border border-white/[0.08]">
-          <span className="text-[11px] uppercase text-neutral-400">Exercise:</span>
-          <select
-            value={exercise}
-            onChange={(e) => {
-              sounds.playButtonClick();
-              onSelectExercise(e.target.value as ExerciseType);
-            }}
-            className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer pr-1"
-          >
-            <option value="squat" className="bg-neutral-900 text-white">Squat</option>
-            <option value="bicep_curl" className="bg-neutral-900 text-white">Bicep Curl</option>
-            <option value="pushup" className="bg-neutral-900 text-white">Push-Up</option>
-            <option value="lunge" className="bg-neutral-900 text-white">Lunge</option>
-            <option value="shoulder_press" className="bg-neutral-900 text-white">Shoulder Press</option>
-            <option value="plank" className="bg-neutral-900 text-white">Plank</option>
-          </select>
-        </div>
-
+      {/* Right Actions */}
+      <div className="flex items-center gap-2">
         {/* Start / Stop Camera Button */}
         <button
           onClick={() => {
             sounds.playButtonClick();
             onToggleCamera();
           }}
-          className={`px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer ${
+          className={`px-4 py-1.5 rounded-none font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer border ${
             isStreaming
-              ? 'bg-rose-600 hover:bg-rose-700 text-white border border-rose-500/50'
-              : 'bg-white text-black hover:bg-neutral-200'
+              ? 'bg-rose-600 hover:bg-rose-700 text-white border-rose-500'
+              : 'bg-white text-black hover:bg-neutral-200 border-white'
           }`}
         >
           {isStreaming ? 'Stop Camera' : 'Start Camera'}
@@ -74,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
             sounds.playButtonClick();
             onReset();
           }}
-          className="px-4 py-2 rounded-xl bg-[#141416] hover:bg-neutral-800 border border-white/[0.08] text-xs font-bold uppercase text-neutral-300 hover:text-white transition-all active:scale-95 cursor-pointer"
+          className="px-3.5 py-1.5 rounded-none bg-black hover:bg-neutral-900 border border-[#333333] text-xs font-bold uppercase text-neutral-300 hover:text-white transition-colors cursor-pointer"
         >
           Reset
         </button>

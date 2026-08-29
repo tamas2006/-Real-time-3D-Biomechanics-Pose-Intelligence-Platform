@@ -70,7 +70,7 @@ export default function StudioPage() {
 
   return (
     <div
-      className={`min-h-screen bg-[#080808] bg-noise text-white flex flex-col selection:bg-neutral-700 selection:text-white will-change-opacity transition-opacity duration-200 ease-out font-mono ${
+      className={`min-h-screen bg-black text-white flex flex-col selection:bg-neutral-800 selection:text-white font-mono ${
         !isExiting ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -78,38 +78,33 @@ export default function StudioPage() {
       <ZainabNavbar />
 
       {/* Main Studio Container */}
-      <main className="max-w-6xl mx-auto w-full px-6 py-6 flex-1 flex flex-col gap-6">
-        {/* Back Link Bar */}
-        <div className="flex items-center justify-between pt-2">
+      <main className="max-w-6xl mx-auto w-full px-4 py-4 flex-1 flex flex-col gap-4">
+        {/* Back & Controls Bar */}
+        <div className="flex items-center justify-between">
           <button
             onClick={handleBackToHome}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#141416] hover:bg-neutral-800 border border-white/[0.08] text-xs text-neutral-300 hover:text-white transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1 bg-black hover:bg-neutral-900 border border-[#333333] text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer rounded-none"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Home</span>
+            <span>Home</span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 sounds.playButtonClick();
                 setShowAnalytics(true);
               }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-900 border border-white/[0.08] hover:border-white/25 text-xs text-neutral-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1 bg-black border border-[#333333] hover:border-white text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer rounded-none"
             >
               <BarChart3 className="w-3.5 h-3.5" />
-              <span>Telemetry Analytics</span>
+              <span>Analytics</span>
             </button>
-
-            <div className="flex items-center gap-2 text-xs text-neutral-400">
-              <span className="text-neutral-500 font-bold">//</span>
-              <span className="uppercase tracking-widest text-[11px] text-neutral-300">Live Studio</span>
-            </div>
           </div>
         </div>
 
-        {/* Elevated Matte Studio Card */}
-        <div className="p-6 md:p-8 rounded-[28px] bg-[#0c0c0d] border border-white/[0.08] shadow-2xl flex flex-col gap-6 text-white">
+        {/* Sharp Studio Workspace Frame */}
+        <div className="p-4 md:p-5 rounded-none bg-[#0a0a0a] border border-[#222222] flex flex-col gap-4 text-white">
           {/* Controls */}
           <Header
             exercise={exercise}
@@ -125,10 +120,10 @@ export default function StudioPage() {
           />
 
           {/* Studio Workspace Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             {/* Vision Viewfinder Area (8 Columns) */}
-            <div className="lg:col-span-8 flex flex-col gap-4">
-              {/* High-End Laboratory HUD Toolbar */}
+            <div className="lg:col-span-8 flex flex-col gap-3">
+              {/* Laboratory HUD Toolbar */}
               <LaboratoryHUDToolbar
                 showGoniometer={showGoniometer}
                 setShowGoniometer={setShowGoniometer}
@@ -179,18 +174,10 @@ export default function StudioPage() {
           </div>
         </div>
 
-        {/* AI Mentor & Q&A Studio */}
-        <NlpMentorStudio
-          exercise={exercise}
-          repCount={repCount}
-          formScore={formScore}
-          warnings={warnings}
-        />
-
         {/* Minimal Solo Builder Footer */}
-        <footer className="pt-4 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 border-t border-white/[0.05]">
-          <span>© 2026 kinetic.online — Built by Tamas</span>
-          <div className="flex items-center gap-4 text-neutral-400">
+        <footer className="pt-4 pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-600 border-t border-[#1a1a1a]">
+          <span>© 2026 kinetic.online</span>
+          <div className="flex items-center gap-4 text-neutral-500">
             <a href="https://github.com/tamas2006" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
             <span>•</span>
             <a href="/" className="hover:text-white transition-colors">Home</a>
@@ -199,33 +186,6 @@ export default function StudioPage() {
           </div>
         </footer>
       </main>
-
-      {/* Floating Cookie Consent Capsule matching screenshot */}
-      {showAnnouncement && (
-        <div className="fixed bottom-6 left-6 z-50 animate-fadeIn flex items-center gap-3 p-3 pl-4 rounded-2xl bg-[#0c0c0d]/95 backdrop-blur-xl border border-white/[0.12] shadow-2xl text-xs max-w-md text-neutral-300 font-mono">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 text-white text-[10px] uppercase font-bold tracking-wider">
-            <Cookie className="w-3 h-3" />
-            <span>Cookies</span>
-          </div>
-          <p className="text-[11px] text-neutral-300 flex-1 leading-tight">
-            We use one cookie for <strong className="text-white font-bold">anonymous site analytics</strong>. Reject keeps you fully untracked.
-          </p>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setShowAnnouncement(false)}
-              className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[11px] font-bold cursor-pointer transition-colors"
-            >
-              Reject
-            </button>
-            <button
-              onClick={() => setShowAnnouncement(false)}
-              className="px-3 py-1.5 rounded-lg bg-white text-black text-[11px] font-bold cursor-pointer hover:bg-neutral-200 transition-colors"
-            >
-              Accept
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Workout Analytics & Telemetry Modal */}
       <WorkoutAnalyticsModal

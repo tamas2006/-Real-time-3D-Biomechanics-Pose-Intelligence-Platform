@@ -119,7 +119,7 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl flex flex-col items-center justify-center min-h-[420px] aspect-video w-full font-mono"
+      className="relative rounded-none overflow-hidden bg-black border border-[#222222] flex flex-col items-center justify-center min-h-[420px] aspect-video w-full font-mono"
     >
       {/* 1:1 Camera Output Canvas */}
       <div className="relative w-full h-full flex items-center justify-center bg-black">
@@ -133,47 +133,37 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
 
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-contain rounded-2xl"
+          className="w-full h-full object-contain rounded-none"
         />
 
         {/* Clean Standby Screen */}
         {!isStreaming && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center p-8 bg-black/85 backdrop-blur-md">
-            <h4 className="text-xl sm:text-2xl font-mono font-bold text-white uppercase tracking-wider">
-              // Camera Viewfinder
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-6 bg-black/90">
+            <h4 className="text-sm font-mono font-bold text-white uppercase tracking-widest">
+              Camera Offline
             </h4>
-            <p className="text-xs text-neutral-400 max-w-sm">
-              Click <strong className="text-white font-bold">&quot;Start Camera&quot;</strong> above to begin real-time repetition tracking and multimodal AI vision.
+            <p className="text-xs text-neutral-500 max-w-xs">
+              Click Start Camera to begin real-time kinematic tracking.
             </p>
           </div>
         )}
 
-        {/* Top HUD Bar */}
+        {/* Top Status Bar */}
         {isStreaming && (
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-auto z-20">
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-auto z-20">
             <div className="flex items-center gap-2">
-              <div className="px-3.5 py-1 rounded-lg bg-black/70 border border-white/20 text-xs font-mono font-bold text-white backdrop-blur-md">
+              <div className="px-2.5 py-1 rounded-none bg-black/80 border border-[#333333] text-[11px] font-mono font-bold text-white">
                 LIVE • {fps} FPS
               </div>
-              <div className={`px-3.5 py-1 rounded-lg border text-xs font-mono font-bold uppercase transition-all backdrop-blur-md ${stageColor}`}>
+              <div className={`px-2.5 py-1 rounded-none border text-[11px] font-mono font-bold uppercase ${stageColor}`}>
                 {stageLabel}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Multimodal AI Vision Snapshot Button */}
-              <button
-                onClick={captureVisionDiagnostic}
-                disabled={isAnalyzingVision}
-                className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer disabled:opacity-50"
-              >
-                <Camera className="w-3.5 h-3.5" />
-                <span>{isAnalyzingVision ? 'Scanning...' : 'AI Vision Scan'}</span>
-              </button>
-
               <button
                 onClick={toggleFullscreen}
-                className="px-3 py-1.5 rounded-lg bg-black/70 hover:bg-black/90 border border-white/20 text-xs font-mono font-bold text-white transition-all cursor-pointer backdrop-blur-md uppercase"
+                className="px-3 py-1 rounded-none bg-black/80 hover:bg-black border border-[#333333] text-[11px] font-bold text-white transition-colors cursor-pointer uppercase"
               >
                 {isFullscreen ? 'Exit Full' : 'Fullscreen'}
               </button>
@@ -191,67 +181,10 @@ export const VisionCanvas: React.FC<VisionCanvasProps> = ({
         )}
 
         {/* Live Warning Banner */}
-        {warnings.length > 0 && isStreaming && !visionResult && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none z-20">
-            <div className="px-4 py-1.5 rounded-lg bg-[#0c0c0d] text-white font-mono text-xs font-bold uppercase tracking-wider shadow-xl border border-white/40">
+        {warnings.length > 0 && isStreaming && (
+          <div className="absolute top-14 left-1/2 -translate-x-1/2 pointer-events-none z-20">
+            <div className="px-3 py-1 rounded-none bg-black text-rose-400 font-mono text-xs font-bold uppercase tracking-wider border border-rose-500/40 shadow-lg">
               {warnings[0]}
-            </div>
-          </div>
-        )}
-
-        {/* Multimodal AI Vision Diagnostic Modal Card */}
-        {visionResult && (
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-xl z-30 p-6 flex flex-col items-center justify-center text-white animate-fadeIn">
-            <div className="relative max-w-lg w-full p-6 rounded-2xl bg-[#0c0c0d] border border-white/[0.15] shadow-2xl flex flex-col gap-4">
-              {/* Modal Top Bar */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="flex items-center gap-2 text-white font-mono text-xs font-bold uppercase tracking-wider">
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                  <span>Kinetic AI Multimodal Vision Analysis</span>
-                </div>
-                <button
-                  onClick={() => setVisionResult(null)}
-                  className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Snapshot Thumbnail + Visual Assessment */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                {visionResult.snapshotUrl && (
-                  <div className="w-28 h-28 rounded-xl overflow-hidden border border-white/20 shadow-md flex-shrink-0 bg-black">
-                    <img
-                      src={visionResult.snapshotUrl}
-                      alt="Analyzed Frame"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-2 flex-1">
-                  <span className="text-[10px] font-mono uppercase text-neutral-400">Visual Posture Assessment:</span>
-                  <p className="text-xs text-neutral-200 leading-relaxed font-mono">
-                    {visionResult.assessment}
-                  </p>
-                </div>
-              </div>
-
-              {/* Actionable Form Correction Box */}
-              <div className="p-3.5 rounded-xl bg-white/5 border border-white/15 flex flex-col gap-1">
-                <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold">Actionable Coaching Cue:</span>
-                <p className="text-xs text-white font-mono font-medium">
-                  {visionResult.correction}
-                </p>
-              </div>
-
-              {/* Close / Continue Button */}
-              <button
-                onClick={() => setVisionResult(null)}
-                className="w-full py-2.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
-              >
-                Continue Workout
-              </button>
             </div>
           </div>
         )}

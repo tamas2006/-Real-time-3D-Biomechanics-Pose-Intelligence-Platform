@@ -24,81 +24,78 @@ export const LaboratoryHUDToolbar: React.FC<LaboratoryHUDToolbarProps> = ({
   onOpenReport
 }) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#0c0c0d] border border-white/[0.08] shadow-2xl font-mono text-white text-xs">
+    <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-none bg-[#0a0a0a] border border-[#222222] font-mono text-white text-xs">
       {/* Tool Toggles */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[10px] uppercase font-bold text-neutral-500 mr-1">
-          LAB SUITE:
+          METRICS:
         </span>
 
         {/* Goniometer Toggle */}
         <button
           onClick={() => setShowGoniometer(!showGoniometer)}
-          className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold transition active:scale-95 ${
+          className={`px-3 py-1 rounded-none border font-bold transition-colors cursor-pointer text-xs ${
             showGoniometer
               ? 'bg-white text-black border-white'
-              : 'bg-white/[0.03] text-neutral-400 border-white/[0.08] hover:text-white hover:border-white/20'
+              : 'bg-black text-neutral-400 border-[#333333] hover:text-white'
           }`}
         >
-          <Compass className="w-3.5 h-3.5" />
-          <span>Goniometer</span>
+          Goniometer
         </button>
 
         {/* Velocity / VBT Toggle */}
         <button
           onClick={() => setShowPowerVbt(!showPowerVbt)}
-          className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold transition active:scale-95 ${
+          className={`px-3 py-1 rounded-none border font-bold transition-colors cursor-pointer text-xs ${
             showPowerVbt
               ? 'bg-white text-black border-white'
-              : 'bg-white/[0.03] text-neutral-400 border-white/[0.08] hover:text-white hover:border-white/20'
+              : 'bg-black text-neutral-400 border-[#333333] hover:text-white'
           }`}
         >
-          <Zap className="w-3.5 h-3.5" />
-          <span>VBT & Power</span>
+          Power & VBT
         </button>
 
         {/* PDF Lab Report Generator */}
         <button
           onClick={onOpenReport}
-          className="px-3 py-1.5 rounded-xl bg-white/[0.03] text-neutral-300 border border-white/[0.08] hover:text-white hover:border-white/20 flex items-center gap-1.5 font-bold transition active:scale-95"
+          className="px-3 py-1 rounded-none bg-black text-neutral-300 border border-[#333333] hover:text-white hover:border-white font-bold transition-colors cursor-pointer text-xs"
         >
-          <FileText className="w-3.5 h-3.5" />
-          <span>Clinical PDF</span>
+          Export Report
         </button>
       </div>
 
       {/* AI Coach Persona Selector */}
       <div className="flex items-center gap-2">
         <span className="text-[10px] uppercase font-bold text-neutral-500">
-          COACH PERSONA:
+          COACH:
         </span>
-        <div className="flex items-center p-0.5 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+        <div className="flex items-center border border-[#333333]">
           <button
             onClick={() => setCoachPersona('olympic')}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-none cursor-pointer ${
               coachPersona === 'olympic'
                 ? 'bg-white text-black'
-                : 'text-neutral-400 hover:text-white'
+                : 'bg-black text-neutral-400 hover:text-white'
             }`}
           >
             Olympic
           </button>
           <button
             onClick={() => setCoachPersona('physio')}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-none cursor-pointer ${
               coachPersona === 'physio'
                 ? 'bg-white text-black'
-                : 'text-neutral-400 hover:text-white'
+                : 'bg-black text-neutral-400 hover:text-white'
             }`}
           >
             Physio
           </button>
           <button
             onClick={() => setCoachPersona('mindset')}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-none cursor-pointer ${
               coachPersona === 'mindset'
                 ? 'bg-white text-black'
-                : 'text-neutral-400 hover:text-white'
+                : 'bg-black text-neutral-400 hover:text-white'
             }`}
           >
             Mindset
