@@ -665,13 +665,17 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         sounds.playButtonClick();
         speak('AI Vision Active. Ready for workout.');
 
+        let lastVideoTime = -1;
         const processLoop = () => {
           if (videoRef.current && poseRef.current && videoRef.current.readyState >= 2 && !videoRef.current.paused) {
-            const now = performance.now();
-            try {
-              const results = poseRef.current.detectForVideo(videoRef.current, now);
-              renderFrame(results, videoRef.current);
-            } catch (e) {}
+            if (videoRef.current.currentTime !== lastVideoTime) {
+              lastVideoTime = videoRef.current.currentTime;
+              const now = performance.now();
+              try {
+                const results = poseRef.current.detectForVideo(videoRef.current, now);
+                renderFrame(results, videoRef.current);
+              } catch (e) {}
+            }
           }
           if (streamRef.current && streamRef.current.active) {
             animFrameIdRef.current = requestAnimationFrame(processLoop);

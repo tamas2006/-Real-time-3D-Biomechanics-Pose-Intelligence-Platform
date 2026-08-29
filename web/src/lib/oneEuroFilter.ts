@@ -70,7 +70,10 @@ export class OneEuroFilter {
 
     // Estimate derivative (velocity)
     const prevValue = this.xFilter.lastValue() ?? value;
-    const dx = (value - prevValue) * rate;
+    const rawDx = (value - prevValue);
+    
+    // Deadzone: if change is smaller than camera sensor noise threshold (0.002), clamp derivative to 0
+    const dx = Math.abs(rawDx) < 0.002 ? 0 : rawDx * rate;
     const edx = this.dxFilter.filter(dx, this.alpha(rate, this.dCutoff));
 
     // Dynamic adaptive cutoff frequency
