@@ -138,14 +138,30 @@ export function validatePosturePrerequisites(
     };
   }
 
-  // Strict Human Athlete Presence Verification (Shoulders & Hips)
+  // Human Athlete Presence Verification
   const leftShoulderVis = lm[11]?.visibility ?? 0;
   const rightShoulderVis = lm[12]?.visibility ?? 0;
   const leftHipVis = lm[23]?.visibility ?? 0;
   const rightHipVis = lm[24]?.visibility ?? 0;
+  const leftElbowVis = lm[13]?.visibility ?? 0;
+  const rightElbowVis = lm[14]?.visibility ?? 0;
+
+  // Flexible presence check based on exercise posture
+  const maxUpperVis = Math.max(leftShoulderVis, rightShoulderVis);
+  const maxArmVis = Math.max(leftElbowVis, rightElbowVis);
   const coreBodyVisibility = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
 
-  if (coreBodyVisibility < 0.65) {
+  if (exercise === 'pushup') {
+    if (maxUpperVis < 0.40 || maxArmVis < 0.35) {
+      return {
+        isValid: false,
+        statusMessage: 'Position camera to see upper body & arms',
+        rejectionReason: 'Upper body out of frame',
+        primaryAngle: 0,
+        postureType: 'OUT_OF_FRAME'
+      };
+    }
+  } else if (coreBodyVisibility < 0.45 && maxUpperVis < 0.50) {
     return {
       isValid: false,
       statusMessage: 'Step into camera frame',
@@ -167,7 +183,7 @@ export function validatePosturePrerequisites(
     const rKneeVis = lm[26]?.visibility ?? 0;
 
     // Framing verification
-    if (lKneeVis < 0.50 && rKneeVis < 0.50) {
+    if (lKneeVis < 0.45 && rKneeVis < 0.45) {
       return {
         isValid: false,
         statusMessage: 'Step back: Knees must be visible',
@@ -182,9 +198,9 @@ export function validatePosturePrerequisites(
 
     // Handle side-profile vs front-facing tracking naturally
     let angle: number;
-    if (lKneeVis > 0.65 && rKneeVis < 0.45) {
+    if (lKneeVis > 0.60 && rKneeVis < 0.45) {
       angle = lKnee;
-    } else if (rKneeVis > 0.65 && lKneeVis < 0.45) {
+    } else if (rKneeVis > 0.60 && lKneeVis < 0.45) {
       angle = rKnee;
     } else {
       angle = Math.round((lKnee + rKnee) / 2);
@@ -199,26 +215,23 @@ export function validatePosturePrerequisites(
   }
 
   // -------------------------------------------------------------
-  // 2. PUSH-UP KINETIC CHAIN VALIDATION
+  // 2. PUSH-UP KINETIC CHAIN VALIDATION (All camera angles supported)
   // -------------------------------------------------------------
   if (exercise === 'pushup') {
     const lElbow = calculateAngle3D(lm[11], lm[13], lm[15]);
     const rElbow = calculateAngle3D(lm[12], lm[14], lm[16]);
-    const angle = (lm[13].visibility || 1) >= (lm[14].visibility || 1) ? lElbow : rElbow;
 
-    if (torsoInclination < 38 && (lm[23].visibility || 1) > 0.35) {
-      return {
-        isValid: false,
-        statusMessage: 'Assume horizontal prone plank on floor',
-        rejectionReason: 'Standing vertical air-pushing rejected',
-        primaryAngle: angle,
-        postureType: 'INVALID_AIR_PUSH'
-      };
+    // Select the more visible arm
+    let angle: number;
+    if ((lm[13]?.visibility ?? 0) >= (lm[14]?.visibility ?? 0)) {
+      angle = lElbow;
+    } else {
+      angle = rElbow;
     }
 
     return {
       isValid: true,
-      statusMessage: 'Optimal Push-Up Plank',
+      statusMessage: 'Push-Up Plank Active',
       primaryAngle: angle,
       postureType: 'OPTIMAL'
     };

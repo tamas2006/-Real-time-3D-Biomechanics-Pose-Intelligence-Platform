@@ -486,12 +486,17 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       const rightShoulderVis = activeLandmarks[12]?.visibility ?? 0;
       const leftHipVis = activeLandmarks[23]?.visibility ?? 0;
       const rightHipVis = activeLandmarks[24]?.visibility ?? 0;
+      const maxUpperVis = Math.max(leftShoulderVis, rightShoulderVis);
       const coreBodyVis = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
 
-      if (coreBodyVis >= 0.55) {
+      const isHumanPresent = exercise === 'pushup' ? maxUpperVis >= 0.40 : (coreBodyVis >= 0.48 || maxUpperVis >= 0.55);
+
+      if (isHumanPresent) {
         // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
         const toScreenX = (x: number) => (1.0 - x) * canvas.width;
         const toScreenY = (y: number) => y * canvas.height;
+
+        const minJointVis = exercise === 'pushup' ? 0.40 : 0.50;
 
         // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
         ctx.strokeStyle = '#FFFFFF';
@@ -503,7 +508,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
           const [i1, i2] = SKELETON_CONNECTIONS[i];
           const p1 = activeLandmarks[i1];
           const p2 = activeLandmarks[i2];
-          if (p1 && p2 && (p1.visibility ?? 0) > 0.55 && (p2.visibility ?? 0) > 0.55) {
+          if (p1 && p2 && (p1.visibility ?? 0) > minJointVis && (p2.visibility ?? 0) > minJointVis) {
             ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
             ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
           }
@@ -513,7 +518,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         // 4. Batch Native Draw Black Joint Nodes with White Ring
         for (let i = 11; i < activeLandmarks.length; i++) {
           const p = activeLandmarks[i];
-          if (p && (p.visibility ?? 0) > 0.55) {
+          if (p && (p.visibility ?? 0) > minJointVis) {
             const x = toScreenX(p.x);
             const y = toScreenY(p.y);
             ctx.beginPath();
@@ -529,11 +534,11 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         // 5. Draw Minimalist Monochrome On-Joint Angle Badge
         let targetJointIndex = 25; // Left knee
         if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
-          targetJointIndex = 13; // Left elbow
+          targetJointIndex = (activeLandmarks[13]?.visibility ?? 0) >= (activeLandmarks[14]?.visibility ?? 0) ? 13 : 14;
         }
 
         const targetJoint = activeLandmarks[targetJointIndex];
-        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > 0.55) {
+        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > minJointVis) {
           const jx = toScreenX(targetJoint.x);
           const jy = toScreenY(targetJoint.y);
 
