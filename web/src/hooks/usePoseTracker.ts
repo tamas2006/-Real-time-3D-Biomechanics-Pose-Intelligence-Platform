@@ -487,75 +487,84 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       }
 
       const activeLandmarks = smoothedLandmarksRef.current;
-      if (!activeLandmarks) return;
+      if (!activeLandmarks || activeLandmarks.length < 33) return;
 
-      // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
-      const toScreenX = (x: number) => (1.0 - x) * canvas.width;
-      const toScreenY = (y: number) => y * canvas.height;
+      // Gate: Only render skeleton when a real human athlete is in camera frame
+      const leftShoulderVis = activeLandmarks[11]?.visibility ?? 0;
+      const rightShoulderVis = activeLandmarks[12]?.visibility ?? 0;
+      const leftHipVis = activeLandmarks[23]?.visibility ?? 0;
+      const rightHipVis = activeLandmarks[24]?.visibility ?? 0;
+      const coreBodyVis = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
 
-      // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 3.5;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      for (let i = 0; i < SKELETON_CONNECTIONS.length; i++) {
-        const [i1, i2] = SKELETON_CONNECTIONS[i];
-        const p1 = activeLandmarks[i1];
-        const p2 = activeLandmarks[i2];
-        if (p1 && p2 && (p1.visibility ?? 1) > 0.50 && (p2.visibility ?? 1) > 0.50) {
-          ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
-          ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
+      if (coreBodyVis >= 0.55) {
+        // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
+        const toScreenX = (x: number) => (1.0 - x) * canvas.width;
+        const toScreenY = (y: number) => y * canvas.height;
+
+        // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i < SKELETON_CONNECTIONS.length; i++) {
+          const [i1, i2] = SKELETON_CONNECTIONS[i];
+          const p1 = activeLandmarks[i1];
+          const p2 = activeLandmarks[i2];
+          if (p1 && p2 && (p1.visibility ?? 0) > 0.60 && (p2.visibility ?? 0) > 0.60) {
+            ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
+            ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
+          }
         }
-      }
-      ctx.stroke();
+        ctx.stroke();
 
-      // 4. Batch Native Draw Black Joint Nodes with White Ring
-      for (let i = 11; i < activeLandmarks.length; i++) {
-        const p = activeLandmarks[i];
-        if (p && (p.visibility ?? 1) > 0.50) {
-          const x = toScreenX(p.x);
-          const y = toScreenY(p.y);
+        // 4. Batch Native Draw Black Joint Nodes with White Ring
+        for (let i = 11; i < activeLandmarks.length; i++) {
+          const p = activeLandmarks[i];
+          if (p && (p.visibility ?? 0) > 0.60) {
+            const x = toScreenX(p.x);
+            const y = toScreenY(p.y);
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#000000';
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
+
+        // 5. Draw Minimalist Monochrome On-Joint Angle Badge
+        let targetJointIndex = 25; // Left knee
+        if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
+          targetJointIndex = 13; // Left elbow
+        }
+
+        const targetJoint = activeLandmarks[targetJointIndex];
+        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > 0.60) {
+          const jx = toScreenX(targetJoint.x);
+          const jy = toScreenY(targetJoint.y);
+
+          ctx.save();
+          ctx.translate(jx, jy);
+
+          ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(x, y, 5, 0, 2 * Math.PI);
-          ctx.fillStyle = '#000000';
+          ctx.roundRect(-38, -32, 76, 24, 6);
           ctx.fill();
-          ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 2;
           ctx.stroke();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 12px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${primaryAngle}°`, 0, -16);
+          ctx.restore();
         }
       }
 
       processKinematics(activeLandmarks);
-
-      // 5. Draw Minimalist Monochrome On-Joint Angle Badge
-      let targetJointIndex = 25; // Left knee
-      if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
-        targetJointIndex = 13; // Left elbow
-      }
-
-      const targetJoint = activeLandmarks[targetJointIndex];
-      if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 1) > 0.50) {
-        const jx = toScreenX(targetJoint.x);
-        const jy = toScreenY(targetJoint.y);
-
-        ctx.save();
-        ctx.translate(jx, jy);
-
-        ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect(-38, -32, 76, 24, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 12px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${primaryAngle}°`, 0, -16);
-        ctx.restore();
-      }
     }
   }, [exercise, primaryAngle, processKinematics]);
 

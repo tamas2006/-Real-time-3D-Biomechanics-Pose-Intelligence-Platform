@@ -138,6 +138,23 @@ export function validatePosturePrerequisites(
     };
   }
 
+  // Strict Human Athlete Presence Verification (Shoulders & Hips)
+  const leftShoulderVis = lm[11]?.visibility ?? 0;
+  const rightShoulderVis = lm[12]?.visibility ?? 0;
+  const leftHipVis = lm[23]?.visibility ?? 0;
+  const rightHipVis = lm[24]?.visibility ?? 0;
+  const coreBodyVisibility = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
+
+  if (coreBodyVisibility < 0.65) {
+    return {
+      isValid: false,
+      statusMessage: 'Step into camera frame',
+      rejectionReason: 'No athlete detected in frame',
+      primaryAngle: 0,
+      postureType: 'IDLE'
+    };
+  }
+
   const midShoulder = { x: (lm[11].x + lm[12].x) / 2, y: (lm[11].y + lm[12].y) / 2, visibility: (lm[11].visibility + lm[12].visibility) / 2, id: -1 };
   const midHip = { x: (lm[23].x + lm[24].x) / 2, y: (lm[23].y + lm[24].y) / 2, visibility: (lm[23].visibility + lm[24].visibility) / 2, id: -2 };
   const torsoInclination = calculateTorsoAngleFromVertical(midShoulder, midHip);
@@ -146,16 +163,16 @@ export function validatePosturePrerequisites(
   // 1. SQUAT KINETIC CHAIN VALIDATION (Bilateral Symmetry & Anti-Dancing)
   // -------------------------------------------------------------
   if (exercise === 'squat') {
-    const lKneeVis = lm[25].visibility || 1;
-    const rKneeVis = lm[26].visibility || 1;
+    const lKneeVis = lm[25]?.visibility ?? 0;
+    const rKneeVis = lm[26]?.visibility ?? 0;
 
     // Framing verification
-    if (lKneeVis < 0.40 && rKneeVis < 0.40) {
+    if (lKneeVis < 0.50 && rKneeVis < 0.50) {
       return {
         isValid: false,
-        statusMessage: 'Step back: Lower body must be visible',
+        statusMessage: 'Step back: Knees must be visible',
         rejectionReason: 'Lower body out of frame',
-        primaryAngle: 180,
+        primaryAngle: 0,
         postureType: 'OUT_OF_FRAME'
       };
     }
