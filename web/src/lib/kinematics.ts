@@ -5,55 +5,55 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     id: 'squat',
     name: 'Barbell / Bodyweight Squat',
     primaryJoint: 'Bilateral Knees & Hips',
-    startThresh: 148,
-    inflectionThresh: 100,      // Natural parallel depth (<= 100°)
-    lockoutThresh: 148,         // Full standing return (>= 148°)
-    minROM: 40,                 // Minimum 40° displacement (Rejects half squats)
-    minDuration: 0.60,          // Natural repetition tempo
+    startThresh: 145,
+    inflectionThresh: 105,     // Natural parallel depth (<= 105°)
+    lockoutThresh: 140,        // Standing return (>= 140°)
+    minROM: 25,                // Reliable ROM registration
+    minDuration: 0.35,         // Natural repetition tempo
     description: 'Lower until thighs reach parallel or below, driving back to full vertical lockout.'
   },
   bicep_curl: {
     id: 'bicep_curl',
     name: 'Standing Bicep Curl',
     primaryJoint: 'Elbow Flexion',
-    startThresh: 140,
-    inflectionThresh: 65,       // Peak flexion (<= 65°)
-    lockoutThresh: 135,         // Bottom extension (>= 135°)
-    minROM: 50,                 // Rejects partial half curls
-    minDuration: 0.50,
+    startThresh: 135,
+    inflectionThresh: 75,      // Flexion squeeze (<= 75°)
+    lockoutThresh: 130,        // Bottom extension (>= 130°)
+    minROM: 30,
+    minDuration: 0.30,
     description: 'Full extension at the bottom to peak squeeze at the top.'
   },
   pushup: {
     id: 'pushup',
     name: 'Standard Push-Up',
     primaryJoint: 'Elbows & Core',
-    startThresh: 145,
-    inflectionThresh: 95,       // Chest depth (<= 95°)
-    lockoutThresh: 142,         // Press to lockout (>= 142°)
-    minROM: 40,
-    minDuration: 0.50,
+    startThresh: 140,
+    inflectionThresh: 100,     // Chest depth (<= 100°)
+    lockoutThresh: 135,        // Press to lockout (>= 135°)
+    minROM: 25,
+    minDuration: 0.30,
     description: 'Rigid plank with chest lowering near floor and pressing to complete lockout.'
   },
   lunge: {
     id: 'lunge',
     name: 'Forward / Reverse Lunge',
     primaryJoint: 'Lead Knee',
-    startThresh: 145,
-    inflectionThresh: 100,      // Split depth (<= 100°)
-    lockoutThresh: 142,         // Standing return (>= 142°)
-    minROM: 35,
-    minDuration: 0.60,
+    startThresh: 140,
+    inflectionThresh: 105,     // Split depth (<= 105°)
+    lockoutThresh: 135,        // Standing return (>= 135°)
+    minROM: 25,
+    minDuration: 0.35,
     description: 'Deep split lunge with lead thigh parallel to floor before returning to standing.'
   },
   shoulder_press: {
     id: 'shoulder_press',
     name: 'Overhead Shoulder Press',
     primaryJoint: 'Shoulders & Elbows',
-    startThresh: 95,            // Rack start (<= 95°)
-    inflectionThresh: 152,      // Full overhead extension (>= 152°)
-    lockoutThresh: 105,         // Return to shoulders
-    minROM: 45,
-    minDuration: 0.50,
+    startThresh: 100,          // Rack start (<= 100°)
+    inflectionThresh: 148,     // Overhead extension (>= 148°)
+    lockoutThresh: 110,        // Return to shoulders
+    minROM: 30,
+    minDuration: 0.30,
     description: 'Press from clavicle height to full vertical arm lockout overhead.'
   },
   plank: {
@@ -64,7 +64,7 @@ export const EXERCISE_CONFIGS: Record<ExerciseType, ExerciseConfig> = {
     inflectionThresh: 155,
     lockoutThresh: 155,
     minROM: 0,
-    minDuration: 1.5,
+    minDuration: 1.0,
     description: 'Maintain a straight, unbroken line across shoulders, hips, and ankles.'
   }
 };

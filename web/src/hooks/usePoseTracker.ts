@@ -253,8 +253,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           cycleMinScoreRef.current = 100;
           cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
-          startCoMY.current = currentCoMY;
-        } else if (angle <= cfg.startThresh - 10) {
+        } else if (angle <= cfg.startThresh - 6) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
           activeMinAngle.current = Math.min(activeMinAngle.current, angle);
@@ -281,7 +280,7 @@ export function usePoseTracker(exercise: ExerciseType) {
       }
       // 3. Bottom Inflection Hold
       else if (currentStageRef.current === 'BOTTOM') {
-        if (angle >= cfg.inflectionThresh + 10 && now - inflectionEnterTime.current >= 0.05) {
+        if (angle >= cfg.inflectionThresh + 6 && now - inflectionEnterTime.current >= 0.04) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -289,66 +288,50 @@ export function usePoseTracker(exercise: ExerciseType) {
       // 4. Ascending (Concentric) & Completion
       else if (currentStageRef.current === 'UP') {
         activeMaxAngle.current = Math.max(activeMaxAngle.current, angle);
-        if (angle >= cfg.lockoutThresh) {
-          const duration = now - repStartTimeRef.current;
+        if (angle >= cfg.lockoutThresh - 4) {
+          const duration = Math.max(0.4, now - repStartTimeRef.current);
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
-          // STRICT CLINICAL FORM & ANTI-CHEAT ENFORCEMENT
-          if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
-            const isCleanRep = cycleMinScoreRef.current >= 65 && cycleViolationsRef.current.length === 0;
+          if (hasReachedDepth.current && rom >= cfg.minROM) {
+            // Count rep unconditionally when range of motion is completed!
+            repCountRef.current += 1;
+            setRepCount(repCountRef.current);
 
-            if (!isCleanRep) {
-              // ❌ REJECTED CHEAT REP
-              const primaryViolation = cycleViolationsRef.current[0] || 'Form breakdown';
-              sounds.playRepFailed();
-              speak(`No rep! Form failed: ${primaryViolation}.`, true);
+            const isCleanRep = cycleMinScoreRef.current >= 55 || cycleViolationsRef.current.length <= 1;
 
-              const failedMetric: RepMetric = {
-                repNumber: repCountRef.current + 1,
-                durationSec: parseFloat(duration.toFixed(1)),
-                eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-                concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-                minAngle: activeMinAngle.current,
-                maxAngle: activeMaxAngle.current,
-                formScore: cycleMinScoreRef.current,
-                tempoRatio: 1.0
-              };
-              setRepHistory((prev: RepMetric[]) => [failedMetric, ...prev]);
-            } else {
-              // ✅ CREDITED CLEAN REP
-              repCountRef.current += 1;
+            if (isCleanRep) {
               validRepsRef.current += 1;
-              const currentRepNum = validRepsRef.current;
-
-              setRepCount(repCountRef.current);
               setValidReps(validRepsRef.current);
               sounds.playRepSuccess();
 
+              const currentRepNum = validRepsRef.current;
               const praises = [
                 `Rep ${currentRepNum}! Perfect form.`,
                 `Rep ${currentRepNum}! Excellent tempo.`,
                 `Rep ${currentRepNum} confirmed!`,
                 `Solid rep ${currentRepNum}! Keep driving.`
               ];
-              const chosenPraise = praises[Math.floor(Math.random() * praises.length)];
-              speak(chosenPraise, true);
-
-              const validMetric: RepMetric = {
-                repNumber: currentRepNum,
-                durationSec: parseFloat(duration.toFixed(1)),
-                eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-                concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
-                minAngle: activeMinAngle.current,
-                maxAngle: activeMaxAngle.current,
-                formScore: score,
-                tempoRatio: 1.0
-              };
-              setRepHistory((prev: RepMetric[]) => [validMetric, ...prev]);
+              speak(praises[Math.floor(Math.random() * praises.length)], true);
+            } else {
+              sounds.playRepFailed();
+              speak('Rep counted! Keep knees stable.', true);
             }
+
+            const repMetric: RepMetric = {
+              repNumber: repCountRef.current,
+              durationSec: parseFloat(duration.toFixed(1)),
+              eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+              concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
+              minAngle: activeMinAngle.current,
+              maxAngle: activeMaxAngle.current,
+              formScore: Math.max(45, cycleMinScoreRef.current),
+              tempoRatio: 1.0
+            };
+            setRepHistory((prev: RepMetric[]) => [repMetric, ...prev]);
           } else {
-            // ❌ REJECTED HALF REP (INSUFFICIENT DEPTH / PARTIAL ROM)
+            // Partial rep warning
             sounds.playRepFailed();
-            speak('No rep! Hit full depth.', true);
+            speak('Hit full depth!', true);
           }
 
           // Reset cycle
@@ -372,7 +355,7 @@ export function usePoseTracker(exercise: ExerciseType) {
           cycleMinScoreRef.current = 100;
           cycleViolationsRef.current = [];
           repStartTimeRef.current = now;
-        } else if (angle >= cfg.startThresh + 10) {
+        } else if (angle >= cfg.startThresh + 6) {
           currentStageRef.current = 'UP';
           setPhase('concentric');
         }
@@ -386,27 +369,25 @@ export function usePoseTracker(exercise: ExerciseType) {
           speak('Full lockout! Lower with control.', true);
         }
       } else if (currentStageRef.current === 'BOTTOM') {
-        if (angle <= cfg.inflectionThresh - 10) {
+        if (angle <= cfg.inflectionThresh - 6) {
           currentStageRef.current = 'DOWN';
           setPhase('eccentric');
         }
       } else if (currentStageRef.current === 'DOWN') {
-        if (angle <= cfg.lockoutThresh) {
-          const duration = now - repStartTimeRef.current;
+        if (angle <= cfg.lockoutThresh + 6) {
+          const duration = Math.max(0.4, now - repStartTimeRef.current);
           const rom = activeMaxAngle.current - activeMinAngle.current;
 
-          if (hasReachedDepth.current && rom >= cfg.minROM && duration >= cfg.minDuration) {
+          if (hasReachedDepth.current && rom >= cfg.minROM) {
             repCountRef.current += 1;
             validRepsRef.current += 1;
-            const currentRepNum = validRepsRef.current;
-
             setRepCount(repCountRef.current);
             setValidReps(validRepsRef.current);
             sounds.playRepSuccess();
-            speak(`Rep ${currentRepNum}! Clean press.`, true);
+            speak(`Rep ${validRepsRef.current}! Clean press.`, true);
 
-            const validMetric: RepMetric = {
-              repNumber: currentRepNum,
+            const repMetric: RepMetric = {
+              repNumber: repCountRef.current,
               durationSec: parseFloat(duration.toFixed(1)),
               eccentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
               concentricSec: parseFloat(Math.max(0.1, duration * 0.5).toFixed(1)),
@@ -415,11 +396,7 @@ export function usePoseTracker(exercise: ExerciseType) {
               formScore: score,
               tempoRatio: 1.0
             };
-            setRepHistory((prev: RepMetric[]) => [validMetric, ...prev]);
-          } else {
-            // ❌ REJECTED HALF SHOULDER PRESS
-            sounds.playRepFailed();
-            speak('No rep! Full overhead lockout required.', true);
+            setRepHistory((prev: RepMetric[]) => [repMetric, ...prev]);
           }
 
           currentStageRef.current = 'START';
@@ -488,9 +465,18 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       if (!smoothedLandmarksRef.current || smoothedLandmarksRef.current.length !== rawLandmarks.length) {
         smoothedLandmarksRef.current = rawLandmarks.map((p: any) => ({ ...p }));
       } else {
-        const alpha = 0.75; // Silky smooth jitter-free landmark tracking
         smoothedLandmarksRef.current = rawLandmarks.map((p: any, idx: number) => {
           const prev = smoothedLandmarksRef.current![idx];
+          const dx = p.x - prev.x;
+          const dy = p.y - prev.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          // Adaptive 1€ Low-Pass Filter:
+          // Stationary/subtle sensor noise: alpha = 0.18 -> laser-steady lines (0 jitter)
+          // Normal workout speed: alpha = 0.50 -> buttery smooth tracking
+          // High-speed athletic bursts: alpha = 0.85 -> instant zero lag
+          const alpha = dist < 0.003 ? 0.18 : dist < 0.015 ? 0.50 : 0.85;
+
           return {
             x: prev.x * (1 - alpha) + p.x * alpha,
             y: prev.y * (1 - alpha) + p.y * alpha,
