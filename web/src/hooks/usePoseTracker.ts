@@ -16,6 +16,7 @@ import {
   EXERCISE_CONFIGS,
   validatePosturePrerequisites
 } from '@/lib/kinematics';
+import { PoseLandmarksFilter } from '@/lib/oneEuroFilter';
 import { sounds } from '@/lib/soundEffects';
 import { playVoiceCue } from '@/lib/voiceCoach';
 
@@ -58,6 +59,10 @@ export function usePoseTracker(exercise: ExerciseType) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const poseRef = useRef<any>(null);
+
+  // Industrial One-Euro Adaptive Low-Pass Filter
+  const poseFilterRef = useRef<PoseLandmarksFilter>(new PoseLandmarksFilter(33, 0.7, 0.02));
+  const lastUiUpdateRef = useRef(0);
 
   // Kinetic State Machine & Trajectory Buffer Refs
   const isProcessingRef = useRef(false);
@@ -138,12 +143,16 @@ export function usePoseTracker(exercise: ExerciseType) {
     // GATE 1 & 2: Structural Posture & Kinetic Chain Prerequisite Check
     const posture = validatePosturePrerequisites(exercise, landmarks);
     const angle = posture.primaryAngle;
-    setPrimaryAngle(angle);
-    setPostureStatus(posture.statusMessage);
 
     if (!posture.isValid) {
-      setWarnings([posture.statusMessage]);
-      setPhase('idle');
+      const nowTime = performance.now();
+      if (nowTime - lastUiUpdateRef.current >= 60) {
+        lastUiUpdateRef.current = nowTime;
+        setWarnings([posture.statusMessage]);
+        setPhase('idle');
+        setPostureStatus(posture.statusMessage);
+        setPrimaryAngle(0);
+      }
       if (posture.rejectionReason && currentStageRef.current !== 'START') {
         speak(posture.statusMessage);
       }
@@ -174,22 +183,10 @@ export function usePoseTracker(exercise: ExerciseType) {
     const estimatedVelocityMps = Math.min(2.5, parseFloat(((rawDy / dt) * 1.6).toFixed(2)));
     const estimatedWatts = Math.round(75 * 9.81 * estimatedVelocityMps);
 
-    setClinicalTelemetry({
-      leftKneeAngle: lKnee,
-      rightKneeAngle: rKnee,
-      leftHipAngle: lHip,
-      rightHipAngle: rHip,
-      torsoInclination: torsoIncl,
-      symmetryBalance: clampedBalance,
-      barVelocityMps: estimatedVelocityMps,
-      peakPowerWatts: estimatedWatts,
-      fatigueIndexPercent: Math.max(0, Math.min(60, validRepsRef.current * 3))
-    });
-
+    // Form warnings & scoring
     let score = 100;
     const currentWarnings: string[] = [];
 
-    // Real-Time Joint Form Analysis & Spoken Warnings
     if (exercise === 'squat') {
       const kSpread = Math.abs(landmarks[25].x - landmarks[26].x);
       const aSpread = Math.abs(landmarks[27].x - landmarks[28].x);
@@ -226,22 +223,38 @@ export function usePoseTracker(exercise: ExerciseType) {
       }
     }
 
-    setFormScore(Math.max(0, score));
-    setWarnings(currentWarnings);
-
-    if (angle <= 0 || angle > 200) return;
-
-    // Rep State Machine Thresholds
     const cfg = EXERCISE_CONFIGS[exercise];
-    const now = performance.now() / 1000;
-
     let depth = 0;
     if (exercise === 'shoulder_press') {
       depth = ((angle - cfg.startThresh) / Math.max(1, cfg.inflectionThresh - cfg.startThresh)) * 100;
     } else {
       depth = ((cfg.startThresh - angle) / Math.max(1, cfg.startThresh - cfg.inflectionThresh)) * 100;
     }
-    setDepthPercentage(Math.min(100, Math.max(0, Math.round(depth))));
+    const clampedDepth = Math.min(100, Math.max(0, Math.round(depth)));
+
+    // Throttled UI state dispatch (20 Hz) to eliminate React render jitter
+    if (nowTime - lastUiUpdateRef.current >= 50) {
+      lastUiUpdateRef.current = nowTime;
+      setPrimaryAngle(angle);
+      setPostureStatus(posture.statusMessage);
+      setFormScore(Math.max(0, score));
+      setWarnings(currentWarnings);
+      setDepthPercentage(clampedDepth);
+      setClinicalTelemetry({
+        leftKneeAngle: lKnee,
+        rightKneeAngle: rKnee,
+        leftHipAngle: lHip,
+        rightHipAngle: rHip,
+        torsoInclination: torsoIncl,
+        symmetryBalance: clampedBalance,
+        barVelocityMps: estimatedVelocityMps,
+        peakPowerWatts: estimatedWatts,
+        fatigueIndexPercent: Math.max(0, Math.min(60, validRepsRef.current * 3))
+      });
+    }
+
+    if (angle <= 0 || angle > 200) return;
+    const now = performance.now() / 1000;
 
     if (exercise !== 'shoulder_press') {
       // 1. Ready in Lockout
@@ -459,32 +472,11 @@ const SKELETON_CONNECTIONS: [number, number][] = [
     ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // 2. High-Responsiveness Landmark Smoothing (Zero Latency)
+    // 2. High-Responsiveness Landmark Smoothing via 1€ Adaptive Filter
     if (results.poseLandmarks) {
       const rawLandmarks = results.poseLandmarks;
-      if (!smoothedLandmarksRef.current || smoothedLandmarksRef.current.length !== rawLandmarks.length) {
-        smoothedLandmarksRef.current = rawLandmarks.map((p: any) => ({ ...p }));
-      } else {
-        smoothedLandmarksRef.current = rawLandmarks.map((p: any, idx: number) => {
-          const prev = smoothedLandmarksRef.current![idx];
-          const dx = p.x - prev.x;
-          const dy = p.y - prev.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          // Adaptive 1€ Low-Pass Filter:
-          // Stationary/subtle sensor noise: alpha = 0.18 -> laser-steady lines (0 jitter)
-          // Normal workout speed: alpha = 0.50 -> buttery smooth tracking
-          // High-speed athletic bursts: alpha = 0.85 -> instant zero lag
-          const alpha = dist < 0.003 ? 0.18 : dist < 0.015 ? 0.50 : 0.85;
-
-          return {
-            x: prev.x * (1 - alpha) + p.x * alpha,
-            y: prev.y * (1 - alpha) + p.y * alpha,
-            z: (prev.z || 0) * (1 - alpha) + (p.z || 0) * alpha,
-            visibility: p.visibility !== undefined ? p.visibility : 1.0
-          };
-        });
-      }
+      const filtered = poseFilterRef.current.filter(rawLandmarks, now);
+      smoothedLandmarksRef.current = filtered;
 
       const activeLandmarks = smoothedLandmarksRef.current;
       if (!activeLandmarks || activeLandmarks.length < 33) return;
@@ -511,7 +503,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
           const [i1, i2] = SKELETON_CONNECTIONS[i];
           const p1 = activeLandmarks[i1];
           const p2 = activeLandmarks[i2];
-          if (p1 && p2 && (p1.visibility ?? 0) > 0.60 && (p2.visibility ?? 0) > 0.60) {
+          if (p1 && p2 && (p1.visibility ?? 0) > 0.55 && (p2.visibility ?? 0) > 0.55) {
             ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
             ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
           }
@@ -521,7 +513,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         // 4. Batch Native Draw Black Joint Nodes with White Ring
         for (let i = 11; i < activeLandmarks.length; i++) {
           const p = activeLandmarks[i];
-          if (p && (p.visibility ?? 0) > 0.60) {
+          if (p && (p.visibility ?? 0) > 0.55) {
             const x = toScreenX(p.x);
             const y = toScreenY(p.y);
             ctx.beginPath();
@@ -541,7 +533,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         }
 
         const targetJoint = activeLandmarks[targetJointIndex];
-        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > 0.60) {
+        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > 0.55) {
           const jx = toScreenX(targetJoint.x);
           const jy = toScreenY(targetJoint.y);
 
