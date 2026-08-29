@@ -442,39 +442,37 @@ const SKELETON_CONNECTIONS: [number, number][] = [
   // -----------------------------------------------------------
   // Ultra-Fast Zero-Allocation Canvas Rendering Loop (120 FPS Target)
   // -----------------------------------------------------------
-  const renderFrame = useCallback((results: any) => {
-    isProcessingRef.current = false;
-
-    const now = performance.now();
-    const delta = now - lastFrameTimeRef.current;
-    lastFrameTimeRef.current = now;
-    if (delta > 0) {
-      setFps(Math.min(144, Math.round(1000 / delta)));
-    }
-
+  const renderFrame = useCallback((results: any, video: HTMLVideoElement) => {
     const canvas = canvasRef.current;
-    if (!canvas || !results.image) return;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    const imgW = results.image.width || 1280;
-    const imgH = results.image.height || 720;
+    const imgW = video.videoWidth || 1280;
+    const imgH = video.videoHeight || 720;
     if (canvas.width !== imgW || canvas.height !== imgH) {
       canvas.width = imgW;
       canvas.height = imgH;
     }
 
+    const now = performance.now();
+    const frameDelta = now - lastFrameTimeRef.current;
+    lastFrameTimeRef.current = now;
+    if (frameDelta > 0) {
+      const currentFps = Math.round(1000 / frameDelta);
+      setFps((prev) => Math.min(144, Math.round(prev * 0.85 + currentFps * 0.15)));
+    }
+
     // 1. Draw Mirrored Camera Frame
     ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.restore();
 
     // 2. High-Responsiveness Landmark Smoothing via 1€ Adaptive Filter
-    if (results.poseLandmarks) {
-      const rawLandmarks = results.poseLandmarks;
+    if (results && results.landmarks && results.landmarks.length > 0) {
+      const rawLandmarks = results.landmarks[0];
       const filtered = poseFilterRef.current.filter(rawLandmarks, now);
       smoothedLandmarksRef.current = filtered;
 
@@ -489,14 +487,13 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       const maxUpperVis = Math.max(leftShoulderVis, rightShoulderVis);
       const coreBodyVis = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
 
-      const isHumanPresent = exercise === 'pushup' ? maxUpperVis >= 0.40 : (coreBodyVis >= 0.48 || maxUpperVis >= 0.55);
+      const isHumanPresent = exercise === 'pushup' ? maxUpperVis >= 0.35 : (coreBodyVis >= 0.45 || maxUpperVis >= 0.50);
 
       if (isHumanPresent) {
         // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
         const toScreenX = (x: number) => (1.0 - x) * canvas.width;
         const toScreenY = (y: number) => y * canvas.height;
-
-        const minJointVis = exercise === 'pushup' ? 0.40 : 0.50;
+        const minJointVis = exercise === 'pushup' ? 0.35 : 0.45;
 
         // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
         ctx.strokeStyle = '#FFFFFF';
@@ -566,27 +563,44 @@ const SKELETON_CONNECTIONS: [number, number][] = [
   }, [exercise, primaryAngle, processKinematics]);
 
   // -----------------------------------------------------------
-  // Cross-Platform Mobile & Desktop Camera Engine
+  // Flagship Google MediaPipe Tasks Vision GPU Pipeline
   // -----------------------------------------------------------
   const startCamera = async () => {
     try {
-      const { Pose } = await import('@mediapipe/pose');
+      const { FilesetResolver, PoseLandmarker } = await import('@mediapipe/tasks-vision');
 
-      const pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      });
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
+      );
 
-      pose.setOptions({
-        modelComplexity: 1, // Full High-Precision Landmark Accuracy
-        smoothLandmarks: true,
-        enableSegmentation: false,
-        smoothSegmentation: false,
-        minDetectionConfidence: 0.70, // Rejects background clutter & false detections
-        minTrackingConfidence: 0.70
-      });
+      let poseLandmarker: any = null;
+      try {
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task',
+            delegate: 'GPU'
+          },
+          runningMode: 'VIDEO',
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.65,
+          minPosePresenceConfidence: 0.65,
+          minTrackingConfidence: 0.65
+        });
+      } catch (gpuErr) {
+        poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
+            delegate: 'CPU'
+          },
+          runningMode: 'VIDEO',
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.65,
+          minPosePresenceConfidence: 0.65,
+          minTrackingConfidence: 0.65
+        });
+      }
 
-      pose.onResults(renderFrame);
-      poseRef.current = pose;
+      poseRef.current = poseLandmarker;
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         alert('Camera access is not supported. Please use a secure HTTPS connection.');
@@ -624,16 +638,13 @@ const SKELETON_CONNECTIONS: [number, number][] = [
         sounds.playButtonClick();
         speak('AI Vision Active. Ready for workout.');
 
-        const processLoop = async () => {
-          if (videoRef.current && poseRef.current && videoRef.current.readyState >= 2) {
-            if (!isProcessingRef.current) {
-              isProcessingRef.current = true;
-              try {
-                await poseRef.current.send({ image: videoRef.current });
-              } catch (e) {
-                isProcessingRef.current = false;
-              }
-            }
+        const processLoop = () => {
+          if (videoRef.current && poseRef.current && videoRef.current.readyState >= 2 && !videoRef.current.paused) {
+            const now = performance.now();
+            try {
+              const results = poseRef.current.detectForVideo(videoRef.current, now);
+              renderFrame(results, videoRef.current);
+            } catch (e) {}
           }
           if (streamRef.current && streamRef.current.active) {
             animFrameIdRef.current = requestAnimationFrame(processLoop);
