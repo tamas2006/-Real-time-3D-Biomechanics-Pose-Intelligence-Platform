@@ -59,6 +59,8 @@ export function usePoseTracker(exercise: ExerciseType) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const poseRef = useRef<any>(null);
+  const drawingUtilsRef = useRef<any>(null);
+  const poseConnectionsRef = useRef<any>(null);
 
   // Industrial One-Euro Adaptive Low-Pass Filter
   const poseFilterRef = useRef<PoseLandmarksFilter>(new PoseLandmarksFilter(33, 0.7, 0.02));
@@ -468,94 +470,63 @@ const SKELETON_CONNECTIONS: [number, number][] = [
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
+
+    let activeLandmarks: any[] | null = null;
 
     // 2. High-Responsiveness Landmark Smoothing via 1€ Adaptive Filter
     if (results && results.landmarks && results.landmarks.length > 0) {
       const rawLandmarks = results.landmarks[0];
       const filtered = poseFilterRef.current.filter(rawLandmarks, now);
       smoothedLandmarksRef.current = filtered;
+      activeLandmarks = smoothedLandmarksRef.current;
 
-      const activeLandmarks = smoothedLandmarksRef.current;
-      if (!activeLandmarks || activeLandmarks.length < 33) return;
+      if (activeLandmarks && activeLandmarks.length >= 33 && drawingUtilsRef.current && poseConnectionsRef.current) {
+        // Draw Google's official anatomically correct pose connections in mirrored space!
+        drawingUtilsRef.current.drawConnectors(activeLandmarks, poseConnectionsRef.current, {
+          color: '#00F0FF',
+          lineWidth: 3.5
+        });
+        drawingUtilsRef.current.drawLandmarks(activeLandmarks, {
+          color: '#FFFFFF',
+          fillColor: '#000000',
+          lineWidth: 2,
+          radius: 4
+        });
+      }
+    }
+    ctx.restore();
 
-      // Gate: Only render skeleton when a real human athlete is in camera frame
-      const leftShoulderVis = activeLandmarks[11]?.visibility ?? 0;
-      const rightShoulderVis = activeLandmarks[12]?.visibility ?? 0;
-      const leftHipVis = activeLandmarks[23]?.visibility ?? 0;
-      const rightHipVis = activeLandmarks[24]?.visibility ?? 0;
-      const maxUpperVis = Math.max(leftShoulderVis, rightShoulderVis);
-      const coreBodyVis = (leftShoulderVis + rightShoulderVis + leftHipVis + rightHipVis) / 4;
+    // 3. Draw On-Joint Angle Badge in Screen Space
+    if (activeLandmarks && activeLandmarks.length >= 33) {
+      const toScreenX = (x: number) => (1.0 - x) * canvas.width;
+      const toScreenY = (y: number) => y * canvas.height;
 
-      const isHumanPresent = exercise === 'pushup' ? maxUpperVis >= 0.35 : (coreBodyVis >= 0.45 || maxUpperVis >= 0.50);
+      let targetJointIndex = 25; // Left knee
+      if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
+        targetJointIndex = (activeLandmarks[13]?.visibility ?? 0) >= (activeLandmarks[14]?.visibility ?? 0) ? 13 : 14;
+      }
 
-      if (isHumanPresent) {
-        // Coordinate converter: maps raw MediaPipe normalized (0..1) coords to mirrored screen space
-        const toScreenX = (x: number) => (1.0 - x) * canvas.width;
-        const toScreenY = (y: number) => y * canvas.height;
-        const minJointVis = exercise === 'pushup' ? 0.35 : 0.45;
+      const targetJoint = activeLandmarks[targetJointIndex];
+      if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > 0.35) {
+        const jx = toScreenX(targetJoint.x);
+        const jy = toScreenY(targetJoint.y);
 
-        // 3. Batch Native Draw Sharp Pure White Skeleton Lines (0.01ms CPU Time)
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 3.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.save();
+        ctx.translate(jx, jy);
+
+        ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.6)';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        for (let i = 0; i < SKELETON_CONNECTIONS.length; i++) {
-          const [i1, i2] = SKELETON_CONNECTIONS[i];
-          const p1 = activeLandmarks[i1];
-          const p2 = activeLandmarks[i2];
-          if (p1 && p2 && (p1.visibility ?? 0) > minJointVis && (p2.visibility ?? 0) > minJointVis) {
-            ctx.moveTo(toScreenX(p1.x), toScreenY(p1.y));
-            ctx.lineTo(toScreenX(p2.x), toScreenY(p2.y));
-          }
-        }
+        ctx.roundRect(-38, -32, 76, 24, 6);
+        ctx.fill();
         ctx.stroke();
 
-        // 4. Batch Native Draw Black Joint Nodes with White Ring
-        for (let i = 11; i < activeLandmarks.length; i++) {
-          const p = activeLandmarks[i];
-          if (p && (p.visibility ?? 0) > minJointVis) {
-            const x = toScreenX(p.x);
-            const y = toScreenY(p.y);
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = '#000000';
-            ctx.fill();
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
-        }
-
-        // 5. Draw Minimalist Monochrome On-Joint Angle Badge
-        let targetJointIndex = 25; // Left knee
-        if (exercise === 'bicep_curl' || exercise === 'pushup' || exercise === 'shoulder_press') {
-          targetJointIndex = (activeLandmarks[13]?.visibility ?? 0) >= (activeLandmarks[14]?.visibility ?? 0) ? 13 : 14;
-        }
-
-        const targetJoint = activeLandmarks[targetJointIndex];
-        if (targetJoint && primaryAngle > 0 && (targetJoint.visibility ?? 0) > minJointVis) {
-          const jx = toScreenX(targetJoint.x);
-          const jy = toScreenY(targetJoint.y);
-
-          ctx.save();
-          ctx.translate(jx, jy);
-
-          ctx.fillStyle = 'rgba(8, 8, 8, 0.92)';
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.roundRect(-38, -32, 76, 24, 6);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#FFFFFF';
-          ctx.font = 'bold 12px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${primaryAngle}°`, 0, -16);
-          ctx.restore();
-        }
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${primaryAngle}°`, 0, -16);
+        ctx.restore();
       }
 
       processKinematics(activeLandmarks);
@@ -567,7 +538,16 @@ const SKELETON_CONNECTIONS: [number, number][] = [
   // -----------------------------------------------------------
   const startCamera = async () => {
     try {
-      const { FilesetResolver, PoseLandmarker } = await import('@mediapipe/tasks-vision');
+      const { FilesetResolver, PoseLandmarker, DrawingUtils } = await import('@mediapipe/tasks-vision');
+
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d', { alpha: false });
+        if (ctx) {
+          drawingUtilsRef.current = new DrawingUtils(ctx);
+        }
+      }
+      poseConnectionsRef.current = PoseLandmarker.POSE_CONNECTIONS;
 
       const vision = await FilesetResolver.forVisionTasks(
         'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
