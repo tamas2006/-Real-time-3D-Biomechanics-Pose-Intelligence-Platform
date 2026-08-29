@@ -470,6 +470,7 @@ const SKELETON_CONNECTIONS: [number, number][] = [
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     let activeLandmarks: any[] | null = null;
 
@@ -480,21 +481,65 @@ const SKELETON_CONNECTIONS: [number, number][] = [
       smoothedLandmarksRef.current = filtered;
       activeLandmarks = smoothedLandmarksRef.current;
 
-      if (activeLandmarks && activeLandmarks.length >= 33 && drawingUtilsRef.current && poseConnectionsRef.current) {
-        // Draw Google's official anatomically correct pose connections in mirrored space!
-        drawingUtilsRef.current.drawConnectors(activeLandmarks, poseConnectionsRef.current, {
-          color: '#00F0FF',
-          lineWidth: 3.5
-        });
-        drawingUtilsRef.current.drawLandmarks(activeLandmarks, {
-          color: '#FFFFFF',
-          fillColor: '#000000',
-          lineWidth: 2,
-          radius: 4
-        });
+      if (activeLandmarks && activeLandmarks.length >= 33) {
+        // High-Precision Coordinate converter: maps raw MediaPipe normalized coords (0..1) to mirrored canvas pixels
+        const toX = (x: number) => (1.0 - x) * canvas.width;
+        const toY = (y: number) => y * canvas.height;
+        const minVis = 0.55;
+
+        // Anatomical Connection Topology
+        const LEFT_ARM = [[11, 13], [13, 15]];
+        const RIGHT_ARM = [[12, 14], [14, 16]];
+        const TORSO = [[11, 12], [11, 23], [12, 24], [23, 24]];
+        const LEFT_LEG = [[23, 25], [25, 27], [27, 29], [27, 31]];
+        const RIGHT_LEG = [[24, 26], [26, 28], [28, 30], [28, 32]];
+        const HEAD = [[0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8], [9, 10]];
+
+        // Helper function to draw visibility-filtered limbs
+        const drawLimbGroup = (pairs: number[][], strokeColor: string, lineWidth = 4) => {
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = lineWidth;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          for (let i = 0; i < pairs.length; i++) {
+            const [i1, i2] = pairs[i];
+            const p1 = activeLandmarks![i1];
+            const p2 = activeLandmarks![i2];
+            if (p1 && p2 && (p1.visibility ?? 1) > minVis && (p2.visibility ?? 1) > minVis) {
+              ctx.moveTo(toX(p1.x), toY(p1.y));
+              ctx.lineTo(toX(p2.x), toY(p2.y));
+            }
+          }
+          ctx.stroke();
+        };
+
+        // Draw Color-Coded Anatomical Skeleton (Cyan for Left, Green for Right, White for Core)
+        drawLimbGroup(HEAD, 'rgba(255, 255, 255, 0.4)', 2);
+        drawLimbGroup(TORSO, '#FFFFFF', 4.5);
+        drawLimbGroup(LEFT_ARM, '#00F2FE', 4);
+        drawLimbGroup(RIGHT_ARM, '#38EF7D', 4);
+        drawLimbGroup(LEFT_LEG, '#00F2FE', 4);
+        drawLimbGroup(RIGHT_LEG, '#38EF7D', 4);
+
+        // Draw High-Contrast Joint Nodes (Only for high-confidence detected joints)
+        for (let i = 0; i < activeLandmarks.length; i++) {
+          const p = activeLandmarks[i];
+          if (p && (p.visibility ?? 1) > minVis) {
+            const px = toX(p.x);
+            const py = toY(p.y);
+
+            ctx.beginPath();
+            ctx.arc(px, py, i <= 10 ? 3 : 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#000000';
+            ctx.fill();
+            ctx.strokeStyle = i % 2 === 1 ? '#00F2FE' : '#38EF7D';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
       }
     }
-    ctx.restore();
 
     // 3. Draw On-Joint Angle Badge in Screen Space
     if (activeLandmarks && activeLandmarks.length >= 33) {
@@ -563,9 +608,9 @@ const SKELETON_CONNECTIONS: [number, number][] = [
           },
           runningMode: 'VIDEO',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.50,
-          minPosePresenceConfidence: 0.50,
-          minTrackingConfidence: 0.50
+          minPoseDetectionConfidence: 0.65,
+          minPosePresenceConfidence: 0.65,
+          minTrackingConfidence: 0.65
         });
       } catch (gpuErr) {
         // High-speed CPU WASM-SIMD fallback for integrated graphics & laptops
@@ -576,9 +621,9 @@ const SKELETON_CONNECTIONS: [number, number][] = [
           },
           runningMode: 'VIDEO',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.50,
-          minPosePresenceConfidence: 0.50,
-          minTrackingConfidence: 0.50
+          minPoseDetectionConfidence: 0.65,
+          minPosePresenceConfidence: 0.65,
+          minTrackingConfidence: 0.65
         });
       }
 
