@@ -575,28 +575,30 @@ const SKELETON_CONNECTIONS: [number, number][] = [
 
       let poseLandmarker: any = null;
       try {
+        // High-speed optimized float16 model with GPU WebGL Acceleration
         poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task',
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
             delegate: 'GPU'
           },
           runningMode: 'VIDEO',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.65,
-          minPosePresenceConfidence: 0.65,
-          minTrackingConfidence: 0.65
+          minPoseDetectionConfidence: 0.50,
+          minPosePresenceConfidence: 0.50,
+          minTrackingConfidence: 0.50
         });
       } catch (gpuErr) {
+        // High-speed CPU WASM-SIMD fallback for integrated graphics & laptops
         poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
             delegate: 'CPU'
           },
           runningMode: 'VIDEO',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.65,
-          minPosePresenceConfidence: 0.65,
-          minTrackingConfidence: 0.65
+          minPoseDetectionConfidence: 0.50,
+          minPosePresenceConfidence: 0.50,
+          minTrackingConfidence: 0.50
         });
       }
 
